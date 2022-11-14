@@ -31,6 +31,33 @@ impl Plugin for WeaponPlugin {
     }
 }
 
+#[derive(Bundle)]
+pub struct ProjectileBundle {
+    projectile: Projectile,
+    visibility: Visibility,
+    transform: Transform,
+    global_transform: GlobalTransform,
+    rigidbody: RigidBody,
+    velocity: Velocity,
+    mass_properties: ColliderMassProperties,
+    collider: Collider,
+}
+
+impl Default for ProjectileBundle {
+    fn default() -> Self {
+        Self {
+            projectile: Projectile,
+            visibility: Visibility { is_visible: true },
+            velocity: Default::default(),
+            transform: Default::default(),
+            global_transform: Default::default(),
+            rigidbody: RigidBody::Dynamic,
+            mass_properties: ColliderMassProperties::Density(1.),
+            collider: Collider::ball(5.),
+        }
+    }
+}
+
 pub fn Peashooter() -> Weapon {
     Weapon {
         fire_func: Box::new(move |a: &mut WeaponArguments| {
@@ -39,20 +66,13 @@ pub fn Peashooter() -> Weapon {
             let fire_direction =
                 Vec3::normalize(cursor_transform.translation - parent_transform.translation);
             a.commands
-                .spawn()
-                .insert(Projectile)
-                .insert_bundle(SpatialBundle {
-                    visibility: Visibility { is_visible: true },
-                    transform: parent_transform,
+                .spawn_bundle(ProjectileBundle {
+                    velocity: Velocity {
+                        linvel: fire_direction.truncate() * 5000.,
+                        angvel: 0.,
+                    },
                     ..Default::default()
                 })
-                .insert(RigidBody::Dynamic)
-                .insert(ColliderMassProperties::Density(0.2))
-                .insert(Velocity {
-                    linvel: fire_direction.truncate() * 5000.,
-                    angvel: 0.,
-                })
-                .insert(Collider::ball(5.))
                 .insert_bundle(GeometryBuilder::build_as(
                     &shapes::Circle {
                         radius: 5.,
