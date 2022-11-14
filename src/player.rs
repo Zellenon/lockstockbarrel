@@ -1,6 +1,7 @@
 use crate::{
     actors::{Legs, Tracking},
     utils::*,
+    weapons::{FireWeaponEvent, Peashooter, Weapon},
 };
 
 use bevy::{prelude::*, render::view::visibility};
@@ -23,6 +24,7 @@ impl Plugin for PlayerPlugin {
         app.add_startup_system(player_setup)
             .add_system(update_cursor_tracker)
             .add_system(keyboard_input_handler)
+            .add_system(fire_weapons)
             .add_system(camera_movement);
     }
 }
@@ -86,6 +88,8 @@ pub fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                     ..Default::default()
                 })
                 .insert(Legs::default());
+
+            parent.spawn().insert(Peashooter());
         });
 }
 
@@ -125,6 +129,25 @@ fn keyboard_input_handler(
     }
     let mut force: &mut ExternalForce = &mut *player.get_single_mut().unwrap();
     force.force = total_force;
+}
+
+fn fire_weapons(
+    buttons: Res<Input<MouseButton>>,
+    mut events: EventWriter<FireWeaponEvent>,
+    weapons: Query<Entity, With<Weapon>>,
+    player_query: Query<&Children, With<Player>>,
+) {
+    if buttons.just_pressed(MouseButton::Left) {
+        for &child in player_query.single().iter() {
+            match weapons.get(child) {
+                Ok(entity) => events.send(FireWeaponEvent {
+                    weapon: entity,
+                    target: None,
+                }),
+                Err(_) => (),
+            }
+        }
+    }
 }
 
 fn camera_movement(

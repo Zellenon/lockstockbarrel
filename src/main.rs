@@ -6,10 +6,12 @@ use bevy_prototype_lyon::prelude as lyon;
 use bevy_prototype_lyon::prelude::ShapePlugin;
 use bevy_rapier2d::prelude::*;
 use player::PlayerPlugin;
+use weapons::WeaponPlugin;
 
 mod actors;
 mod player;
 mod utils;
+mod weapons;
 
 fn main() {
     let mut window_desc = WindowDescriptor::default();
@@ -30,6 +32,7 @@ fn main() {
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(50.))
         .add_plugin(PlayerPlugin)
         .add_plugin(ActorPlugin)
+        .add_plugin(WeaponPlugin)
         .add_plugin(WorldInspectorPlugin::new())
         .run();
 }
@@ -57,8 +60,8 @@ fn spawn_walls(mut commands: Commands) {
             .insert(Collider::cuboid(width / 2., height / 2.))
             .insert(Transform::from_xyz(x, y, 0.0));
     };
-    build_wall(-1000., 0., 20., 2000.);
-    build_wall(1000., 0., 20., 2000.);
-    build_wall(0., 1000., 2000., 20.);
-    build_wall(0., -1000., 2000., 20.);
+    build_wall(-1000., 0., 50., 2000.);
+    build_wall(1000., 0., 50., 2000.);
+    build_wall(0., 1000., 2000., 50.);
+    build_wall(0., -1000., 2000., 50.);
 }
