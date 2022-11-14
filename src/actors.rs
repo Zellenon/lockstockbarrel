@@ -1,6 +1,5 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::{Inspectable, RegisterInspectable};
-use bevy_prototype_lyon::prelude as lyon;
+use bevy_inspector_egui::Inspectable;
 use bevy_rapier2d::prelude::*;
 
 use crate::utils::get_angle;
@@ -32,7 +31,6 @@ impl Plugin for ActorPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Legs>()
             .add_system(facing_update_system)
-            // .add_system(turn_legs)
             .add_system(animate_legs);
     }
 }
@@ -48,7 +46,6 @@ fn facing_update_system(
     )>,
     parents: Query<&Velocity>,
 ) {
-    // let cursor_transform = *transforms.get(cursor.0).unwrap();
     for entity in todo_entities.iter() {
         let entity = entity.clone();
         let target = transforms.get(entity).unwrap().1.unwrap().0;
@@ -59,7 +56,7 @@ fn facing_update_system(
             }
             None => match parents.get(transforms.get(entity).unwrap().4.unwrap().get()) {
                 Ok(parent_vel) => (parent_vel.linvel * -1.).extend(0.),
-                Err(e) => Vec3::Y,
+                Err(_) => Vec3::Y,
             },
         };
         let transform: &mut Transform = &mut transforms.get_mut(entity).unwrap().3;
