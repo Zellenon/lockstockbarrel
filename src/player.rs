@@ -1,9 +1,9 @@
 use crate::{
-    actors::{Trackable, Tracking},
+    actors::{Legs, Tracking},
     utils::*,
 };
 
-use bevy::prelude::*;
+use bevy::{prelude::*, render::view::visibility};
 use bevy_rapier2d::prelude::*;
 
 #[derive(Component)]
@@ -27,40 +27,66 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-pub fn player_setup(mut commands: Commands) {
+pub fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     let camera_entity = commands.spawn_bundle(Camera2dBundle::default()).id();
     commands.insert_resource(MainCamera(camera_entity));
 
     let cursor_entity = commands
-        .spawn()
+        .spawn_bundle(SpatialBundle::default())
         .insert(CursorTracker)
-        .insert(Transform::default())
         .id();
     commands.insert_resource(Cursor(cursor_entity));
 
-    commands // Player
-        .spawn_bundle(SpriteBundle {
-            sprite: Sprite {
-                custom_size: Vec2::new(30., 30.).into(),
-                ..Default::default()
-            },
-            // transform: Transform::from_xyz(10., 00., 0.),
+    let player = commands
+        .spawn() // Player
+        .insert_bundle(SpatialBundle {
+            visibility: Visibility { is_visible: true },
             ..Default::default()
         })
         .insert(RigidBody::Dynamic)
         .insert(ColliderMassProperties::Density(0.3))
+        .insert(Velocity::default())
         .insert(Damping {
             linear_damping: 20.,
             angular_damping: 1.0,
         })
-        .insert(ExternalForce {
-            force: Vec2::new(0., 0.),
-            torque: 0.,
-        })
+        .insert(ExternalForce::default())
         .insert(Player)
-        .insert(Tracking(Trackable::TrackedEntity(cursor_entity)))
-        // .insert(Collider::cuboid(15., 15.));
-        .insert(Collider::ball(15.));
+        .insert(Collider::ball(15.))
+        .insert(LockedAxes::ROTATION_LOCKED)
+        .with_children(|parent| {
+            parent
+                .spawn_bundle(SpriteBundle {
+                    sprite: Sprite {
+                        custom_size: Vec2::new(40., 40.).into(),
+                        ..Default::default()
+                    },
+                    texture: asset_server.load("img/player_head.png"),
+                    ..Default::default()
+                })
+                .insert_bundle(SpatialBundle {
+                    visibility: Visibility { is_visible: true },
+                    ..Default::default()
+                })
+                .insert(Tracking(Some(cursor_entity)));
+
+            parent
+                .spawn_bundle(SpriteBundle {
+                    sprite: Sprite {
+                        custom_size: Vec2::new(30., 35.).into(),
+                        ..Default::default()
+                    },
+                    texture: asset_server.load("img/player_legs.png"),
+                    ..Default::default()
+                })
+                .insert(Tracking(None))
+                .insert_bundle(SpatialBundle {
+                    visibility: Visibility { is_visible: true },
+                    transform: Transform::from_xyz(0., 0., -1.),
+                    ..Default::default()
+                })
+                .insert(Legs::default());
+        });
 }
 
 pub fn update_cursor_tracker(
@@ -99,13 +125,14 @@ fn keyboard_input_handler(
     let mut force: &mut ExternalForce = &mut *player.get_single_mut().unwrap();
     force.force = total_force;
 }
+
 fn camera_movement(
     cursor: Query<Entity, With<CursorTracker>>,
     player: Query<Entity, With<Player>>,
     camera: Res<MainCamera>,
     mut transforms: Query<&mut Transform>,
 ) {
-    let player_weight = 0.6;
+    let player_weight = 0.7;
     let drag = 0.15;
     let cursor_loc = transforms.get(cursor.single()).unwrap().translation;
     let player_loc = transforms.get(player.single()).unwrap().translation;
