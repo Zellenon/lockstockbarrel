@@ -91,15 +91,16 @@ pub fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
 pub fn update_cursor_tracker(
     mut transforms: Query<&mut Transform>,
-    mut events: EventReader<CursorMoved>,
     windows: Res<Windows>,
     cam: Res<MainCamera>,
     cursor: Res<Cursor>,
 ) {
     let camera_transform = transforms.get(cam.0).unwrap().clone();
     let mut cursor_transform = transforms.get_mut(cursor.0).unwrap();
-    for event in events.iter() {
-        let new_cursor_pos = screen_to_world(event.position, &camera_transform, &windows);
+    let window = windows.get_primary().unwrap();
+
+    if let Some(_position) = window.cursor_position() {
+        let new_cursor_pos = screen_to_world(_position, &camera_transform, &windows);
         cursor_transform.translation = new_cursor_pos.extend(0.);
     }
 }
