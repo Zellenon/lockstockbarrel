@@ -4,6 +4,9 @@ use bevy_rapier2d::prelude::*;
 
 use crate::utils::get_angle;
 
+#[derive(Component)]
+pub struct Actor;
+
 #[derive(Component, Inspectable)]
 pub struct Tracking(pub Option<Entity>);
 
