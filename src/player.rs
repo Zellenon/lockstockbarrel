@@ -1,5 +1,6 @@
 use crate::{
-    actors::{Legs, Tracking},
+    actors::{Actor, Legs, Tracking},
+    stats::Speed,
     utils::*,
     weapons::{FireWeaponEvent, Peashooter, Weapon},
 };
@@ -41,6 +42,8 @@ pub fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
     let player = commands
         .spawn() // Player
+        .insert(Actor)
+        .insert(Speed(1500.))
         .insert_bundle(SpatialBundle {
             visibility: Visibility { is_visible: true },
             ..Default::default()
@@ -111,9 +114,9 @@ pub fn update_cursor_tracker(
 
 fn keyboard_input_handler(
     keyboard_input: Res<Input<KeyCode>>,
-    mut player: Query<&mut ExternalForce, With<Player>>,
+    mut player_query: Query<(&mut ExternalForce, &Speed), With<Player>>,
 ) {
-    let speed = 1500.;
+    let (mut force, Speed(speed)) = player_query.single_mut();
     let mut total_force = Vec2::new(0., 0.);
     if keyboard_input.pressed(KeyCode::A) {
         total_force.x += -speed;
@@ -127,7 +130,7 @@ fn keyboard_input_handler(
     if keyboard_input.pressed(KeyCode::S) {
         total_force.y += -speed;
     }
-    let mut force: &mut ExternalForce = &mut *player.get_single_mut().unwrap();
+    let mut force: &mut ExternalForce = &mut force;
     force.force = total_force;
 }
 
