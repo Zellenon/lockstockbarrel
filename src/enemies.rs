@@ -34,6 +34,12 @@ impl Plugin for EnemyPlugin {
 }
 
 fn enemy_setup(mut commands: Commands) {
+    spawn_enemy(&mut commands, Vec2::new(500., 0.));
+    spawn_enemy(&mut commands, Vec2::new(0., 500.));
+    spawn_enemy(&mut commands, Vec2::new(-500., 0.));
+}
+
+fn spawn_enemy(commands: &mut Commands, location: Vec2) {
     commands
         .spawn() // Player
         .insert(Actor)
@@ -41,7 +47,7 @@ fn enemy_setup(mut commands: Commands) {
         .insert(Speed(500.))
         .insert_bundle(SpatialBundle {
             visibility: Visibility { is_visible: true },
-            transform: Transform::from_xyz(100., 20., 0.),
+            transform: Transform::from_translation(location.extend(0.)),
             ..Default::default()
         })
         .insert(RigidBody::Dynamic)
