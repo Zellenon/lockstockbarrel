@@ -58,7 +58,7 @@ fn facing_update_system(
                     - transforms.get(entity).unwrap().0.translation()
             }
             None => match parents.get(transforms.get(entity).unwrap().4.unwrap().get()) {
-                Ok(parent_vel) => (parent_vel.linvel * -1.).extend(0.),
+                Ok(parent_vel) => (parent_vel.linvel * 1.).extend(0.),
                 Err(_) => Vec3::Y,
             },
         };
