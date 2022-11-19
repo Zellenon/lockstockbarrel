@@ -1,71 +1,30 @@
-use std::time::Duration;
-
 use bevy::prelude::*;
 use bevy_prototype_lyon::prelude::*;
-use bevy_rapier2d::prelude::{Collider, ColliderMassProperties, RigidBody, Velocity};
+use bevy_rapier2d::prelude::{Ccd, ColliderMassProperties, Velocity};
 
-use crate::player::CursorTracker;
-
-#[derive(Component)]
-pub struct Lifespan(Timer);
-
-impl Default for Lifespan {
-    fn default() -> Self {
-        Self(Timer::new(Duration::from_millis(400), false))
-    }
-}
-
-#[derive(Component)]
-
-pub struct Projectile;
-
-#[derive(Bundle)]
-pub struct ProjectileBundle {
-    projectile: Projectile,
-    visibility: Visibility,
-    transform: Transform,
-    global_transform: GlobalTransform,
-    rigidbody: RigidBody,
-    velocity: Velocity,
-    mass_properties: ColliderMassProperties,
-    collider: Collider,
-}
-
-impl Default for ProjectileBundle {
-    fn default() -> Self {
-        Self {
-            projectile: Projectile,
-            visibility: Visibility { is_visible: true },
-            velocity: Default::default(),
-            transform: Default::default(),
-            global_transform: Default::default(),
-            rigidbody: RigidBody::Dynamic,
-            mass_properties: ColliderMassProperties::Density(1.),
-            collider: Collider::ball(5.),
-        }
-    }
-}
+use crate::{
+    player::CursorTracker,
+    projectile::{Lifespan, ProjectileBundle},
+};
 
 #[derive(Component)]
 pub struct Weapon {
     fire_func: Box<dyn Fn(&mut WeaponArguments) + Send + Sync>,
 }
 
-pub struct WeaponArguments<'c, 'w, 's, 'C, 'W, 'S> {
+pub struct WeaponArguments<'c, 'w, 's, 'c2, 'w2, 's2> {
     pub commands: &'c mut Commands<'w, 's>,
     pub cursor: Entity,
     pub target: Option<Entity>,
     pub parent: Entity,
-    pub transforms: Query<'C, 'W, &'S Transform>,
+    pub transforms: Query<'c2, 'w2, &'s2 Transform>,
 }
 
 pub struct WeaponPlugin;
 
 impl Plugin for WeaponPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<FireWeaponEvent>()
-            .add_system(fire_weapons)
-            .add_system(tick_lifetimes);
+        app.add_event::<FireWeaponEvent>().add_system(fire_weapons);
     }
 }
 
@@ -86,7 +45,7 @@ pub fn fire_weapons(
         cursor: cursor.single(),
         target: None,
         parent: Entity::from_raw(0),
-        transforms: transforms,
+        transforms,
     };
     for FireWeaponEvent { weapon, target } in events.iter() {
         args.target = *target;
@@ -96,21 +55,7 @@ pub fn fire_weapons(
     // args.target = None;
 }
 
-fn tick_lifetimes(
-    mut commands: Commands,
-    time: Res<Time>,
-    mut lifespans: Query<(&mut Lifespan, Entity)>,
-) {
-    for (mut lifespan, entity) in lifespans.iter_mut() {
-        lifespan.0.tick(time.delta());
-
-        if lifespan.0.finished() {
-            commands.entity(entity).despawn_recursive();
-        }
-    }
-}
-
-pub fn Peashooter() -> Weapon {
+pub fn make_peashooter() -> Weapon {
     Weapon {
         fire_func: Box::new(move |a: &mut WeaponArguments| {
             let parent_transform = a.transforms.get(a.parent).unwrap().clone();
@@ -118,15 +63,17 @@ pub fn Peashooter() -> Weapon {
             let fire_direction =
                 Vec3::normalize(cursor_transform.translation - parent_transform.translation);
             a.commands
-                .spawn_bundle(ProjectileBundle {
+                .spawn(ProjectileBundle {
                     velocity: Velocity {
                         linvel: fire_direction.truncate() * 7000.,
                         angvel: 0.,
                     },
                     ..Default::default()
                 })
+                .insert(Ccd::enabled())
+                .insert(ColliderMassProperties::Density(3.))
                 .insert(Lifespan::default())
-                .insert_bundle(GeometryBuilder::build_as(
+                .insert(GeometryBuilder::build_as(
                     &shapes::Circle {
                         radius: 5.,
                         center: Vec2::ZERO,

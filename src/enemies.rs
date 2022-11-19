@@ -5,8 +5,8 @@ use bevy_rapier2d::prelude::{
 
 use crate::{
     actors::{Actor, Legs, Tracking},
+    ai::TrackerAI,
     stats::Speed,
-    AI::TrackerAI,
 };
 
 #[derive(Component)]
@@ -41,11 +41,11 @@ fn enemy_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
 fn spawn_enemy(commands: &mut Commands, location: Vec2, asset_server: &Res<AssetServer>) {
     commands
-        .spawn() // Player
+        .spawn(Enemy::default())
         .insert(Actor)
         .insert(TrackerAI)
         .insert(Speed(500.))
-        .insert_bundle(SpatialBundle {
+        .insert(SpatialBundle {
             visibility: Visibility { is_visible: true },
             transform: Transform::from_translation(location.extend(0.)),
             ..Default::default()
@@ -58,12 +58,11 @@ fn spawn_enemy(commands: &mut Commands, location: Vec2, asset_server: &Res<Asset
             angular_damping: 1.0,
         })
         .insert(ExternalForce::default())
-        .insert(Enemy::default())
         .insert(Collider::ball(15.))
         .insert(LockedAxes::ROTATION_LOCKED)
         .with_children(|parent| {
             parent
-                .spawn_bundle(SpriteBundle {
+                .spawn(SpriteBundle {
                     sprite: Sprite {
                         custom_size: Vec2::new(40., 40.).into(),
                         ..Default::default()
@@ -71,14 +70,14 @@ fn spawn_enemy(commands: &mut Commands, location: Vec2, asset_server: &Res<Asset
                     texture: asset_server.load("img/placeholder_head.png"),
                     ..Default::default()
                 })
-                .insert_bundle(SpatialBundle {
+                .insert(SpatialBundle {
                     visibility: Visibility { is_visible: true },
                     ..Default::default()
                 })
                 .insert(Tracking(None));
 
             parent
-                .spawn_bundle(SpriteBundle {
+                .spawn(SpriteBundle {
                     sprite: Sprite {
                         custom_size: Vec2::new(30., 35.).into(),
                         ..Default::default()
@@ -87,7 +86,7 @@ fn spawn_enemy(commands: &mut Commands, location: Vec2, asset_server: &Res<Asset
                     ..Default::default()
                 })
                 .insert(Tracking(None))
-                .insert_bundle(SpatialBundle {
+                .insert(SpatialBundle {
                     visibility: Visibility { is_visible: true },
                     transform: Transform::from_xyz(0., 0., -1.),
                     ..Default::default()

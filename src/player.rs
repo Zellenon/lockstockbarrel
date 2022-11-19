@@ -2,17 +2,19 @@ use crate::{
     actors::{Actor, Legs, Tracking},
     stats::Speed,
     utils::*,
-    weapons::{FireWeaponEvent, Peashooter, Weapon},
+    weapons::{make_peashooter, FireWeaponEvent, Weapon},
 };
 
-use bevy::{prelude::*, render::view::visibility};
+use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-#[derive(Component)]
+#[derive(Component, Resource)]
 pub struct MainCamera(Entity);
 
 #[derive(Component)]
 pub struct CursorTracker;
+
+#[derive(Component, Resource)]
 pub struct Cursor(Entity);
 
 #[derive(Component)]
@@ -31,20 +33,20 @@ impl Plugin for PlayerPlugin {
 }
 
 pub fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let camera_entity = commands.spawn_bundle(Camera2dBundle::default()).id();
+    let camera_entity = commands.spawn(Camera2dBundle::default()).id();
     commands.insert_resource(MainCamera(camera_entity));
 
     let cursor_entity = commands
-        .spawn_bundle(SpatialBundle::default())
+        .spawn(SpatialBundle::default())
         .insert(CursorTracker)
         .id();
     commands.insert_resource(Cursor(cursor_entity));
 
     let player = commands
-        .spawn() // Player
+        .spawn(Player)
         .insert(Actor)
         .insert(Speed(1500.))
-        .insert_bundle(SpatialBundle {
+        .insert(SpatialBundle {
             visibility: Visibility { is_visible: true },
             ..Default::default()
         })
@@ -56,12 +58,11 @@ pub fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             angular_damping: 1.0,
         })
         .insert(ExternalForce::default())
-        .insert(Player)
         .insert(Collider::ball(15.))
         .insert(LockedAxes::ROTATION_LOCKED)
         .with_children(|parent| {
             parent
-                .spawn_bundle(SpriteBundle {
+                .spawn(SpriteBundle {
                     sprite: Sprite {
                         custom_size: Vec2::new(40., 40.).into(),
                         ..Default::default()
@@ -69,14 +70,14 @@ pub fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                     texture: asset_server.load("img/player_head.png"),
                     ..Default::default()
                 })
-                .insert_bundle(SpatialBundle {
+                .insert(SpatialBundle {
                     visibility: Visibility { is_visible: true },
                     ..Default::default()
                 })
                 .insert(Tracking(Some(cursor_entity)));
 
             parent
-                .spawn_bundle(SpriteBundle {
+                .spawn(SpriteBundle {
                     sprite: Sprite {
                         custom_size: Vec2::new(30., 35.).into(),
                         ..Default::default()
@@ -85,14 +86,14 @@ pub fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                     ..Default::default()
                 })
                 .insert(Tracking(None))
-                .insert_bundle(SpatialBundle {
+                .insert(SpatialBundle {
                     visibility: Visibility { is_visible: true },
                     transform: Transform::from_xyz(0., 0., -1.),
                     ..Default::default()
                 })
                 .insert(Legs::default());
 
-            parent.spawn().insert(Peashooter());
+            parent.spawn(make_peashooter());
         });
 }
 
