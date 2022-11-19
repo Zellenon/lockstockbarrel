@@ -1,5 +1,6 @@
 use actors::ActorPlugin;
-use bevy::asset::AssetServerSettings;
+use ai::AIPlugin;
+// use bevy::asset::AssetServerSettings;
 use bevy::prelude::*;
 use bevy_inspector_egui::WorldInspectorPlugin;
 use bevy_prototype_lyon::prelude as lyon;
@@ -8,28 +9,28 @@ use bevy_rapier2d::prelude::*;
 use enemies::EnemyPlugin;
 use player::PlayerPlugin;
 use weapons::WeaponPlugin;
-use AI::AIPlugin;
 
-mod AI;
 mod actors;
+mod ai;
 mod enemies;
 mod player;
+mod projectile;
 mod stats;
 mod utils;
 mod weapons;
 
 fn main() {
-    let mut window_desc = WindowDescriptor::default();
-    window_desc.width = 1600.0;
-    window_desc.height = 900.0;
-    window_desc.title = "Bevy Rider".to_string();
+    // let mut window_desc = WindowDescriptor::default();
+    // window_desc.width = 1600.0;
+    // window_desc.height = 900.0;
+    // window_desc.title = "Bevy Rider".to_string();
     App::new()
-        .insert_resource(window_desc)
+        // .insert_resource(window_desc)
         // Enable hot reloading
-        .insert_resource(AssetServerSettings {
-            watch_for_changes: true,
-            ..default()
-        })
+        // .insert_resource(AssetServerSettings {
+        //     watch_for_changes: true,
+        //     ..default()
+        // })
         .add_startup_system(setup)
         .add_startup_system(spawn_walls)
         .add_plugins(DefaultPlugins)
@@ -51,8 +52,7 @@ fn setup(mut commands: Commands, mut rapier_config: ResMut<RapierConfiguration>)
 fn spawn_walls(mut commands: Commands) {
     let mut build_wall = |x, y, width, height| {
         commands
-            .spawn()
-            .insert_bundle(lyon::GeometryBuilder::build_as(
+            .spawn(lyon::GeometryBuilder::build_as(
                 &lyon::shapes::Rectangle {
                     extents: Vec2::new(width, height),
                     origin: lyon::shapes::RectangleOrigin::Center,
