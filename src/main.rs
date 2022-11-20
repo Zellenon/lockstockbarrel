@@ -32,11 +32,10 @@ fn main() {
         //     watch_for_changes: true,
         //     ..default()
         // })
-        .add_startup_system(setup)
-        .add_startup_system(spawn_walls)
         .add_plugins(DefaultPlugins)
-        .add_plugin(ShapePlugin)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(50.))
+        // .add_plugin(RapierDebugRenderPlugin::default())
+        .add_plugin(ShapePlugin)
         .add_plugin(PlayerPlugin)
         .add_plugin(ActorPlugin)
         .add_plugin(WeaponPlugin)
@@ -44,6 +43,8 @@ fn main() {
         .add_plugin(EnemyPlugin)
         .add_plugin(AIPlugin)
         .add_plugin(WorldInspectorPlugin::new())
+        .add_startup_system(setup)
+        .add_startup_system(spawn_walls)
         .run();
 }
 

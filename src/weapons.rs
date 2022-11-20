@@ -1,6 +1,12 @@
 use bevy::prelude::*;
 use bevy_prototype_lyon::prelude::*;
-use bevy_rapier2d::prelude::{Ccd, ColliderMassProperties, Velocity};
+use bevy_rapier2d::{
+    prelude::{
+        ActiveCollisionTypes, ActiveEvents, Ccd, ColliderMassProperties,
+        ContactForceEventThreshold, Sensor, Velocity,
+    },
+    rapier::prelude::CollisionEventFlags,
+};
 
 use crate::{
     player::CursorTracker,
@@ -73,6 +79,7 @@ pub fn make_peashooter() -> Weapon {
                 .insert(Ccd::enabled())
                 .insert(ColliderMassProperties::Density(3.))
                 .insert(Lifespan::default())
+                // .insert(Sensor)
                 .insert(GeometryBuilder::build_as(
                     &shapes::Circle {
                         radius: 5.,
@@ -83,8 +90,11 @@ pub fn make_peashooter() -> Weapon {
                         outline_mode: StrokeMode::color(Color::BLACK),
                     },
                     parent_transform
-                        .with_translation(parent_transform.translation + fire_direction * 20.),
-                ));
+                        .with_translation(parent_transform.translation + fire_direction * 30.),
+                ))
+                .insert(ActiveEvents::COLLISION_EVENTS)
+                .insert(ActiveCollisionTypes::DYNAMIC_DYNAMIC)
+                .insert(ContactForceEventThreshold(3.0));
         }),
     }
 }

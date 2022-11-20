@@ -2,8 +2,8 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 use bevy_rapier2d::{
+    pipeline::{CollisionEvent, ContactForceEvent},
     prelude::{Collider, ColliderMassProperties, RigidBody, Velocity},
-    rapier::prelude::{CollisionEvent, ContactForceEvent},
 };
 
 #[derive(Component)]
@@ -71,10 +71,7 @@ pub struct ProjectilePlugin;
 
 impl Plugin for ProjectilePlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<CollisionEvent>()
-            .add_event::<ContactForceEvent>()
-            .add_system(tick_lifetimes)
-            .add_system(projectile_impact);
+        app.add_system(tick_lifetimes).add_system(projectile_impact);
     }
 }
 
@@ -93,15 +90,22 @@ fn tick_lifetimes(
 }
 
 fn projectile_impact(
+    mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
-    mut contact_force_events: EventReader<ContactForceEvent>,
+    projectile_query: Query<&Projectile>,
 ) {
     // println!("boop");
     for collision_event in collision_events.iter() {
-        println!("Received collision event: {:?}", collision_event);
-    }
-
-    for contact_force_event in contact_force_events.iter() {
-        println!("Received contact force event: {:?}", contact_force_event);
+        if let CollisionEvent::Started(e1, e2, _) = collision_event {
+            let (projectile, impacted): (&Entity, &Entity) =
+                match (projectile_query.get(*e1), projectile_query.get(*e2)) {
+                    (Ok(_), Ok(_)) => (e1, e2),
+                    (Ok(_), Err(_)) => (e1, e2),
+                    (Err(_), Ok(_)) => (e2, e1),
+                    (Err(_), Err(_)) => continue,
+                };
+            commands.entity(*projectile).despawn_recursive();
+            // println!("Received collision event: {:?}", collision_event);
+        }
     }
 }

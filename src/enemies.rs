@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::{
-    Collider, ColliderMassProperties, Damping, ExternalForce, LockedAxes, RigidBody, Velocity,
+    ActiveCollisionTypes, ActiveEvents, Collider, ColliderMassProperties,
+    ContactForceEventThreshold, Damping, ExternalForce, LockedAxes, RigidBody, Velocity,
 };
 
 use crate::{
