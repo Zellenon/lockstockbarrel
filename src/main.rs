@@ -8,6 +8,7 @@ use bevy_prototype_lyon::prelude::ShapePlugin;
 use bevy_rapier2d::prelude::*;
 use enemies::EnemyPlugin;
 use player::PlayerPlugin;
+use projectile::ProjectilePlugin;
 use weapons::WeaponPlugin;
 
 mod actors;
@@ -39,6 +40,7 @@ fn main() {
         .add_plugin(PlayerPlugin)
         .add_plugin(ActorPlugin)
         .add_plugin(WeaponPlugin)
+        .add_plugin(ProjectilePlugin)
         .add_plugin(EnemyPlugin)
         .add_plugin(AIPlugin)
         .add_plugin(WorldInspectorPlugin::new())
