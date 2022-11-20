@@ -1,7 +1,10 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::{Collider, ColliderMassProperties, RigidBody, Velocity};
+use bevy_rapier2d::{
+    prelude::{Collider, ColliderMassProperties, RigidBody, Velocity},
+    rapier::prelude::{CollisionEvent, ContactForceEvent},
+};
 
 #[derive(Component)]
 pub struct Lifespan(Timer);
@@ -68,7 +71,10 @@ pub struct ProjectilePlugin;
 
 impl Plugin for ProjectilePlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(tick_lifetimes);
+        app.add_event::<CollisionEvent>()
+            .add_event::<ContactForceEvent>()
+            .add_system(tick_lifetimes)
+            .add_system(projectile_impact);
     }
 }
 
@@ -83,5 +89,19 @@ fn tick_lifetimes(
         if lifespan.0.finished() {
             commands.entity(entity).despawn_recursive();
         }
+    }
+}
+
+fn projectile_impact(
+    mut collision_events: EventReader<CollisionEvent>,
+    mut contact_force_events: EventReader<ContactForceEvent>,
+) {
+    // println!("boop");
+    for collision_event in collision_events.iter() {
+        println!("Received collision event: {:?}", collision_event);
+    }
+
+    for contact_force_event in contact_force_events.iter() {
+        println!("Received contact force event: {:?}", contact_force_event);
     }
 }
