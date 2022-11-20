@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 use bevy_rapier2d::{
-    pipeline::{CollisionEvent, ContactForceEvent},
+    pipeline::CollisionEvent,
     prelude::{Collider, ColliderMassProperties, RigidBody, Velocity},
 };
 

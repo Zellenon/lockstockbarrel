@@ -1,11 +1,8 @@
 use bevy::prelude::*;
 use bevy_prototype_lyon::prelude::*;
-use bevy_rapier2d::{
-    prelude::{
-        ActiveCollisionTypes, ActiveEvents, Ccd, ColliderMassProperties,
-        ContactForceEventThreshold, Sensor, Velocity,
-    },
-    rapier::prelude::CollisionEventFlags,
+use bevy_rapier2d::prelude::{
+    ActiveCollisionTypes, ActiveEvents, Ccd, ColliderMassProperties, ContactForceEventThreshold,
+    Velocity,
 };
 
 use crate::{
@@ -92,9 +89,7 @@ pub fn make_peashooter() -> Weapon {
                     parent_transform
                         .with_translation(parent_transform.translation + fire_direction * 30.),
                 ))
-                .insert(ActiveEvents::COLLISION_EVENTS)
-                .insert(ActiveCollisionTypes::DYNAMIC_DYNAMIC)
-                .insert(ContactForceEventThreshold(3.0));
+                .insert(ActiveEvents::COLLISION_EVENTS);
         }),
     }
 }
