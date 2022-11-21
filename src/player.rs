@@ -1,5 +1,5 @@
 use crate::{
-    actors::{Actor, Legs, Tracking},
+    actors::{Actor, ActorBundle, Legs, Tracking},
     ai::KeyboardAI,
     stats::{Speed, Stat},
     utils::*,
@@ -45,24 +45,9 @@ pub fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
         .spawn((
             Player,
-            Actor::default(),
+            ActorBundle::default(),
             Stat::<Speed>::new(1500.),
             KeyboardAI,
-            SpatialBundle {
-                visibility: Visibility { is_visible: true },
-                ..Default::default()
-            },
-            RigidBody::Dynamic,
-            ColliderMassProperties::Density(0.3),
-            Velocity::default(),
-            Damping {
-                linear_damping: 20.,
-                angular_damping: 1.0,
-            },
-            ExternalForce::default(),
-            ExternalImpulse::default(),
-            Collider::ball(15.),
-            LockedAxes::ROTATION_LOCKED,
         ))
         .with_children(|parent| {
             parent.spawn((

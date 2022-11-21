@@ -23,6 +23,46 @@ impl Default for Actor {
     }
 }
 
+#[derive(Bundle)]
+pub struct ActorBundle {
+    pub actor: Actor,
+    pub visibility: Visibility,
+    pub computer_visibility: ComputedVisibility,
+    pub transform: Transform,
+    pub global_transform: GlobalTransform,
+    pub rigidbody: RigidBody,
+    pub mass_properties: ColliderMassProperties,
+    pub velocity: Velocity,
+    pub damping: Damping,
+    pub external_force: ExternalForce,
+    pub external_impulse: ExternalImpulse,
+    pub collider: Collider,
+    pub axes: LockedAxes,
+}
+
+impl Default for ActorBundle {
+    fn default() -> Self {
+        Self {
+            actor: Default::default(),
+            visibility: Visibility { is_visible: true },
+            transform: Default::default(),
+            global_transform: Default::default(),
+            rigidbody: RigidBody::Dynamic,
+            mass_properties: ColliderMassProperties::Density(0.3),
+            velocity: Default::default(),
+            damping: Damping {
+                linear_damping: 20.,
+                angular_damping: 1.0,
+            },
+            external_force: Default::default(),
+            external_impulse: Default::default(),
+            collider: Collider::ball(15.),
+            axes: LockedAxes::ROTATION_LOCKED,
+            computer_visibility: Default::default(),
+        }
+    }
+}
+
 #[derive(Component, Inspectable)]
 pub struct Tracking(pub Option<Entity>);
 

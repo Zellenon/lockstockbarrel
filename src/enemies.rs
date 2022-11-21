@@ -5,7 +5,7 @@ use bevy_rapier2d::prelude::{
 };
 
 use crate::{
-    actors::{Actor, Legs, Tracking},
+    actors::{Actor, ActorBundle, Legs, Tracking},
     ai::TrackerAI,
     stats::{Health, Speed, Stat},
 };
@@ -31,26 +31,13 @@ fn spawn_enemy(commands: &mut Commands, location: Vec2, asset_server: &Res<Asset
     commands
         .spawn((
             Enemy,
-            Actor::default(),
-            TrackerAI,
-            Stat::<Speed>::new(500.),
-            Stat::<Health>::new(50.),
-            SpatialBundle {
-                visibility: Visibility { is_visible: true },
+            ActorBundle {
                 transform: Transform::from_translation(location.extend(0.)),
                 ..Default::default()
             },
-            RigidBody::Dynamic,
-            ColliderMassProperties::Density(0.3),
-            Velocity::default(),
-            Damping {
-                linear_damping: 20.,
-                angular_damping: 1.0,
-            },
-            ExternalForce::default(),
-            ExternalImpulse::default(),
-            Collider::ball(15.),
-            LockedAxes::ROTATION_LOCKED,
+            TrackerAI,
+            Stat::<Speed>::new(500.),
+            Stat::<Health>::new(50.),
         ))
         .with_children(|parent| {
             parent.spawn((
