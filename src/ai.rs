@@ -4,14 +4,14 @@ use crate::{enemies::Enemy, player::Player};
 
 pub struct AIPlugin;
 
-#[derive(Component)]
-pub struct TrackerAI;
-
 impl Plugin for AIPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(do_tracker_ai);
     }
 }
+
+#[derive(Component)]
+pub struct TrackerAI;
 
 fn do_tracker_ai(
     player: Query<&Transform, With<Player>>,
