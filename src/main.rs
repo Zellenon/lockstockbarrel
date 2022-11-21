@@ -33,6 +33,11 @@ fn main() {
         //     ..default()
         // })
         .add_plugins(DefaultPlugins)
+        .insert_resource(ClearColor(Color::rgb(
+            0xA9 as f32 / 255.0,
+            0xA9 as f32 / 255.0,
+            0xAF as f32 / 255.0,
+        )))
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(50.))
         // .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(ShapePlugin)

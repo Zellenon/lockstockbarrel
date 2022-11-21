@@ -1,6 +1,6 @@
 use crate::{
     actors::{Actor, Legs, Tracking},
-    stats::Speed,
+    stats::{Speed, Stat},
     utils::*,
     weapons::{make_peashooter, FireWeaponEvent, Weapon},
 };
@@ -45,7 +45,7 @@ pub fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     let player = commands
         .spawn(Player)
         .insert(Actor)
-        .insert(Speed(1500.))
+        .insert(Speed::new(1500.))
         .insert(SpatialBundle {
             visibility: Visibility { is_visible: true },
             ..Default::default()
@@ -117,7 +117,13 @@ fn keyboard_input_handler(
     keyboard_input: Res<Input<KeyCode>>,
     mut player_query: Query<(&mut ExternalForce, &Speed), With<Player>>,
 ) {
-    let (mut force, Speed(speed)) = player_query.single_mut();
+    let (
+        mut force,
+        Speed {
+            current: speed,
+            max: _,
+        },
+    ) = player_query.single_mut();
     let mut total_force = Vec2::new(0., 0.);
     if keyboard_input.pressed(KeyCode::A) {
         total_force.x += -speed;

@@ -1,13 +1,12 @@
 use bevy::prelude::*;
 use bevy_prototype_lyon::prelude::*;
 use bevy_rapier2d::prelude::{
-    ActiveCollisionTypes, ActiveEvents, Ccd, ColliderMassProperties, ContactForceEventThreshold,
-    Velocity,
+    ActiveCollisionTypes, ActiveEvents, Ccd, ColliderMassProperties, Velocity,
 };
 
 use crate::{
     player::CursorTracker,
-    projectile::{Lifespan, ProjectileBundle},
+    projectile::{Damaging, Knockback, Lifespan, ProjectileBundle},
 };
 
 #[derive(Component)]
@@ -66,17 +65,20 @@ pub fn make_peashooter() -> Weapon {
             let fire_direction =
                 Vec3::normalize(cursor_transform.translation - parent_transform.translation);
             a.commands
-                .spawn(ProjectileBundle {
-                    velocity: Velocity {
-                        linvel: fire_direction.truncate() * 7000.,
-                        angvel: 0.,
+                .spawn((
+                    ProjectileBundle {
+                        velocity: Velocity {
+                            linvel: fire_direction.truncate() * 7000.,
+                            angvel: 0.,
+                        },
+                        ..Default::default()
                     },
-                    ..Default::default()
-                })
-                .insert(Ccd::enabled())
-                .insert(ColliderMassProperties::Density(3.))
-                .insert(Lifespan::default())
-                // .insert(Sensor)
+                    Knockback(1500.),
+                    Damaging(50),
+                    Ccd::enabled(),
+                    Lifespan::default(),
+                    ActiveEvents::COLLISION_EVENTS,
+                ))
                 .insert(GeometryBuilder::build_as(
                     &shapes::Circle {
                         radius: 5.,
@@ -88,8 +90,7 @@ pub fn make_peashooter() -> Weapon {
                     },
                     parent_transform
                         .with_translation(parent_transform.translation + fire_direction * 30.),
-                ))
-                .insert(ActiveEvents::COLLISION_EVENTS);
+                ));
         }),
     }
 }

@@ -40,6 +40,12 @@ pub enum ProjectileImpactBehavior {
     Bounce,
 }
 
+#[derive(Component)]
+pub struct Knockback(pub f32);
+
+#[derive(Component)]
+pub struct Damaging(pub usize);
+
 #[derive(Bundle)]
 pub struct ProjectileBundle {
     pub projectile: Projectile,
@@ -92,15 +98,14 @@ fn tick_lifetimes(
 fn projectile_impact(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
-    projectile_query: Query<&Projectile>,
+    projectile_query: Query<(&Projectile, Option<&Damaging>, Option<&Knockback>)>,
 ) {
     // println!("boop");
     for collision_event in collision_events.iter() {
         if let CollisionEvent::Started(e1, e2, _) = collision_event {
             let (projectile, impacted): (&Entity, &Entity) =
                 match (projectile_query.get(*e1), projectile_query.get(*e2)) {
-                    (Ok(_), Ok(_)) => (e1, e2),
-                    (Ok(_), Err(_)) => (e1, e2),
+                    (Ok(_), _) => (e1, e2),
                     (Err(_), Ok(_)) => (e2, e1),
                     (Err(_), Err(_)) => continue,
                 };
