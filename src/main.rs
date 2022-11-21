@@ -9,6 +9,7 @@ use bevy_rapier2d::prelude::*;
 use enemies::EnemyPlugin;
 use player::PlayerPlugin;
 use projectile::ProjectilePlugin;
+use stats::StatPlugin;
 use weapons::WeaponPlugin;
 
 mod actors;
@@ -42,6 +43,7 @@ fn main() {
         // .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(ShapePlugin)
         .add_plugin(PlayerPlugin)
+        .add_plugin(StatPlugin)
         .add_plugin(ActorPlugin)
         .add_plugin(WeaponPlugin)
         .add_plugin(ProjectilePlugin)

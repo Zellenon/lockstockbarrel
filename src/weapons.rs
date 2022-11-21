@@ -73,8 +73,8 @@ pub fn make_peashooter() -> Weapon {
                         },
                         ..Default::default()
                     },
-                    Knockback(150.),
-                    Damaging(50),
+                    Knockback(250.),
+                    Damaging(20.),
                     Ccd::enabled(),
                     Lifespan::default(),
                     ActiveEvents::COLLISION_EVENTS,

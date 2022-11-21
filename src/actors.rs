@@ -2,16 +2,34 @@ use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 use bevy_rapier2d::prelude::*;
 
-use crate::utils::get_angle;
+use crate::{
+    player::Player,
+    stats::{Health, Speed, Stat},
+    utils::get_angle,
+};
 
 #[derive(Component)]
-pub struct Actor;
+pub struct Actor {
+    pub desired_direction: Vec2,
+    pub desired_target: Option<Entity>,
+}
+
+impl Default for Actor {
+    fn default() -> Self {
+        Self {
+            desired_direction: Vec2::ZERO,
+            desired_target: None,
+        }
+    }
+}
 
 #[derive(Component, Inspectable)]
 pub struct Tracking(pub Option<Entity>);
 
 #[derive(Component, Reflect)]
-#[reflect(Component)]
+pub struct Head;
+
+#[derive(Component)]
 pub struct Legs {
     pub animation_stage: isize,
     pub stroke: isize,
@@ -32,9 +50,10 @@ pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
     fn build(&self, app: &mut App) {
-        app.register_type::<Legs>()
-            .add_system(facing_update_system)
-            .add_system(animate_legs);
+        app.add_system(facing_update_system)
+            .add_system(actor_movement)
+            .add_system(animate_legs)
+            .add_system(health_death);
     }
 }
 
@@ -90,5 +109,22 @@ fn animate_legs(mut legs: Query<(&mut Transform, &mut Legs, &Parent)>, parents: 
             }
             Err(e) => println!("{}", e),
         };
+    }
+}
+
+fn actor_movement(mut enemies: Query<(&mut ExternalForce, &Actor, &Stat<Speed>)>) {
+    for (mut force, actor, speed) in enemies.iter_mut() {
+        force.force = Vec2::normalize_or_zero(actor.desired_direction) * speed.current_value();
+    }
+}
+
+fn health_death(
+    mut commands: Commands,
+    health_query: Query<(Entity, &Stat<Health>), (Without<Player>, Changed<Stat<Health>>)>,
+) {
+    for (entity, health) in health_query.iter() {
+        if health.current_value() < 0. {
+            commands.entity(entity).despawn_recursive();
+        }
     }
 }

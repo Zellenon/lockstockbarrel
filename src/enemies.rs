@@ -1,37 +1,23 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::{
-    ActiveCollisionTypes, ActiveEvents, Collider, ColliderMassProperties,
-    ContactForceEventThreshold, Damping, ExternalForce, ExternalImpulse, LockedAxes, RigidBody,
-    Velocity,
+    Collider, ColliderMassProperties, Damping, ExternalForce, ExternalImpulse, LockedAxes,
+    RigidBody, Velocity,
 };
 
 use crate::{
     actors::{Actor, Legs, Tracking},
     ai::TrackerAI,
-    stats::{Speed, Stat},
+    stats::{Health, Speed, Stat},
 };
 
 #[derive(Component)]
-pub struct Enemy {
-    pub desired_direction: Vec2,
-    pub desired_target: Option<Entity>,
-}
-
-impl Default for Enemy {
-    fn default() -> Self {
-        Self {
-            desired_direction: Vec2::ZERO,
-            desired_target: None,
-        }
-    }
-}
+pub struct Enemy;
 
 pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(enemy_setup)
-            .add_system(enemy_movement);
+        app.add_startup_system(enemy_setup);
     }
 }
 
@@ -44,10 +30,11 @@ fn enemy_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 fn spawn_enemy(commands: &mut Commands, location: Vec2, asset_server: &Res<AssetServer>) {
     commands
         .spawn((
-            Enemy::default(),
-            Actor,
+            Enemy,
+            Actor::default(),
             TrackerAI,
             Stat::<Speed>::new(500.),
+            Stat::<Health>::new(50.),
             SpatialBundle {
                 visibility: Visibility { is_visible: true },
                 transform: Transform::from_translation(location.extend(0.)),
@@ -92,19 +79,4 @@ fn spawn_enemy(commands: &mut Commands, location: Vec2, asset_server: &Res<Asset
                 Legs::default(),
             ));
         });
-}
-
-fn enemy_movement(mut enemies: Query<(&mut ExternalForce, &Enemy, &Stat<Speed>)>) {
-    for (
-        mut force,
-        enemy,
-        Stat {
-            current: speed,
-            max: _,
-            phantom,
-        },
-    ) in enemies.iter_mut()
-    {
-        force.force = Vec2::normalize_or_zero(enemy.desired_direction) * *speed;
-    }
 }

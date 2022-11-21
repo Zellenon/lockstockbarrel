@@ -1,10 +1,12 @@
-use std::time::Duration;
+use std::{marker::PhantomData, time::Duration};
 
 use bevy::prelude::*;
 use bevy_rapier2d::{
     pipeline::CollisionEvent,
     prelude::{Collider, ColliderMassProperties, ExternalImpulse, RigidBody, Velocity},
 };
+
+use crate::stats::{Health, Stat, StatChangeEvent};
 
 #[derive(Component)]
 pub struct Lifespan(Timer);
@@ -44,7 +46,7 @@ pub enum ProjectileImpactBehavior {
 pub struct Knockback(pub f32);
 
 #[derive(Component)]
-pub struct Damaging(pub usize);
+pub struct Damaging(pub f32);
 
 #[derive(Bundle)]
 pub struct ProjectileBundle {
@@ -113,12 +115,13 @@ fn projectile_impact(
         Option<&Damaging>,
         Option<&Knockback>,
     )>,
-    mut target_query: Query<(&RigidBody, Option<&mut ExternalImpulse>)>,
+    target_query: Query<(&RigidBody, Option<&ExternalImpulse>, Option<&Stat<Health>>)>,
     mut knockback_events: EventWriter<KnockbackEvent>,
+    mut health_events: EventWriter<StatChangeEvent<Health>>,
 ) {
     for collision_event in collision_events.iter() {
         if let CollisionEvent::Started(e1, e2, _) = collision_event {
-            let (projectile, impacted): (&Entity, &Entity) =
+            let (projectile, target): (&Entity, &Entity) =
                 match (projectile_query.get(*e1), projectile_query.get(*e2)) {
                     (Ok(_), _) => (e1, e2),
                     (Err(_), Ok(_)) => (e2, e1),
@@ -126,13 +129,22 @@ fn projectile_impact(
                 };
 
             let projectile_data = projectile_query.get(*projectile).unwrap();
-            let target_data = target_query.get(*impacted).unwrap();
+            let target_data = target_query.get(*target).unwrap();
             if let Some(Knockback(force)) = projectile_data.3 {
                 if let Some(_) = target_data.1 {
                     knockback_events.send(KnockbackEvent {
-                        entity: *impacted,
+                        entity: *target,
                         direction: projectile_data.1.linvel,
                         force: *force,
+                    })
+                }
+            }
+            if let Some(Damaging(damage)) = projectile_data.2 {
+                if let Some(_) = target_data.2 {
+                    health_events.send(StatChangeEvent {
+                        target: *target,
+                        amount: damage * -1.,
+                        phantom: PhantomData,
                     })
                 }
             }

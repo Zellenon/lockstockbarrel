@@ -1,5 +1,6 @@
 use crate::{
     actors::{Actor, Legs, Tracking},
+    ai::KeyboardAI,
     stats::{Speed, Stat},
     utils::*,
     weapons::{make_peashooter, FireWeaponEvent, Weapon},
@@ -26,7 +27,6 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(player_setup)
             .add_system(update_cursor_tracker)
-            .add_system(keyboard_input_handler)
             .add_system(fire_weapons)
             .add_system(camera_movement);
     }
@@ -45,8 +45,9 @@ pub fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
         .spawn((
             Player,
-            Actor,
+            Actor::default(),
             Stat::<Speed>::new(1500.),
+            KeyboardAI,
             SpatialBundle {
                 visibility: Visibility { is_visible: true },
                 ..Default::default()
@@ -107,35 +108,6 @@ pub fn update_cursor_tracker(
         let new_cursor_pos = screen_to_world(_position, &camera_transform, &windows);
         cursor_transform.translation = new_cursor_pos.extend(0.);
     }
-}
-
-fn keyboard_input_handler(
-    keyboard_input: Res<Input<KeyCode>>,
-    mut player_query: Query<(&mut ExternalForce, &Stat<Speed>), With<Player>>,
-) {
-    let (
-        mut force,
-        Stat {
-            current: speed,
-            max: _,
-            phantom,
-        },
-    ) = player_query.single_mut();
-    let mut total_force = Vec2::new(0., 0.);
-    if keyboard_input.pressed(KeyCode::A) {
-        total_force.x += -speed;
-    }
-    if keyboard_input.pressed(KeyCode::D) {
-        total_force.x += speed;
-    }
-    if keyboard_input.pressed(KeyCode::W) {
-        total_force.y += speed;
-    }
-    if keyboard_input.pressed(KeyCode::S) {
-        total_force.y += -speed;
-    }
-    let mut force: &mut ExternalForce = &mut force;
-    force.force = total_force;
 }
 
 fn fire_weapons(
