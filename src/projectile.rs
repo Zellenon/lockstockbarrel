@@ -3,7 +3,9 @@ use std::{marker::PhantomData, time::Duration};
 use bevy::prelude::*;
 use bevy_rapier2d::{
     pipeline::CollisionEvent,
-    prelude::{Collider, ColliderMassProperties, ExternalImpulse, RigidBody, Velocity},
+    prelude::{
+        ActiveEvents, Collider, ColliderMassProperties, ExternalImpulse, RigidBody, Velocity,
+    },
 };
 
 use crate::stats::{Health, Stat, StatChangeEvent};
@@ -58,6 +60,7 @@ pub struct ProjectileBundle {
     pub velocity: Velocity,
     pub mass_properties: ColliderMassProperties,
     pub collider: Collider,
+    pub event_trigger: ActiveEvents,
 }
 
 impl Default for ProjectileBundle {
@@ -71,6 +74,7 @@ impl Default for ProjectileBundle {
             rigidbody: RigidBody::Dynamic,
             mass_properties: ColliderMassProperties::Density(1.),
             collider: Collider::ball(5.),
+            event_trigger: ActiveEvents::COLLISION_EVENTS,
         }
     }
 }

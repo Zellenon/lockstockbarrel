@@ -77,7 +77,6 @@ pub fn make_peashooter() -> Weapon {
                     Damaging(20.),
                     Ccd::enabled(),
                     Lifespan::default(),
-                    ActiveEvents::COLLISION_EVENTS,
                 ))
                 .insert(GeometryBuilder::build_as(
                     &shapes::Circle {
