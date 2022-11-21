@@ -1,32 +1,54 @@
+use std::marker::PhantomData;
+
 use bevy::prelude::*;
 
-pub trait Stat {
-    fn new(max: f32) -> Self;
-    fn max_value(&self) -> f32;
-    fn current_value(&self) -> f32;
-    fn can_be_negative() -> bool;
-}
-
 #[derive(Component)]
-pub struct Speed {
-    pub current: f32,
+pub struct Stat<T>
+where
+    T: ActorStat,
+{
     pub max: f32,
+    pub current: f32,
+    pub phantom: PhantomData<T>,
 }
 
-impl Stat for Speed {
-    fn new(max: f32) -> Self {
-        Speed { current: max, max }
-    }
+pub trait ActorStat {
+    fn can_negative() -> bool;
+    fn can_overmax() -> bool;
+}
 
-    fn max_value(&self) -> f32 {
+impl<T> Stat<T>
+where
+    T: ActorStat,
+{
+    pub fn new(max: f32) -> Self {
+        Self {
+            max,
+            current: max,
+            phantom: PhantomData,
+        }
+    }
+    pub fn max_value(&self) -> f32 {
         self.max
     }
-
-    fn current_value(&self) -> f32 {
+    pub fn current_value(&self) -> f32 {
         self.current
     }
-
-    fn can_be_negative() -> bool {
+    pub fn can_be_negative() -> bool {
         false
+    }
+    pub fn can_overmax() -> bool {
+        false
+    }
+}
+
+pub struct Speed;
+impl ActorStat for Speed {
+    fn can_negative() -> bool {
+        false
+    }
+
+    fn can_overmax() -> bool {
+        true
     }
 }

@@ -42,56 +42,52 @@ pub fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         .id();
     commands.insert_resource(Cursor(cursor_entity));
 
-    let player = commands
-        .spawn(Player)
-        .insert(Actor)
-        .insert(Speed::new(1500.))
-        .insert(SpatialBundle {
-            visibility: Visibility { is_visible: true },
-            ..Default::default()
-        })
-        .insert(RigidBody::Dynamic)
-        .insert(ColliderMassProperties::Density(0.3))
-        .insert(Velocity::default())
-        .insert(Damping {
-            linear_damping: 20.,
-            angular_damping: 1.0,
-        })
-        .insert(ExternalForce::default())
-        .insert(Collider::ball(15.))
-        .insert(LockedAxes::ROTATION_LOCKED)
+    commands
+        .spawn((
+            Player,
+            Actor,
+            Stat::<Speed>::new(1500.),
+            SpatialBundle {
+                visibility: Visibility { is_visible: true },
+                ..Default::default()
+            },
+            RigidBody::Dynamic,
+            ColliderMassProperties::Density(0.3),
+            Velocity::default(),
+            Damping {
+                linear_damping: 20.,
+                angular_damping: 1.0,
+            },
+            ExternalForce::default(),
+            ExternalImpulse::default(),
+            Collider::ball(15.),
+            LockedAxes::ROTATION_LOCKED,
+        ))
         .with_children(|parent| {
-            parent
-                .spawn(SpriteBundle {
+            parent.spawn((
+                Tracking(Some(cursor_entity)),
+                SpriteBundle {
                     sprite: Sprite {
                         custom_size: Vec2::new(40., 40.).into(),
                         ..Default::default()
                     },
                     texture: asset_server.load("img/player_head.png"),
                     ..Default::default()
-                })
-                .insert(SpatialBundle {
-                    visibility: Visibility { is_visible: true },
-                    ..Default::default()
-                })
-                .insert(Tracking(Some(cursor_entity)));
+                },
+            ));
 
-            parent
-                .spawn(SpriteBundle {
+            parent.spawn((
+                Legs::default(),
+                Tracking(None),
+                SpriteBundle {
                     sprite: Sprite {
                         custom_size: Vec2::new(30., 35.).into(),
                         ..Default::default()
                     },
                     texture: asset_server.load("img/player_legs.png"),
                     ..Default::default()
-                })
-                .insert(Tracking(None))
-                .insert(SpatialBundle {
-                    visibility: Visibility { is_visible: true },
-                    transform: Transform::from_xyz(0., 0., -1.),
-                    ..Default::default()
-                })
-                .insert(Legs::default());
+                },
+            ));
 
             parent.spawn(make_peashooter());
         });
@@ -115,13 +111,14 @@ pub fn update_cursor_tracker(
 
 fn keyboard_input_handler(
     keyboard_input: Res<Input<KeyCode>>,
-    mut player_query: Query<(&mut ExternalForce, &Speed), With<Player>>,
+    mut player_query: Query<(&mut ExternalForce, &Stat<Speed>), With<Player>>,
 ) {
     let (
         mut force,
-        Speed {
+        Stat {
             current: speed,
             max: _,
+            phantom,
         },
     ) = player_query.single_mut();
     let mut total_force = Vec2::new(0., 0.);

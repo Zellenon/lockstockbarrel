@@ -3,7 +3,7 @@ use std::time::Duration;
 use bevy::prelude::*;
 use bevy_rapier2d::{
     pipeline::CollisionEvent,
-    prelude::{Collider, ColliderMassProperties, RigidBody, Velocity},
+    prelude::{Collider, ColliderMassProperties, ExternalImpulse, RigidBody, Velocity},
 };
 
 #[derive(Component)]
@@ -73,11 +73,20 @@ impl Default for ProjectileBundle {
     }
 }
 
+pub struct KnockbackEvent {
+    entity: Entity,
+    direction: Vec2,
+    force: f32,
+}
+
 pub struct ProjectilePlugin;
 
 impl Plugin for ProjectilePlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(tick_lifetimes).add_system(projectile_impact);
+        app.add_event::<KnockbackEvent>()
+            .add_system(tick_lifetimes)
+            .add_system(knockback_events)
+            .add_system(projectile_impact);
     }
 }
 
@@ -98,9 +107,15 @@ fn tick_lifetimes(
 fn projectile_impact(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
-    projectile_query: Query<(&Projectile, Option<&Damaging>, Option<&Knockback>)>,
+    projectile_query: Query<(
+        &Projectile,
+        &Velocity,
+        Option<&Damaging>,
+        Option<&Knockback>,
+    )>,
+    mut target_query: Query<(&RigidBody, Option<&mut ExternalImpulse>)>,
+    mut knockback_events: EventWriter<KnockbackEvent>,
 ) {
-    // println!("boop");
     for collision_event in collision_events.iter() {
         if let CollisionEvent::Started(e1, e2, _) = collision_event {
             let (projectile, impacted): (&Entity, &Entity) =
@@ -109,8 +124,36 @@ fn projectile_impact(
                     (Err(_), Ok(_)) => (e2, e1),
                     (Err(_), Err(_)) => continue,
                 };
+
+            let projectile_data = projectile_query.get(*projectile).unwrap();
+            let target_data = target_query.get(*impacted).unwrap();
+            if let Some(Knockback(force)) = projectile_data.3 {
+                if let Some(_) = target_data.1 {
+                    knockback_events.send(KnockbackEvent {
+                        entity: *impacted,
+                        direction: projectile_data.1.linvel,
+                        force: *force,
+                    })
+                }
+            }
             commands.entity(*projectile).despawn_recursive();
             // println!("Received collision event: {:?}", collision_event);
         }
+    }
+}
+
+fn knockback_events(
+    mut knockback_events: EventReader<KnockbackEvent>,
+    mut target_query: Query<(&mut ExternalImpulse)>,
+) {
+    for KnockbackEvent {
+        entity,
+        direction,
+        force,
+    } in knockback_events.iter()
+    {
+        let impulse_vector = Vec2::normalize(*direction) * *force;
+        let mut impulse = target_query.get_mut(*entity).unwrap();
+        impulse.impulse = impulse_vector;
     }
 }

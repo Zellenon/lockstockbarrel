@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::{
     ActiveCollisionTypes, ActiveEvents, Collider, ColliderMassProperties,
-    ContactForceEventThreshold, Damping, ExternalForce, LockedAxes, RigidBody, Velocity,
+    ContactForceEventThreshold, Damping, ExternalForce, ExternalImpulse, LockedAxes, RigidBody,
+    Velocity,
 };
 
 use crate::{
@@ -46,7 +47,7 @@ fn spawn_enemy(commands: &mut Commands, location: Vec2, asset_server: &Res<Asset
             Enemy::default(),
             Actor,
             TrackerAI,
-            Speed::new(500.),
+            Stat::<Speed>::new(500.),
             SpatialBundle {
                 visibility: Visibility { is_visible: true },
                 transform: Transform::from_translation(location.extend(0.)),
@@ -60,6 +61,7 @@ fn spawn_enemy(commands: &mut Commands, location: Vec2, asset_server: &Res<Asset
                 angular_damping: 1.0,
             },
             ExternalForce::default(),
+            ExternalImpulse::default(),
             Collider::ball(15.),
             LockedAxes::ROTATION_LOCKED,
         ))
@@ -92,13 +94,14 @@ fn spawn_enemy(commands: &mut Commands, location: Vec2, asset_server: &Res<Asset
         });
 }
 
-fn enemy_movement(mut enemies: Query<(&mut ExternalForce, &Enemy, &Speed)>) {
+fn enemy_movement(mut enemies: Query<(&mut ExternalForce, &Enemy, &Stat<Speed>)>) {
     for (
         mut force,
         enemy,
-        Speed {
+        Stat {
             current: speed,
             max: _,
+            phantom,
         },
     ) in enemies.iter_mut()
     {
