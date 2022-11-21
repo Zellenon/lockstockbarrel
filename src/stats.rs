@@ -52,3 +52,14 @@ impl ActorStat for Speed {
         true
     }
 }
+
+pub struct Health;
+impl ActorStat for Health {
+    fn can_negative() -> bool {
+        true
+    }
+
+    fn can_overmax() -> bool {
+        false
+    }
+}
