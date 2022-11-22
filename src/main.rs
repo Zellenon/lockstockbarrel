@@ -28,38 +28,41 @@ fn main() {
     // window_desc.width = 1600.0;
     // window_desc.height = 900.0;
     // window_desc.title = "Bevy Rider".to_string();
-    App::new()
-        // .insert_resource(window_desc)
-        // Enable hot reloading
-        // .insert_resource(AssetServerSettings {
-        //     watch_for_changes: true,
-        //     ..default()
-        // })
-        .add_plugins(
-            DefaultPlugins
-                .build()
-                .add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin),
-        )
-        .insert_resource(ClearColor(Color::rgb(
-            0xA9 as f32 / 255.0,
-            0xA9 as f32 / 255.0,
-            0xAF as f32 / 255.0,
-        )))
-        .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(50.))
-        // .add_plugin(RapierDebugRenderPlugin::default())
-        .add_plugin(NinePatchPlugin::<()>::default())
-        .add_plugin(ShapePlugin)
-        .add_plugin(PlayerPlugin)
-        .add_plugin(StatPlugin)
-        .add_plugin(ActorPlugin)
-        .add_plugin(WeaponPlugin)
-        .add_plugin(ProjectilePlugin)
-        .add_plugin(EnemyPlugin)
-        .add_plugin(AIPlugin)
-        .add_plugin(WorldInspectorPlugin::new())
-        .add_startup_system(setup)
-        .add_startup_system(spawn_walls)
-        .run();
+    let mut app = App::new();
+    app.add_plugins(
+        DefaultPlugins
+            .build()
+            .add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin),
+    )
+    .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(50.))
+    // .add_plugin(RapierDebugRenderPlugin::default())
+    .add_plugin(NinePatchPlugin::<()>::default())
+    .add_plugin(ShapePlugin)
+    .add_plugin(PlayerPlugin)
+    .add_plugin(StatPlugin)
+    .add_plugin(ActorPlugin)
+    .add_plugin(WeaponPlugin)
+    .add_plugin(ProjectilePlugin)
+    .add_plugin(EnemyPlugin)
+    .add_plugin(AIPlugin)
+    .add_plugin(WorldInspectorPlugin::new());
+
+    app.insert_resource(ClearColor(Color::rgb(
+        0xA9 as f32 / 255.0,
+        0xA9 as f32 / 255.0,
+        0xAF as f32 / 255.0,
+    )));
+    // .insert_resource(window_desc)
+    // Enable hot reloading
+    // .insert_resource(AssetServerSettings {
+    //     watch_for_changes: true,
+    //     ..default()
+    // })
+
+    app.add_startup_system(setup)
+        .add_startup_system(spawn_walls);
+
+    app.run();
 }
 
 fn setup(mut commands: Commands, mut rapier_config: ResMut<RapierConfiguration>) {
