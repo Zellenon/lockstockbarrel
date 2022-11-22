@@ -22,17 +22,17 @@ pub struct WeaponArguments<'c, 'w, 's, 'c2, 'w2, 's2> {
     pub transforms: Query<'c2, 'w2, &'s2 Transform>,
 }
 
+pub struct FireWeaponEvent {
+    pub weapon: Entity,
+    pub target: Option<Entity>,
+}
+
 pub struct WeaponPlugin;
 
 impl Plugin for WeaponPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<FireWeaponEvent>().add_system(fire_weapons);
     }
-}
-
-pub struct FireWeaponEvent {
-    pub weapon: Entity,
-    pub target: Option<Entity>,
 }
 
 pub fn fire_weapons(
