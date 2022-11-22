@@ -2,7 +2,9 @@ use actors::ActorPlugin;
 use ai::AIPlugin;
 // use bevy::asset::AssetServerSettings;
 use bevy::prelude::*;
+use bevy_embedded_assets::EmbeddedAssetPlugin;
 use bevy_inspector_egui::WorldInspectorPlugin;
+use bevy_ninepatch::NinePatchPlugin;
 use bevy_prototype_lyon::prelude as lyon;
 use bevy_prototype_lyon::prelude::ShapePlugin;
 use bevy_rapier2d::prelude::*;
@@ -33,7 +35,11 @@ fn main() {
         //     watch_for_changes: true,
         //     ..default()
         // })
-        .add_plugins(DefaultPlugins)
+        .add_plugins(
+            DefaultPlugins
+                .build()
+                .add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin),
+        )
         .insert_resource(ClearColor(Color::rgb(
             0xA9 as f32 / 255.0,
             0xA9 as f32 / 255.0,
@@ -41,6 +47,7 @@ fn main() {
         )))
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(50.))
         // .add_plugin(RapierDebugRenderPlugin::default())
+        .add_plugin(NinePatchPlugin::<()>::default())
         .add_plugin(ShapePlugin)
         .add_plugin(PlayerPlugin)
         .add_plugin(StatPlugin)
