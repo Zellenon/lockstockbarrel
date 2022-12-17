@@ -98,17 +98,21 @@ pub fn update_cursor_tracker(
 fn fire_weapons(
     buttons: Res<Input<MouseButton>>,
     mut events: EventWriter<FireWeaponEvent>,
-    weapons: Query<Entity, With<Weapon>>,
-    player_query: Query<&Children, With<Player>>,
+    weapons: Query<(Entity, &Weapon)>,
+    players_children_query: Query<&Children, With<Player>>,
 ) {
-    if buttons.just_pressed(MouseButton::Left) {
-        for &child in player_query.single().iter() {
-            match weapons.get(child) {
-                Ok(entity) => events.send(FireWeaponEvent {
-                    weapon: entity,
-                    target: None,
-                }),
-                Err(_) => (),
+    for &child in players_children_query.single().iter() {
+        if let Ok((entity, weapon)) = weapons.get(child) {
+            let trigger_func = weapon.fire_mode;
+            if (buttons.just_pressed(MouseButton::Left) && trigger_func == WeaponFireMode::SemiAuto)
+                || (buttons.pressed(MouseButton::Left) && trigger_func == WeaponFireMode::FullAuto)
+            {
+                if weapon.can_fire {
+                    events.send(FireWeaponEvent {
+                        weapon: entity,
+                        target: None,
+                    })
+                }
             }
         }
     }
