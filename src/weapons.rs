@@ -1,8 +1,6 @@
 use bevy::prelude::*;
 use bevy_prototype_lyon::prelude::*;
-use bevy_rapier2d::prelude::{
-    ActiveCollisionTypes, ActiveEvents, Ccd, ColliderMassProperties, Velocity,
-};
+use bevy_rapier2d::prelude::{Ccd, Velocity};
 
 use crate::{
     player::CursorTracker,

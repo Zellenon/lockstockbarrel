@@ -1,11 +1,7 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::{
-    Collider, ColliderMassProperties, Damping, ExternalForce, ExternalImpulse, LockedAxes,
-    RigidBody, Velocity,
-};
 
 use crate::{
-    actors::{Actor, ActorBundle, Legs, Tracking},
+    actors::{ActorBundle, Legs, Tracking},
     ai::TrackerAI,
     stats::{Health, Speed, Stat},
 };

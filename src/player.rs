@@ -1,9 +1,9 @@
 use crate::{
-    actors::{Actor, ActorBundle, Legs, Tracking},
+    actors::{ActorBundle, Legs, Tracking},
     ai::KeyboardAI,
     stats::{Speed, Stat},
     utils::*,
-    weapons::{make_peashooter, FireWeaponEvent, Weapon},
+    weapons::{make_peashooter, FireWeaponEvent, Weapon, WeaponFireMode},
 };
 
 use bevy::prelude::*;
