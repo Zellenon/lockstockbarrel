@@ -160,7 +160,7 @@ fn projectile_impact(
 
 fn knockback_events(
     mut knockback_events: EventReader<KnockbackEvent>,
-    mut target_query: Query<(&mut ExternalImpulse)>,
+    mut target_query: Query<&mut ExternalImpulse>,
 ) {
     for KnockbackEvent {
         entity,

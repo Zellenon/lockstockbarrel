@@ -1,9 +1,9 @@
 use bevy::prelude::*;
 
-use crate::{
+use crate::stats::{Health, Speed, Stat};
+use crate::twin_stick::{
     actors::{ActorBundle, Legs, Tracking},
     ai::TrackerAI,
-    stats::{Health, Speed, Stat},
 };
 
 #[derive(Component)]

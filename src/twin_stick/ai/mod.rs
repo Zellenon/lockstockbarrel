@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{actors::Actor, player::Player};
+use crate::twin_stick::{actors::Actor, player::Player};
 
 pub struct AIPlugin;
 

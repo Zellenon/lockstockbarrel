@@ -1,13 +1,15 @@
-use crate::{
+use crate::twin_stick::{
     actors::{ActorBundle, Legs, Tracking},
     ai::KeyboardAI,
-    stats::{Speed, Stat},
-    utils::*,
     weapons::{make_peashooter, FireWeaponEvent, Weapon, WeaponFireMode},
 };
 
+use crate::{
+    stats::{Speed, Stat},
+    utils::*,
+};
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::*;
+// use bevy_rapier2d::prelude::*;
 
 #[derive(Component, Resource)]
 pub struct MainCamera(Entity);

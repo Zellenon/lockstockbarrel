@@ -1,5 +1,3 @@
-use actors::ActorPlugin;
-use ai::AIPlugin;
 use bevy::app::AppExit;
 // use bevy::asset::AssetServerSettings;
 use bevy::prelude::*;
@@ -9,21 +7,13 @@ use bevy_ninepatch::NinePatchPlugin;
 use bevy_prototype_lyon::prelude as lyon;
 use bevy_prototype_lyon::prelude::ShapePlugin;
 use bevy_rapier2d::prelude::*;
-use enemies::EnemyPlugin;
-use player::PlayerPlugin;
-use projectile::ProjectilePlugin;
 use stats::StatPlugin;
-use weapons::WeaponPlugin;
+use twin_stick::TwinStickPlugin;
 
-mod actors;
-mod ai;
-mod enemies;
 mod pause;
-mod player;
-mod projectile;
 mod stats;
+mod twin_stick;
 mod utils;
-mod weapons;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum AppState {
@@ -65,19 +55,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .add_plugin(NinePatchPlugin::<()>::default())
     .add_plugin(ShapePlugin);
 
-    app.add_plugin(PlayerPlugin)
-        .add_plugin(StatPlugin)
-        .add_plugin(ActorPlugin)
-        .add_plugin(WeaponPlugin)
-        .add_plugin(ProjectilePlugin)
-        .add_plugin(EnemyPlugin)
-        .add_plugin(AIPlugin);
+    app.add_plugin(TwinStickPlugin).add_plugin(StatPlugin);
 
+    app.add_state(AppState::MainMenu);
     app.add_system_set(SystemSet::on_enter(AppState::Exit).with_system(exit));
 
     if cfg!(debug_assertions) {
-        app.add_plugin(RapierDebugRenderPlugin::default())
-            .add_plugin(WorldInspectorPlugin::new());
+        app.add_plugin(WorldInspectorPlugin::new());
+        // .add_plugin(RapierDebugRenderPlugin::default());
     }
 
     app.insert_resource(ClearColor(Color::rgb(
@@ -85,7 +70,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         0xA9 as f32 / 255.0,
         0xAF as f32 / 255.0,
     )));
-    // Enable hot reloading
+    // Enable hot reloading // Figure out how to fix this I guess
     // .insert_resource(AssetServerSettings {
     //     watch_for_changes: true,
     //     ..default()

@@ -3,8 +3,8 @@ use bevy_inspector_egui::Inspectable;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    player::Player,
     stats::{Health, Speed, Stat},
+    twin_stick::player::Player,
     utils::get_angle,
 };
 
