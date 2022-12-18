@@ -8,7 +8,7 @@ use bevy_rapier2d::{
     },
 };
 
-use crate::stats::{Health, Stat, StatChangeEvent};
+use bevy_stats::{Health, Stat, StatChangeEvent};
 
 #[derive(Component)]
 pub struct Lifespan(Timer);

@@ -2,11 +2,8 @@ use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 use bevy_rapier2d::prelude::*;
 
-use crate::{
-    stats::{Health, Speed, Stat},
-    twin_stick::player::Player,
-    utils::get_angle,
-};
+use crate::{player::Player, utils::get_angle};
+use bevy_stats::{Health, Speed, Stat};
 
 #[derive(Component)]
 pub struct Actor {

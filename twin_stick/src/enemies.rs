@@ -1,10 +1,10 @@
 use bevy::prelude::*;
 
-use crate::stats::{Health, Speed, Stat};
-use crate::twin_stick::{
+use crate::{
     actors::{ActorBundle, Legs, Tracking},
     ai::TrackerAI,
 };
+use bevy_stats::{Health, Speed, Stat};
 
 #[derive(Component)]
 pub struct Enemy;

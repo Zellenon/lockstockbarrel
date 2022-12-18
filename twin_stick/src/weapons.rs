@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_prototype_lyon::prelude::*;
 use bevy_rapier2d::prelude::{Ccd, Velocity};
 
-use crate::twin_stick::{
+use crate::{
     player::CursorTracker,
     projectile::{Damaging, Knockback, Lifespan, ProjectileBundle},
 };

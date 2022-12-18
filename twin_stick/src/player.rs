@@ -1,13 +1,12 @@
-use crate::twin_stick::{
+use crate::{
     actors::{ActorBundle, Legs, Tracking},
     ai::KeyboardAI,
     weapons::{make_peashooter, FireWeaponEvent, Weapon, WeaponFireMode},
 };
 
-use crate::{
-    stats::{Speed, Stat},
-    utils::*,
-};
+use bevy_stats::{Speed, Stat};
+
+use crate::utils::*;
 use bevy::prelude::*;
 // use bevy_rapier2d::prelude::*;
 
