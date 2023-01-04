@@ -12,6 +12,8 @@ bevy_embedded_assets = "0.6.1"
 serde = "1.0.147"
 strum = "0.24.1"
 strum_macros = "0.24.3"
+iyes_loopless = "0.9.1"
 
 twin_stick = {path = "../twin_stick"}
 bevy_stats = {path = "../bevy_stats"}
+prettegui = {path = "../prettegui"}
