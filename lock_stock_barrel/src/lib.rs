@@ -1,26 +1,21 @@
-use bevy::app::AppExit;
-// use bevy::asset::AssetServerSettings;
-use bevy::prelude::*;
+use bevy::{
+    app::App,
+    prelude::{bevy_main, default, ClearColor, PluginGroup},
+    render::color::Color,
+    window::{WindowDescriptor, WindowPlugin},
+    DefaultPlugins,
+};
 use bevy_embedded_assets::EmbeddedAssetPlugin;
-use bevy_inspector_egui::WorldInspectorPlugin;
 use bevy_stats::StatPlugin;
-use twin_stick::{obstacle_builder, TwinStickPlugin};
+use game::GamePlugin;
+use prettegui::GUIPlugin;
+use states::StatePlugin;
+use twin_stick::TwinStickPlugin;
 
+mod game;
+mod mainmenu;
 mod pause;
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum AppState {
-    MainMenu,
-    Game,
-    Pause,
-    Exit,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum GameTimerState {
-    Playing,
-    Paused,
-}
+mod states;
 
 #[bevy_main]
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -46,13 +41,15 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
             .add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin),
     );
 
-    app.add_plugin(TwinStickPlugin).add_plugin(StatPlugin);
+    app.add_plugin(TwinStickPlugin)
+        .add_plugin(StatPlugin)
+        .add_plugin(GUIPlugin)
+        .add_plugin(GamePlugin);
 
-    app.add_state(AppState::MainMenu);
-    app.add_system_set(SystemSet::on_enter(AppState::Exit).with_system(exit));
+    app.add_plugin(StatePlugin);
 
     if cfg!(debug_assertions) {
-        app.add_plugin(WorldInspectorPlugin::new());
+        // app.add_plugin(WorldInspectorPlugin::new());
         // .add_plugin(RapierDebugRenderPlugin::default());
     }
 
@@ -62,25 +59,12 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
         0xAF as f32 / 255.0,
     )));
     // Enable hot reloading // Figure out how to fix this I guess
-    // .insert_resource(AssetServerSettings {
+    // app.insert_resource(AssetServerSettings {
     //     watch_for_changes: true,
     //     ..default()
-    // })
-
-    app.add_startup_system(spawn_walls);
+    // });
 
     app.run();
 
     Ok(())
-}
-
-fn spawn_walls(mut commands: Commands) {
-    obstacle_builder(&mut commands, -1000., 0., 50., 2000.);
-    obstacle_builder(&mut commands, 1000., 0., 50., 2000.);
-    obstacle_builder(&mut commands, 0., 1000., 2000., 50.);
-    obstacle_builder(&mut commands, 0., -1000., 2000., 50.);
-}
-
-fn exit(mut app_exit_events: EventWriter<AppExit>) {
-    app_exit_events.send(AppExit);
 }
