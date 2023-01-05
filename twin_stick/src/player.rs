@@ -96,6 +96,10 @@ pub fn update_cursor_tracker(
     }
 }
 
+pub fn player_exists(players: Query<(), With<Player>>) -> bool {
+    players.iter().count() > 0
+}
+
 fn fire_weapons(
     buttons: Res<Input<MouseButton>>,
     mut events: EventWriter<FireWeaponEvent>,
@@ -126,11 +130,11 @@ fn camera_movement(
     mut transforms: Query<&mut Transform>,
 ) {
     let player_weight = 0.7;
-    let drag = 0.15;
+    let delay = 0.15;
     let cursor_loc = transforms.get(cursor.single()).unwrap().translation;
     let player_loc = transforms.get(player.single()).unwrap().translation;
     let mut camera_loc = transforms.get_mut(camera.0).unwrap().translation;
-    camera_loc = (cursor_loc * (1. - player_weight) + player_loc * player_weight) * drag
-        + camera_loc * (1. - drag);
+    camera_loc = (cursor_loc * (1. - player_weight) + player_loc * player_weight) * delay
+        + camera_loc * (1. - delay);
     transforms.get_mut(camera.0).unwrap().translation = camera_loc;
 }

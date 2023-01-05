@@ -12,18 +12,10 @@ pub struct Enemy;
 pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_startup_system(enemy_setup);
-    }
+    fn build(&self, app: &mut App) {}
 }
 
-fn enemy_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    spawn_enemy(&mut commands, Vec2::new(500., 0.), &asset_server);
-    spawn_enemy(&mut commands, Vec2::new(0., 500.), &asset_server);
-    spawn_enemy(&mut commands, Vec2::new(-500., 0.), &asset_server);
-}
-
-fn spawn_enemy(commands: &mut Commands, location: Vec2, asset_server: &Res<AssetServer>) {
+pub fn spawn_enemy(commands: &mut Commands, location: Vec2, asset_server: &Res<AssetServer>) {
     commands
         .spawn((
             Enemy,
