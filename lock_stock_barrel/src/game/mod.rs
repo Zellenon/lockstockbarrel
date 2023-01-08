@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use twin_stick::{enemies::spawn_enemy, obstacle_builder};
 
+pub mod wave_manager;
+
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
