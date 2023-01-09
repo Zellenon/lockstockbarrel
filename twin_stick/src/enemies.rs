@@ -39,7 +39,6 @@ pub fn spawn_enemy(commands: &mut Commands, location: Vec2, asset_server: &Res<A
                 },
                 Tracking(None),
             ));
-
             parent.spawn((
                 SpriteBundle {
                     sprite: Sprite {
