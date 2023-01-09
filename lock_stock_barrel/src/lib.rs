@@ -43,10 +43,10 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     app.add_plugin(TwinStickPlugin)
         .add_plugin(StatPlugin)
-        .add_plugin(GUIPlugin)
-        .add_plugin(GamePlugin);
+        .add_plugin(GUIPlugin);
 
     app.add_plugin(StatePlugin);
+    app.add_plugin(GamePlugin);
 
     if cfg!(debug_assertions) {
         // app.add_plugin(WorldInspectorPlugin::new());
