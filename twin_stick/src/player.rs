@@ -1,6 +1,7 @@
 use crate::utils::*;
 use crate::weapons::{fire_weapons, FireWeaponEvent, Weapon, WeaponFireMode};
 
+use iyes_loopless::prelude::*;
 
 use bevy::prelude::*;
 // use bevy_rapier2d::prelude::*;
@@ -9,10 +10,13 @@ use bevy::prelude::*;
 pub struct MainCamera(Entity);
 
 #[derive(Component)]
+pub struct ArenaCamera;
+
+#[derive(Component)]
 pub struct CursorTracker;
 
 #[derive(Component, Resource)]
-pub struct Cursor(Entity);
+pub struct Cursor(pub Entity);
 
 #[derive(Component)]
 pub struct Player;
@@ -22,14 +26,22 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(player_setup)
-            .add_system(update_cursor_tracker)
-            .add_system(fire_weapons)
-            .add_system(camera_movement);
+            .add_system(update_cursor_tracker);
+        app.add_system_set(
+            ConditionSet::new()
+                .run_if(player_exists)
+                .with_system(fire_player_weapons)
+                .with_system(camera_movement)
+                .into(),
+        );
     }
 }
 
-pub fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let camera_entity = commands.spawn(Camera2dBundle::default()).id();
+pub fn player_setup(mut commands: Commands) {
+    let camera_entity = commands
+        .spawn(Camera2dBundle::default())
+        .insert(ArenaCamera)
+        .id();
     commands.insert_resource(MainCamera(camera_entity));
 
     let cursor_entity = commands
@@ -37,42 +49,6 @@ pub fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         .insert(CursorTracker)
         .id();
     commands.insert_resource(Cursor(cursor_entity));
-
-    commands
-        .spawn((
-            Player,
-            ActorBundle::default(),
-            Stat::<Speed>::new(1500.),
-            KeyboardAI,
-        ))
-        .with_children(|parent| {
-            parent.spawn((
-                Tracking(Some(cursor_entity)),
-                SpriteBundle {
-                    sprite: Sprite {
-                        custom_size: Vec2::new(40., 40.).into(),
-                        ..Default::default()
-                    },
-                    texture: asset_server.load("img/player_head.png"),
-                    ..Default::default()
-                },
-            ));
-
-            parent.spawn((
-                Legs::default(),
-                Tracking(None),
-                SpriteBundle {
-                    sprite: Sprite {
-                        custom_size: Vec2::new(30., 35.).into(),
-                        ..Default::default()
-                    },
-                    texture: asset_server.load("img/player_legs.png"),
-                    ..Default::default()
-                },
-            ));
-
-            parent.spawn(make_peashooter());
-        });
 }
 
 pub fn update_cursor_tracker(
@@ -95,7 +71,7 @@ pub fn player_exists(players: Query<(), With<Player>>) -> bool {
     players.iter().count() > 0
 }
 
-fn fire_weapons(
+fn fire_player_weapons(
     buttons: Res<Input<MouseButton>>,
     mut events: EventWriter<FireWeaponEvent>,
     weapons: Query<(Entity, &Weapon)>,
