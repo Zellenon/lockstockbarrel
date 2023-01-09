@@ -1,12 +1,7 @@
-use crate::{
-    actors::{ActorBundle, Legs, Tracking},
-    ai::KeyboardAI,
-    weapons::{make_peashooter, FireWeaponEvent, Weapon, WeaponFireMode},
-};
-
-use bevy_stats::{Speed, Stat};
-
 use crate::utils::*;
+use crate::weapons::{fire_weapons, FireWeaponEvent, Weapon, WeaponFireMode};
+
+
 use bevy::prelude::*;
 // use bevy_rapier2d::prelude::*;
 
