@@ -1,13 +1,17 @@
 use bevy::prelude::*;
+use iyes_loopless::prelude::*;
 
-use crate::{actors::Actor, player::Player};
+use crate::{
+    actors::Actor,
+    player::{player_exists, Player},
+};
 
 pub struct AIPlugin;
 
 impl Plugin for AIPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(do_tracker_ai)
-            .add_system(keyboard_input_handler);
+        app.add_system(do_tracker_ai.run_if(player_exists))
+            .add_system(keyboard_input_handler.run_if(player_exists));
     }
 }
 
