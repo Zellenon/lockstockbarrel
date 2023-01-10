@@ -1,5 +1,6 @@
 use bevy::prelude::*;
-use bevy_egui::{
+pub extern crate bevy_egui;
+pub use bevy_egui::{
     egui::{self, TextureId},
     EguiContext, EguiPlugin,
 };
