@@ -1,3 +1,4 @@
+pub extern crate bevy_rapier2d;
 use bevy::prelude::{App, Color, Commands, Plugin, ResMut, Transform, Vec2};
 use bevy_prototype_lyon::prelude as lyon;
 use bevy_prototype_lyon::prelude::ShapePlugin;
