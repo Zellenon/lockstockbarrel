@@ -5,10 +5,17 @@ use bevy_rapier2d::prelude::*;
 use crate::{player::Player, utils::get_angle};
 use bevy_stats::{Health, Speed, Stat};
 
-#[derive(Component)]
+#[derive(Component, Reflect)]
 pub struct Actor {
     pub desired_direction: Vec2,
     pub desired_target: Option<Entity>,
+}
+
+#[derive(Component, Reflect)]
+pub enum Faction {
+    FactionID(usize),
+    FriendlyToAll,
+    HostileToAll,
 }
 
 impl Default for Actor {
@@ -23,6 +30,7 @@ impl Default for Actor {
 #[derive(Bundle)]
 pub struct ActorBundle {
     pub actor: Actor,
+    pub faction: Faction,
     pub visibility: Visibility,
     pub computer_visibility: ComputedVisibility,
     pub transform: Transform,
@@ -41,6 +49,7 @@ impl Default for ActorBundle {
     fn default() -> Self {
         Self {
             actor: Default::default(),
+            faction: Faction::FriendlyToAll,
             visibility: Visibility { is_visible: true },
             transform: Default::default(),
             global_transform: Default::default(),
