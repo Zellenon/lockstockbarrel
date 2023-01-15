@@ -1,16 +1,22 @@
 use bevy::prelude::*;
+use bevy_composable::*;
 use bevy_stats::{Speed, Stat};
 use iyes_loopless::prelude::AppLooplessStateExt;
 use twin_stick::{
     actors::{ActorBundle, Legs, Tracking},
     ai::KeyboardAI,
-    enemies::spawn_enemy,
     obstacle_builder,
     player::{Cursor, Player},
     weapons::make_peashooter,
 };
 
-use crate::states::AppState;
+use crate::{
+    content::{
+        enemies::{basic_walker, spawn_enemy},
+        shift_pos,
+    },
+    states::AppState,
+};
 
 pub mod wave_manager;
 
@@ -32,9 +38,13 @@ fn spawn_walls(mut commands: Commands) {
 }
 
 fn enemy_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    spawn_enemy(&mut commands, Vec2::new(500., 0.), &asset_server);
-    spawn_enemy(&mut commands, Vec2::new(0., 500.), &asset_server);
-    spawn_enemy(&mut commands, Vec2::new(-500., 0.), &asset_server);
+    // spawn_enemy(&mut commands, Vec2::new(500., 0.), &asset_server);
+    // spawn_enemy(&mut commands, Vec2::new(0., 500.), &asset_server);
+    // spawn_enemy(&mut commands, Vec2::new(-500., 0.), &asset_server);
+    spawn_complex(
+        &mut commands,
+        basic_walker() + shift_pos(Transform::from_xyz(500., 0., 0.)) as EntityCommandSet,
+    );
 }
 
 fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>, cursor: Res<Cursor>) {
@@ -57,7 +67,6 @@ fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>, cursor: 
                     ..Default::default()
                 },
             ));
-
             parent.spawn((
                 Legs::default(),
                 Tracking(None),
@@ -70,7 +79,6 @@ fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>, cursor: 
                     ..Default::default()
                 },
             ));
-
             parent.spawn(make_peashooter());
         });
 }
