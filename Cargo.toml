@@ -10,6 +10,7 @@ license = "MIT OR Apache-2.0"
 resolver = "2"
 
 members = [
+  "bevy_composable",
   "bevy_stats",
   "prettegui",
   "twin_stick",
