@@ -18,3 +18,4 @@ iyes_loopless = "0.9.1"
 twin_stick = {path = "../twin_stick"}
 bevy_stats = {path = "../bevy_stats"}
 prettegui = {path = "../prettegui"}
+bevy_composable = {path = "../bevy_composable"}
