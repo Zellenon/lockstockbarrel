@@ -12,6 +12,7 @@ use prettegui::GUIPlugin;
 use states::StatePlugin;
 use twin_stick::TwinStickPlugin;
 
+mod content;
 mod game;
 mod mainmenu;
 mod pause;
