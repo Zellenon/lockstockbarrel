@@ -11,10 +11,7 @@ use twin_stick::{
 };
 
 use crate::{
-    content::{
-        enemies::{basic_walker, spawn_enemy},
-        shift_pos,
-    },
+    content::{enemies::basic_walker, shift_pos},
     states::AppState,
 };
 
@@ -41,10 +38,9 @@ fn enemy_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     // spawn_enemy(&mut commands, Vec2::new(500., 0.), &asset_server);
     // spawn_enemy(&mut commands, Vec2::new(0., 500.), &asset_server);
     // spawn_enemy(&mut commands, Vec2::new(-500., 0.), &asset_server);
-    spawn_complex(
-        &mut commands,
-        basic_walker() + shift_pos(Transform::from_xyz(500., 0., 0.)) as EntityCommandSet,
-    );
+    spawn_complex(&mut commands, basic_walker() + shift_pos((500., 0.)));
+    spawn_complex(&mut commands, basic_walker() + shift_pos((0., 500.)));
+    spawn_complex(&mut commands, basic_walker() + shift_pos((-500., 0.)));
 }
 
 fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>, cursor: Res<Cursor>) {
