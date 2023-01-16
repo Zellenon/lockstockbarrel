@@ -12,38 +12,8 @@ use twin_stick::{
     ai::TrackerAI,
 };
 
-pub fn basic_enemy(commands: &mut EntityCommands) {
-    commands.insert((
-        ActorBundle {
-            faction: Faction::FactionID(1),
-            transform: Transform::default(),
-            ..Default::default()
-        },
-        TrackerAI,
-        Stat::<Speed>::new(500.),
-        Stat::<Health>::new(50.),
-    ));
-}
-
-pub fn basic_enemy_meta() -> EntityCommandSet {
-    Arc::new(|commands: &mut EntityCommands| {
-        commands.insert((
-            ActorBundle {
-                faction: Faction::FactionID(1),
-                transform: Transform::default(),
-                ..Default::default()
-            },
-            TrackerAI,
-            Stat::<Speed>::new(500.),
-            Stat::<Health>::new(50.),
-        ));
-    })
-}
-
-pub fn basic_walker() -> ComponentTree {
-    // let head = head_img.clone();
-    // let legs = leg_img.clone();
-    let main: ComponentTree = (Arc::new(|e: &mut EntityCommands| {
+pub fn basic_enemy() -> ComponentTree {
+    (Arc::new(|e: &mut EntityCommands| {
         e.insert((
             ActorBundle {
                 faction: Faction::FactionID(1),
@@ -54,23 +24,28 @@ pub fn basic_walker() -> ComponentTree {
             Stat::<Health>::new(50.),
         ));
     }) as EntityCommandSet)
-        .into();
-    let main = main
-        << (Arc::new(|parent: &mut EntityCommands| {
-            parent.insert((
-                SpriteBundle {
-                    sprite: Sprite {
-                        custom_size: Vec2::new(40., 40.).into(),
-                        ..Default::default()
-                    },
-                    // texture: head,
+        .into()
+}
+
+pub fn basic_head() -> ComponentTree {
+    (Arc::new(|parent: &mut EntityCommands| {
+        parent.insert((
+            SpriteBundle {
+                sprite: Sprite {
+                    custom_size: Vec2::new(40., 40.).into(),
                     ..Default::default()
                 },
-                Tracking(None),
-            ));
-        }) as EntityCommandSet)
-            .into();
-    main << (Arc::new(|parent: &mut EntityCommands| {
+                // texture: head,
+                ..Default::default()
+            },
+            Tracking(None),
+        ));
+    }) as EntityCommandSet)
+        .into()
+}
+
+pub fn basic_legs() -> ComponentTree {
+    (Arc::new(|parent: &mut EntityCommands| {
         parent.insert((
             SpriteBundle {
                 sprite: Sprite {
@@ -86,6 +61,10 @@ pub fn basic_walker() -> ComponentTree {
         ));
     }) as EntityCommandSet)
         .into()
+}
+
+pub fn basic_walker() -> ComponentTree {
+    basic_enemy() << basic_legs() << basic_head()
 }
 
 pub fn spawn_enemy(commands: &mut Commands, location: Vec2, asset_server: &Res<AssetServer>) {
