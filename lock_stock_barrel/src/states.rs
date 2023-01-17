@@ -2,7 +2,6 @@ use bevy::{
     app::AppExit,
     prelude::{Commands, DespawnRecursiveExt, Entity, EventWriter, Plugin, Query, With},
 };
-use bevy_asset_loader::prelude::{LoadingState, LoadingStateAppExt};
 use iyes_loopless::prelude::*;
 use twin_stick::bevy_rapier2d::prelude::RigidBody;
 
@@ -16,10 +15,7 @@ pub struct StatePlugin;
 
 impl Plugin for StatePlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.add_loopless_state(AppState::Loading);
-        app.add_loading_state(
-            LoadingState::new(AppState::Loading).continue_to_state(AppState::MainMenu),
-        );
+        app.add_loopless_state(AppState::MainMenu);
         app.add_loopless_state(GameState::PlayingArena);
         app.add_loopless_state(InGameMenu::None);
 
