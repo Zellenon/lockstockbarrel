@@ -14,6 +14,7 @@ use twin_stick::TwinStickPlugin;
 
 mod content;
 mod game;
+mod hud;
 mod mainmenu;
 mod pause;
 mod states;
