@@ -1,14 +1,13 @@
 use bevy::{
     app::AppExit,
-    prelude::{
-        Commands, DespawnRecursiveExt, Entity, EventWriter, Input, KeyCode, Plugin, Query, Res,
-        SystemSet, With,
-    },
+    prelude::{Commands, DespawnRecursiveExt, Entity, EventWriter, Plugin, Query, With},
 };
+use bevy_asset_loader::prelude::{LoadingState, LoadingStateAppExt};
 use iyes_loopless::prelude::*;
-use twin_stick::{actors::Actor, bevy_rapier2d::prelude::RigidBody};
+use twin_stick::bevy_rapier2d::prelude::RigidBody;
 
 use crate::{
+    hud::hud_gui,
     mainmenu::main_menu_gui,
     pause::{pause_gui, pause_on_esc},
 };
@@ -17,7 +16,10 @@ pub struct StatePlugin;
 
 impl Plugin for StatePlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.add_loopless_state(AppState::MainMenu);
+        app.add_loopless_state(AppState::Loading);
+        app.add_loading_state(
+            LoadingState::new(AppState::Loading).continue_to_state(AppState::MainMenu),
+        );
         app.add_loopless_state(GameState::PlayingArena);
         app.add_loopless_state(InGameMenu::None);
 
@@ -29,6 +31,7 @@ impl Plugin for StatePlugin {
                 .run_in_state(AppState::Game)
                 .run_in_state(InGameMenu::Pause),
         );
+        app.add_system(hud_gui.run_in_state(AppState::Game));
 
         app.add_system(pause_on_esc.run_in_state(AppState::Game));
     }
@@ -44,6 +47,8 @@ fn unload_world(mut commands: Commands, gameworld_entities: Query<Entity, With<R
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum AppState {
+    Open,
+    Loading,
     MainMenu,
     Game,
     Exit,
