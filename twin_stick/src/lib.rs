@@ -7,13 +7,12 @@ use bevy_rapier2d::prelude::{
 };
 
 use self::{
-    actors::ActorPlugin, ai::AIPlugin, enemies::EnemyPlugin, player::PlayerPlugin,
-    projectile::ProjectilePlugin, weapons::WeaponPlugin,
+    actors::ActorPlugin, ai::AIPlugin, player::PlayerPlugin, projectile::ProjectilePlugin,
+    weapons::WeaponPlugin,
 };
 
 pub mod actors;
 pub mod ai;
-pub mod enemies;
 pub mod player;
 pub mod projectile;
 pub mod utils;
@@ -30,7 +29,6 @@ impl Plugin for TwinStickPlugin {
         app.add_plugin(PlayerPlugin)
             .add_plugin(ActorPlugin)
             .add_plugin(WeaponPlugin)
-            .add_plugin(EnemyPlugin)
             .add_plugin(AIPlugin)
             .add_plugin(ProjectilePlugin);
     }
