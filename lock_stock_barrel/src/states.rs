@@ -27,7 +27,11 @@ impl Plugin for StatePlugin {
                 .run_in_state(AppState::Game)
                 .run_in_state(InGameMenu::Pause),
         );
-        app.add_system(hud_gui.run_in_state(AppState::Game));
+        app.add_system(
+            hud_gui
+                .run_in_state(AppState::Game)
+                .run_in_state(GameState::PlayingArena),
+        );
 
         app.add_system(pause_on_esc.run_in_state(AppState::Game));
     }
