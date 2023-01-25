@@ -15,6 +15,8 @@ use crate::{
     states::AppState,
 };
 
+pub mod level;
+pub mod level_event_manager;
 pub mod wave_manager;
 
 pub struct GamePlugin;
