@@ -15,8 +15,6 @@ use crate::{
     states::AppState,
 };
 
-pub mod wave_manager;
-
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
