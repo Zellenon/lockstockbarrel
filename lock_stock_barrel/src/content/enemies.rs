@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{rc::Rc, sync::Arc};
 
 use bevy::{
     ecs::system::{Commands, EntityCommands},
@@ -27,25 +27,27 @@ pub fn basic_enemy() -> ComponentTree {
         .into()
 }
 
-pub fn basic_head() -> ComponentTree {
-    (Arc::new(|parent: &mut EntityCommands| {
+pub fn basic_head(head_tex: Handle<Image>) -> ComponentTree {
+    let tex = head_tex.clone();
+    let func = move |parent: &mut EntityCommands| {
         parent.insert((
             SpriteBundle {
                 sprite: Sprite {
                     custom_size: Vec2::new(40., 40.).into(),
                     ..Default::default()
                 },
-                // texture: head,
+                texture: tex.clone(),
                 ..Default::default()
             },
             Tracking(None),
         ));
-    }) as EntityCommandSet)
-        .into()
+    };
+    (Arc::new(func) as EntityCommandSet).into()
 }
 
-pub fn basic_legs() -> ComponentTree {
-    (Arc::new(|parent: &mut EntityCommands| {
+pub fn basic_legs(leg_tex: Handle<Image>) -> ComponentTree {
+    let tex = leg_tex.clone();
+    let func = move |parent: &mut EntityCommands| {
         parent.insert((
             SpriteBundle {
                 sprite: Sprite {
@@ -53,16 +55,16 @@ pub fn basic_legs() -> ComponentTree {
                     ..Default::default()
                 },
                 transform: Transform::from_xyz(0., 0., -1.),
-                // texture: legs,
+                texture: tex.clone(),
                 ..Default::default()
             },
             Tracking(None),
             Legs::default(),
         ));
-    }) as EntityCommandSet)
-        .into()
+    };
+    (Arc::new(func) as EntityCommandSet).into()
 }
 
-pub fn basic_walker() -> ComponentTree {
-    basic_enemy() << basic_legs() << basic_head()
+pub fn basic_walker(head_tex: Handle<Image>, leg_tex: Handle<Image>) -> ComponentTree {
+    basic_enemy() << basic_legs(leg_tex) << basic_head(head_tex)
 }
