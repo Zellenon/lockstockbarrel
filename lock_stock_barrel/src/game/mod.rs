@@ -40,9 +40,20 @@ fn enemy_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     // spawn_enemy(&mut commands, Vec2::new(500., 0.), &asset_server);
     // spawn_enemy(&mut commands, Vec2::new(0., 500.), &asset_server);
     // spawn_enemy(&mut commands, Vec2::new(-500., 0.), &asset_server);
-    spawn_complex(&mut commands, basic_walker() + shift_pos((500., 0.)));
-    spawn_complex(&mut commands, basic_walker() + shift_pos((0., 500.)));
-    spawn_complex(&mut commands, basic_walker() + shift_pos((-500., 0.)));
+    let head_tex = asset_server.load("img/placeholder_head.png");
+    let leg_tex = asset_server.load("img/placeholder_legs.png");
+    spawn_complex(
+        &mut commands,
+        basic_walker(head_tex.clone(), leg_tex.clone()) + shift_pos((500., 0.)),
+    );
+    spawn_complex(
+        &mut commands,
+        basic_walker(head_tex.clone(), leg_tex.clone()) + shift_pos((0., 500.)),
+    );
+    spawn_complex(
+        &mut commands,
+        basic_walker(head_tex.clone(), leg_tex.clone()) + shift_pos((-500., 0.)),
+    );
 }
 
 fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>, cursor: Res<Cursor>) {
