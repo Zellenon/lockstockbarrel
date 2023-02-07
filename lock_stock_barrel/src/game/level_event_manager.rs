@@ -1,51 +1,108 @@
 use bevy::prelude::*;
+use bevy_composable::spawn_complex;
+
+use super::level_event::{LevelEvent, SpawnEvent};
+use crate::content::{enemies::basic_walker, shift_pos};
 
 pub struct LeveleventManagerPlugin;
 
 impl Plugin for LeveleventManagerPlugin {
     fn build(&self, app: &mut App) {
-        todo!()
+        app.add_event::<WakeLEManager>()
+            .add_event::<FireLEManager>();
+
+        app.add_system(activate_levelevent_timer)
+            .add_system(activate_child_managers)
+            .add_system(tick_basic_timers)
+            .add_system(fire_lemanagers);
     }
 }
 
-trait LevelEvent {}
-
 #[derive(Component)]
-struct LeveleventManager<T, A, T2, A2> {
-    pub activation_condition: Box<dyn System<In = T, Out = A>>,
-    pub priming_function: Option<Box<dyn System<In = T2, Out = A2>>>,
+pub struct LeveleventManager {
+    // pub activation_condition: &'static System,
+    // pub priming_function: Option<Box<dyn System>>,
+    // pub activation_condition: Box<dyn LevelEvent + Send + Sync>,
     pub state: LEManagerState,
-    pub fire_event: Box<dyn LevelEvent>,
+    pub fire_event: LevelEvent,
+    // reset_condition: None | Trigger<T>
     // Children
 }
 
-#[derive(Component)]
-struct BringAlive;
+impl LeveleventManager {
+    pub fn new(fire_event: LevelEvent) -> Self {
+        Self {
+            state: LEManagerState::Off,
+            fire_event,
+        }
+    }
+}
 
-#[derive(Component)]
-struct FireLEManager;
+struct WakeLEManager(Entity);
+struct FireLEManager(Entity);
 
+#[derive(Eq, PartialEq)]
 pub enum LEManagerState {
     Off,
     Live,
     Fired,
 }
 
-fn testLEManagerSetup(mut commands: Commands, asset_server: Res<AssetServer>) {
+#[derive(Component)]
+pub struct BasicTimer(Timer);
+
+pub fn test_lemanager_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     let head_tex = asset_server.load("img/placeholder_head.png");
     let leg_tex = asset_server.load("img/placeholder_legs.png");
-    spawn_complex(
-        &mut commands,
+    let spawn_event = LevelEvent::Spawn(vec![
         basic_walker(head_tex.clone(), leg_tex.clone()) + shift_pos((500., 0.)),
-    );
-    spawn_complex(
-        &mut commands,
         basic_walker(head_tex.clone(), leg_tex.clone()) + shift_pos((0., 500.)),
-    );
-    spawn_complex(
-        &mut commands,
         basic_walker(head_tex.clone(), leg_tex.clone()) + shift_pos((-500., 0.)),
-    );
+    ]);
+    commands.spawn(LeveleventManager::new(spawn_event));
 }
 
-fn activateTimer
+fn activate_child_managers(
+    manager_query: Query<(Entity, Option<&Parent>, &LeveleventManager)>,
+    mut wake_events: EventWriter<WakeLEManager>,
+) {
+    for (entity, parent, manager) in manager_query.iter() {
+        if (parent == None) && (manager.state == LEManagerState::Off) {
+            wake_events.send(WakeLEManager(entity));
+        }
+    }
+}
+
+fn activate_levelevent_timer(
+    mut commands: Commands,
+    mut priming_managers: Query<&mut LeveleventManager>,
+    mut wake_events: EventReader<WakeLEManager>,
+) {
+    for event in wake_events.iter() {
+        if let Ok(mut manager) = priming_managers.get_mut(event.0) {
+            commands
+                .entity(event.0)
+                .insert(BasicTimer(Timer::from_seconds(2., TimerMode::Once)));
+            manager.state = LEManagerState::Live;
+        }
+    }
+}
+
+fn tick_basic_timers(mut timers: Query<&mut BasicTimer>, time: Res<Time>) {
+    for mut timer in timers.iter_mut() {
+        timer.0.tick(time.delta());
+    }
+}
+
+fn fire_lemanagers(
+    mut timers: Query<(&BasicTimer, Entity, &mut LeveleventManager)>,
+    mut events: EventWriter<LevelEvent>,
+) {
+    for (timer, entity, mut manager) in timers.iter_mut() {
+        if (*timer).0.finished() && manager.state == LEManagerState::Live {
+            manager.state = LEManagerState::Fired;
+            events.send(manager.fire_event.clone());
+            // fire_events.send(FireLEManager(entity))
+        }
+    }
+}

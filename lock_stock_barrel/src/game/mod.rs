@@ -15,7 +15,13 @@ use crate::{
     states::AppState,
 };
 
+use self::{
+    level_event::LeveleventPlugin,
+    level_event_manager::{test_lemanager_setup, LeveleventManagerPlugin},
+};
+
 pub mod level;
+pub mod level_event;
 pub mod level_event_manager;
 pub mod wave_manager;
 
@@ -23,8 +29,12 @@ pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
+        app.add_plugin(LeveleventPlugin)
+            .add_plugin(LeveleventManagerPlugin);
+
         app.add_enter_system(AppState::Game, spawn_walls)
             .add_enter_system(AppState::Game, player_setup)
+            .add_enter_system(AppState::Game, test_lemanager_setup)
             .add_enter_system(AppState::Game, enemy_setup);
     }
 }
