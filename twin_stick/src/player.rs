@@ -1,5 +1,5 @@
 use crate::utils::*;
-use crate::weapons::{fire_weapons, FireWeaponEvent, Weapon, WeaponFireMode};
+use crate::weapons::{FireWeaponEvent, Weapon, WeaponFireMode};
 
 use iyes_loopless::prelude::*;
 

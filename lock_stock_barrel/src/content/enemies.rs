@@ -1,8 +1,8 @@
-use std::{rc::Rc, sync::Arc};
+use std::sync::Arc;
 
 use bevy::{
-    ecs::system::{Commands, EntityCommands},
-    prelude::{AssetServer, BuildChildren, Handle, Image, Res, Transform, Vec2},
+    ecs::system::EntityCommands,
+    prelude::{Handle, Image, Transform, Vec2},
     sprite::{Sprite, SpriteBundle},
 };
 use bevy_composable::*;

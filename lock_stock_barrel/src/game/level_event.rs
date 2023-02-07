@@ -1,4 +1,4 @@
-use bevy::{log::Level, prelude::*};
+use bevy::prelude::*;
 use bevy_composable::{spawn_complex, ComponentTree};
 
 pub struct LeveleventPlugin;

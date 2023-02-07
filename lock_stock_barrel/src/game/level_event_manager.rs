@@ -1,7 +1,6 @@
 use bevy::prelude::*;
-use bevy_composable::spawn_complex;
 
-use super::level_event::{LevelEvent, SpawnEvent};
+use super::level_event::LevelEvent;
 use crate::content::{enemies::basic_walker, shift_pos};
 
 pub struct LeveleventManagerPlugin;
@@ -98,7 +97,7 @@ fn fire_lemanagers(
     mut timers: Query<(&BasicTimer, Entity, &mut LeveleventManager)>,
     mut events: EventWriter<LevelEvent>,
 ) {
-    for (timer, entity, mut manager) in timers.iter_mut() {
+    for (timer, _, mut manager) in timers.iter_mut() {
         if (*timer).0.finished() && manager.state == LEManagerState::Live {
             manager.state = LEManagerState::Fired;
             events.send(manager.fire_event.clone());
