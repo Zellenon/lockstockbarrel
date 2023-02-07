@@ -23,7 +23,6 @@ use self::{
 pub mod level;
 pub mod level_event;
 pub mod level_event_manager;
-pub mod wave_manager;
 
 pub struct GamePlugin;
 
