@@ -7,7 +7,7 @@ use bevy::prelude::*;
 // use bevy_rapier2d::prelude::*;
 
 #[derive(Component, Resource)]
-pub struct MainCamera(Entity);
+pub struct MainCamera(pub Entity);
 
 #[derive(Component)]
 pub struct ArenaCamera;
