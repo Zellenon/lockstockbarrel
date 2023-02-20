@@ -5,7 +5,6 @@ use iyes_loopless::prelude::AppLooplessStateExt;
 use twin_stick::{
     actors::{ActorBundle, Legs, Tracking},
     ai::KeyboardAI,
-    obstacle_builder,
     player::{Cursor, Player},
     weapons::make_peashooter,
 };
@@ -16,6 +15,7 @@ use crate::{
 };
 
 use self::{
+    level::{spawn_arena_from_map, to_map, Level},
     level_event::LeveleventPlugin,
     level_event_manager::{test_lemanager_setup, LeveleventManagerPlugin},
 };
@@ -31,38 +31,10 @@ impl Plugin for GamePlugin {
         app.add_plugin(LeveleventPlugin)
             .add_plugin(LeveleventManagerPlugin);
 
-        app.add_enter_system(AppState::Game, spawn_walls)
-            .add_enter_system(AppState::Game, player_setup)
+        app.add_enter_system(AppState::Game, player_setup)
             .add_enter_system(AppState::Game, test_lemanager_setup)
-            .add_enter_system(AppState::Game, enemy_setup);
+            .add_enter_system(AppState::Game, test_load_level);
     }
-}
-
-fn spawn_walls(mut commands: Commands) {
-    obstacle_builder(&mut commands, -1000., 0., 50., 2000.);
-    obstacle_builder(&mut commands, 1000., 0., 50., 2000.);
-    obstacle_builder(&mut commands, 0., 1000., 2000., 50.);
-    obstacle_builder(&mut commands, 0., -1000., 2000., 50.);
-}
-
-fn enemy_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    // spawn_enemy(&mut commands, Vec2::new(500., 0.), &asset_server);
-    // spawn_enemy(&mut commands, Vec2::new(0., 500.), &asset_server);
-    // spawn_enemy(&mut commands, Vec2::new(-500., 0.), &asset_server);
-    let head_tex = asset_server.load("img/placeholder_head.png");
-    let leg_tex = asset_server.load("img/placeholder_legs.png");
-    spawn_complex(
-        &mut commands,
-        basic_walker(head_tex.clone(), leg_tex.clone()) + shift_pos((500., 0.)),
-    );
-    spawn_complex(
-        &mut commands,
-        basic_walker(head_tex.clone(), leg_tex.clone()) + shift_pos((0., 500.)),
-    );
-    spawn_complex(
-        &mut commands,
-        basic_walker(head_tex.clone(), leg_tex.clone()) + shift_pos((-500., 0.)),
-    );
 }
 
 fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>, cursor: Res<Cursor>) {
@@ -99,4 +71,20 @@ fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>, cursor: 
             ));
             parent.spawn(make_peashooter());
         });
+}
+
+fn test_load_level(commands: Commands) {
+    let demo_map: Vec<Vec<u8>> = vec![
+        vec![1, 1, 1, 1, 1],
+        vec![1, 0, 0, 0, 1],
+        vec![1, 0, 1, 0, 1],
+        vec![1, 0, 0, 0, 1],
+        vec![1, 1, 0, 0, 1],
+        vec![0, 1, 1, 1, 1],
+    ];
+    let level = Level {
+        arena_map: to_map(demo_map),
+        resolution: 600.,
+    };
+    spawn_arena_from_map(commands, &level);
 }
