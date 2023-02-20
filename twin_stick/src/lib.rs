@@ -34,7 +34,7 @@ impl Plugin for TwinStickPlugin {
     }
 }
 
-fn setup(mut commands: Commands, mut rapier_config: ResMut<RapierConfiguration>) {
+fn setup(mut rapier_config: ResMut<RapierConfiguration>) {
     rapier_config.gravity = Vec2::new(0., 0.);
 }
 

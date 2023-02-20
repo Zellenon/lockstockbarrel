@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy_composable::*;
 use bevy_stats::{Speed, Stat};
 use iyes_loopless::prelude::AppLooplessStateExt;
 use twin_stick::{
@@ -9,10 +8,7 @@ use twin_stick::{
     weapons::make_peashooter,
 };
 
-use crate::{
-    content::{enemies::basic_walker, shift_pos},
-    states::AppState,
-};
+use crate::states::AppState;
 
 use self::{
     level::{spawn_arena_from_map, to_map, Level},
