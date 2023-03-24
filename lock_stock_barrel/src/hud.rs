@@ -1,9 +1,5 @@
-use bevy::{
-    prelude::{Query, With},
-    window::PrimaryWindow,
-};
 use bevy_egui::EguiContexts;
-use prettegui::bevy_egui::{egui, EguiContext};
+use prettegui::bevy_egui::egui;
 
 pub(crate) fn hud_gui(mut root: EguiContexts) {
     egui::Window::new("HUD1")

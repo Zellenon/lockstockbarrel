@@ -1,17 +1,10 @@
-use bevy::{
-    prelude::{Commands, NextState, Query, ResMut, With},
-    window::PrimaryWindow,
-};
+use bevy::prelude::{NextState, ResMut};
 use bevy_egui::EguiContexts;
-use prettegui::bevy_egui::{egui, EguiContext};
+use prettegui::bevy_egui::egui;
 
 use crate::states::AppState;
 
-pub fn main_menu_gui(
-    mut commands: Commands,
-    mut root: EguiContexts,
-    mut state: ResMut<NextState<AppState>>,
-) {
+pub fn main_menu_gui(mut root: EguiContexts, mut state: ResMut<NextState<AppState>>) {
     egui::CentralPanel::default().show(root.ctx_mut(), |ui| {
         ui.allocate_space(egui::Vec2::new(1.0, 100.0));
 

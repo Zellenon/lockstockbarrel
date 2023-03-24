@@ -1,4 +1,4 @@
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::prelude::*;
 pub extern crate bevy_egui;
 use bevy_egui::EguiContexts;
 pub use bevy_egui::{
