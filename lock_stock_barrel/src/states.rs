@@ -1,8 +1,4 @@
-use bevy::{
-    app::AppExit,
-    prelude::{Commands, DespawnRecursiveExt, Entity, EventWriter, Plugin, Query, With},
-};
-use iyes_loopless::prelude::*;
+use bevy::{app::AppExit, prelude::*};
 use twin_stick::bevy_rapier2d::prelude::RigidBody;
 
 use crate::{
@@ -15,25 +11,25 @@ pub struct StatePlugin;
 
 impl Plugin for StatePlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.add_loopless_state(AppState::MainMenu);
-        app.add_loopless_state(GameState::PlayingArena);
-        app.add_loopless_state(InGameMenu::None);
+        app.add_state::<AppState>();
+        app.add_state::<GameState>();
+        app.add_state::<InGameMenu>();
 
-        app.add_system(exit.run_in_state(AppState::Exit));
-        app.add_enter_system(AppState::MainMenu, unload_world);
-        app.add_system(main_menu_gui.run_in_state(AppState::MainMenu));
+        app.add_system(exit.in_schedule(OnEnter(AppState::Exit)));
+        app.add_system(unload_world.in_schedule(OnEnter(AppState::MainMenu)));
+        app.add_system(main_menu_gui.in_set(OnUpdate(AppState::MainMenu)));
         app.add_system(
             pause_gui
-                .run_in_state(AppState::Game)
-                .run_in_state(InGameMenu::Pause),
+                .run_if(in_state(AppState::Game))
+                .run_if(in_state(InGameMenu::Pause)),
         );
         app.add_system(
             hud_gui
-                .run_in_state(AppState::Game)
-                .run_in_state(GameState::PlayingArena),
+                .run_if(in_state(AppState::Game))
+                .run_if(in_state(GameState::PlayingArena)),
         );
 
-        app.add_system(pause_on_esc.run_in_state(AppState::Game));
+        app.add_system(pause_on_esc.in_set(OnUpdate(AppState::Game)));
     }
 }
 
@@ -45,23 +41,26 @@ fn unload_world(mut commands: Commands, gameworld_entities: Query<Entity, With<R
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(States, Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum AppState {
     Open,
     Loading,
+    #[default]
     MainMenu,
     Game,
     Exit,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(States, Default, Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum GameState {
     PlayingArena,
+    #[default]
     Map,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(States, Default, Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum InGameMenu {
+    #[default]
     None,
     Inventory,
     Pause,

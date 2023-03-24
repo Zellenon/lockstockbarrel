@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use bevy_stats::{Speed, Stat};
-use iyes_loopless::prelude::AppLooplessStateExt;
 use twin_stick::{
     actors::{ActorBundle, Legs, Tracking},
     ai::KeyboardAI,
@@ -27,9 +26,9 @@ impl Plugin for GamePlugin {
         app.add_plugin(LeveleventPlugin)
             .add_plugin(LeveleventManagerPlugin);
 
-        app.add_enter_system(AppState::Game, player_setup)
-            .add_enter_system(AppState::Game, test_lemanager_setup)
-            .add_enter_system(AppState::Game, test_load_level);
+        app.add_system(player_setup.in_schedule(OnEnter(AppState::Game)))
+            .add_system(test_lemanager_setup.in_schedule(OnEnter(AppState::Game)))
+            .add_system(test_load_level.in_schedule(OnEnter(AppState::Game)));
     }
 }
 

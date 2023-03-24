@@ -56,11 +56,11 @@ pub fn wall(x: f32, y: f32, width: f32, height: f32) -> ComponentTree {
                     extents: Vec2::new(width, height),
                     origin: lyon::shapes::RectangleOrigin::Center,
                 },
-                lyon::DrawMode::Outlined {
-                    fill_mode: lyon::FillMode::color(Color::TEAL),
-                    outline_mode: lyon::StrokeMode::color(Color::TEAL),
-                },
-                Transform::from_xyz(x, y, 0.0),
+                // lyon::DrawMode::Outlined {
+                //     fill_mode: lyon::FillMode::color(Color::TEAL),
+                //     outline_mode: lyon::StrokeMode::color(Color::TEAL),
+                // },
+                // Transform::from_xyz(x, y, 0.0),
             ),
             RigidBody::Fixed,
             Collider::cuboid(width / 2., height / 2.),

@@ -45,11 +45,11 @@ pub fn obstacle_builder(commands: &mut Commands, x: f32, y: f32, width: f32, hei
                 extents: Vec2::new(width, height),
                 origin: lyon::shapes::RectangleOrigin::Center,
             },
-            lyon::DrawMode::Outlined {
-                fill_mode: lyon::FillMode::color(Color::TEAL),
-                outline_mode: lyon::StrokeMode::color(Color::TEAL),
-            },
-            Transform::default(),
+            // lyon::DrawMode::Outlined {
+            //     fill_mode: lyon::FillMode::color(Color::TEAL),
+            //     outline_mode: lyon::StrokeMode::color(Color::TEAL),
+            // },
+            // Transform::default(),
         ))
         .insert(RigidBody::Fixed)
         .insert(Collider::cuboid(width / 2., height / 2.))

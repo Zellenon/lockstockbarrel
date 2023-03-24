@@ -141,12 +141,12 @@ pub fn make_peashooter() -> (Weapon, Cooldown) {
                             radius: 5.,
                             center: Vec2::ZERO,
                         },
-                        DrawMode::Outlined {
-                            fill_mode: FillMode::color(Color::WHITE),
-                            outline_mode: StrokeMode::color(Color::BLACK),
-                        },
-                        parent_transform
-                            .with_translation(parent_transform.translation + fire_direction * 30.),
+                        // DrawMode::Outlined {
+                        //     fill_mode: FillMode::color(Color::WHITE),
+                        //     outline_mode: StrokeMode::color(Color::BLACK),
+                        // },
+                        // parent_transform
+                        //     .with_translation(parent_transform.translation + fire_direction * 30.),
                     ));
             }),
         },

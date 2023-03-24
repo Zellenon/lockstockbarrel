@@ -1,8 +1,8 @@
-use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
+use bevy::{math::Vec3Swizzles, prelude::*};
+use bevy_mod_transform2d::transform2d::Transform2d;
 use bevy_rapier2d::prelude::*;
 
-use crate::{player::Player, utils::get_angle};
+use crate::player::Player;
 use bevy_stats::{Health, Speed, Stat};
 
 #[derive(Component, Reflect)]
@@ -33,7 +33,8 @@ pub struct ActorBundle {
     pub faction: Faction,
     pub visibility: Visibility,
     pub computer_visibility: ComputedVisibility,
-    pub transform: Transform,
+    pub transform3d: Transform,
+    pub transform: Transform2d,
     pub global_transform: GlobalTransform,
     pub rigidbody: RigidBody,
     pub mass_properties: ColliderMassProperties,
@@ -50,8 +51,9 @@ impl Default for ActorBundle {
         Self {
             actor: Default::default(),
             faction: Faction::FriendlyToAll,
-            visibility: Visibility { is_visible: true },
+            visibility: Visibility::Visible,
             transform: Default::default(),
+            transform3d: Default::default(),
             global_transform: Default::default(),
             rigidbody: RigidBody::Dynamic,
             mass_properties: ColliderMassProperties::Density(0.3),
@@ -69,7 +71,7 @@ impl Default for ActorBundle {
     }
 }
 
-#[derive(Component, Inspectable)]
+#[derive(Component, Reflect)]
 pub struct Tracking(pub Option<Entity>);
 
 #[derive(Component, Reflect)]
@@ -104,12 +106,12 @@ impl Plugin for ActorPlugin {
 }
 
 fn facing_update_system(
-    todo_entities: Query<Entity, (With<Tracking>, With<Transform>, With<Parent>)>,
+    todo_entities: Query<Entity, (With<Tracking>, With<Transform2d>, With<Parent>)>,
     mut transforms: Query<(
         &GlobalTransform,
         Option<&Tracking>,
         Option<&Velocity>,
-        &mut Transform,
+        &mut Transform2d,
         Option<&Parent>,
     )>,
     parents: Query<&Velocity>,
@@ -117,25 +119,24 @@ fn facing_update_system(
     for entity in todo_entities.iter() {
         let entity = entity.clone();
         let target = transforms.get(entity).unwrap().1.unwrap().0;
-        let direction = match target {
-            Some(target_entity) => {
-                transforms.get(target_entity).unwrap().0.translation()
-                    - transforms.get(entity).unwrap().0.translation()
-            }
+        let direction: Vec2 = match target {
+            Some(target_entity) => (transforms.get(target_entity).unwrap().0.translation()
+                - transforms.get(entity).unwrap().0.translation())
+            .xy(),
             None => match parents.get(transforms.get(entity).unwrap().4.unwrap().get()) {
-                Ok(parent_vel) => (parent_vel.linvel * 1.).extend(0.),
-                Err(_) => Vec3::Y,
+                Ok(parent_vel) => parent_vel.linvel * 1.,
+                Err(_) => Vec2::Y,
             },
         };
-        let transform: &mut Transform = &mut transforms.get_mut(entity).unwrap().3;
-        let result = get_angle(direction);
-        if !result.is_nan() {
-            transform.rotation = result;
-        }
+        let transform: &mut Transform2d = &mut transforms.get_mut(entity).unwrap().3;
+        transform.rotation = (direction.x / direction.y).atan();
     }
 }
 
-fn animate_legs(mut legs: Query<(&mut Transform, &mut Legs, &Parent)>, parents: Query<&Velocity>) {
+fn animate_legs(
+    mut legs: Query<(&mut Transform2d, &mut Legs, &Parent)>,
+    parents: Query<&Velocity>,
+) {
     for (mut transform, mut legs, parent) in legs.iter_mut() {
         if legs.animation_stage > 199 {
             legs.stroke = -1;
@@ -151,7 +152,7 @@ fn animate_legs(mut legs: Query<(&mut Transform, &mut Legs, &Parent)>, parents: 
                 } else {
                     legs.animation_stage = (legs.animation_stage as f32 * 0.9) as isize;
                 }
-                transform.scale = Vec3::new(1., legs.animation_stage as f32 / 100., 1.);
+                transform.scale = Vec2::new(1., legs.animation_stage as f32 / 100.);
             }
             Err(e) => println!("{}", e),
         };

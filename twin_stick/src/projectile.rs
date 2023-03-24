@@ -67,7 +67,7 @@ impl Default for ProjectileBundle {
     fn default() -> Self {
         Self {
             projectile: Projectile::default(),
-            visibility: Visibility { is_visible: true },
+            visibility: Visibility::Visible,
             velocity: Default::default(),
             transform: Default::default(),
             global_transform: Default::default(),
