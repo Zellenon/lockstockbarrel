@@ -6,6 +6,7 @@ use bevy::{
     DefaultPlugins,
 };
 use bevy_embedded_assets::EmbeddedAssetPlugin;
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_stats::StatPlugin;
 use game::GamePlugin;
 use prettegui::GUIPlugin;
@@ -51,8 +52,8 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     app.add_plugin(GamePlugin);
 
     if cfg!(debug_assertions) {
-        // app.add_plugin(WorldInspectorPlugin::new());
-        // .add_plugin(RapierDebugRenderPlugin::default());
+        app.add_plugin(WorldInspectorPlugin::new());
+        // app.add_plugin(RapierDebugRenderPlugin::default());
     }
 
     app.insert_resource(ClearColor(Color::rgb(
