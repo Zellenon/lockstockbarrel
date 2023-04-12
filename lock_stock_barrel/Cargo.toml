@@ -8,11 +8,12 @@ edition = "2021"
 [dependencies]
 bevy = {version = "0.10"}
 bevy_egui = "0.20.1"
-# bevy-inspector-egui = "0.14.0"
+bevy-inspector-egui = "0.18"
 bevy_embedded_assets = "0.7"
 serde = "1.0"
 strum = "0.24"
 strum_macros = "0.24"
+bevy_mod_transform2d = "0.4"
 # iyes_loopless = "0.9"
 
 bevy_prototype_lyon = {path = "../bevy_prototype_lyon"}
