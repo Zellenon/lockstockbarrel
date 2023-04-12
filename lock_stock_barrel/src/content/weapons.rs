@@ -56,7 +56,6 @@ pub fn peashooter() -> ComponentTree {
                         Knockback(250.),
                         Damaging(20.),
                         Ccd::enabled(),
-                        // Lifespan::default(),
                         Mesh2dHandle::default(),
                         Handle::<ShapeMaterial>::default(),
                         Name::new("Bullet"),

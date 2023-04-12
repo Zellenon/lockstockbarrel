@@ -1,11 +1,10 @@
-use bevy::prelude::*;
-use bevy_prototype_lyon::prelude::*;
-use bevy_rapier2d::prelude::{Ccd, Velocity};
-
-use crate::{
-    player::CursorTracker,
-    projectile::{Damaging, Knockback, Lifespan, ProjectileBundle},
+use bevy::{
+    prelude::{App, Commands, Component, Entity, EventReader, Parent, Plugin, Query, Res, With},
+    time::{Time, Timer, TimerMode},
 };
+use bevy_mod_transform2d::transform2d::Transform2d;
+
+use crate::player::CursorTracker;
 
 pub struct WeaponPlugin;
 
@@ -37,7 +36,7 @@ pub struct WeaponArguments<'c, 'w, 's, 'c2, 'w2, 's2> {
     pub cursor: Entity,
     pub target: Option<Entity>,
     pub parent: Entity,
-    pub transforms: Query<'c2, 'w2, &'s2 Transform>,
+    pub transforms: Query<'c2, 'w2, &'s2 Transform2d>,
 }
 
 #[derive(Component)]
@@ -65,7 +64,7 @@ pub fn fire_weapons(
     mut commands: Commands,
     cursor: Query<Entity, With<CursorTracker>>,
     weapons: Query<(&Weapon, &Parent)>,
-    transforms: Query<&Transform>,
+    transforms: Query<&Transform2d>,
 ) {
     let mut args = WeaponArguments {
         commands: &mut commands,
@@ -79,7 +78,6 @@ pub fn fire_weapons(
         args.parent = weapons.get(*weapon).unwrap().1.get();
         (*weapons.get(*weapon).unwrap().0.fire_func)(&mut args);
     }
-    // args.target = None;
 }
 
 fn reset_weapon_cooldowns(
@@ -110,46 +108,4 @@ fn tick_cooldowns(mut cooldown_query: Query<&mut Cooldown>, time: Res<Time>) {
     for mut cooldown in cooldown_query.iter_mut() {
         cooldown.timer.tick(time.delta());
     }
-}
-
-pub fn make_peashooter() -> (Weapon, Cooldown) {
-    (
-        Weapon {
-            can_fire: true,
-            fire_mode: WeaponFireMode::FullAuto,
-            fire_func: Box::new(move |a: &mut WeaponArguments| {
-                let parent_transform = a.transforms.get(a.parent).unwrap().clone();
-                let cursor_transform = a.transforms.get(a.cursor).unwrap().clone();
-                let fire_direction =
-                    Vec3::normalize(cursor_transform.translation - parent_transform.translation);
-                a.commands
-                    .spawn((
-                        ProjectileBundle {
-                            velocity: Velocity {
-                                linvel: fire_direction.truncate() * 7000.,
-                                angvel: 0.,
-                            },
-                            ..Default::default()
-                        },
-                        Knockback(250.),
-                        Damaging(20.),
-                        Ccd::enabled(),
-                        Lifespan::default(),
-                    ))
-                    .insert(GeometryBuilder::build_as(
-                        &shapes::Circle {
-                            radius: 5.,
-                            center: Vec2::ZERO,
-                        },
-                        // DrawMode::Outlined {
-                        //     fill_mode: FillMode::color(Color::WHITE),
-                        //     outline_mode: StrokeMode::color(Color::BLACK),
-                        // },
-                        // parent_transform
-                        //     .with_translation(parent_transform.translation + fire_direction * 30.),
-                    ));
-            }),
-        },
-        Cooldown::new(0.3),
-    )
 }
