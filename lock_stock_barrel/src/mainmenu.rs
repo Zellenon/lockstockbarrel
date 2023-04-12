@@ -26,12 +26,5 @@ pub fn main_menu_gui(mut root: EguiContexts, mut state: ResMut<NextState<AppStat
         if ui.button("Increment").clicked() {
             println!("pressed!");
         }
-
-        // ui.with_layout(egui::Layout::bottom_up(egui::Align::Center), |ui| {
-        //     ui.add(egui::Hyperlink::from_label_and_url(
-        //         "powered by egui",
-        //         "https://github.com/emilk/egui/",
-        //     ));
-        // });
     });
 }
