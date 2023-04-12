@@ -1,6 +1,13 @@
 use std::{marker::PhantomData, time::Duration};
 
-use bevy::prelude::*;
+use bevy::{
+    prelude::{
+        App, Bundle, Commands, Component, ComputedVisibility, DespawnRecursiveExt, Entity,
+        EventReader, EventWriter, GlobalTransform, Plugin, Query, Res, Transform, Vec2, Visibility,
+    },
+    time::{Time, Timer, TimerMode},
+};
+use bevy_mod_transform2d::transform2d::Transform2d;
 use bevy_rapier2d::{
     pipeline::CollisionEvent,
     prelude::{
@@ -12,6 +19,12 @@ use bevy_stats::{Health, Stat, StatChangeEvent};
 
 #[derive(Component)]
 pub struct Lifespan(Timer);
+
+impl Lifespan {
+    pub fn new(duration: Duration) -> Self {
+        Self(Timer::new(duration, TimerMode::Once))
+    }
+}
 
 impl Default for Lifespan {
     fn default() -> Self {
@@ -54,7 +67,9 @@ pub struct Damaging(pub f32);
 pub struct ProjectileBundle {
     pub projectile: Projectile,
     pub visibility: Visibility,
-    pub transform: Transform,
+    pub computed_visibility: ComputedVisibility,
+    pub _transform: Transform,
+    pub transform: Transform2d,
     pub global_transform: GlobalTransform,
     pub rigidbody: RigidBody,
     pub velocity: Velocity,
@@ -68,8 +83,10 @@ impl Default for ProjectileBundle {
         Self {
             projectile: Projectile::default(),
             visibility: Visibility::Visible,
+            computed_visibility: ComputedVisibility::default(),
             velocity: Default::default(),
             transform: Default::default(),
+            _transform: Default::default(),
             global_transform: Default::default(),
             rigidbody: RigidBody::Dynamic,
             mass_properties: ColliderMassProperties::Density(1.),
@@ -152,7 +169,11 @@ fn projectile_impact(
                     })
                 }
             }
-            commands.entity(*projectile).despawn_recursive();
+            match projectile_data.0.on_impact {
+                ProjectileImpactBehavior::Die => commands.entity(*projectile).despawn_recursive(),
+                ProjectileImpactBehavior::Bounce => (),
+            };
+
             // println!("Received collision event: {:?}", collision_event);
         }
     }

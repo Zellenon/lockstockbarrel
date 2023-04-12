@@ -1,4 +1,11 @@
-use bevy::{math::Vec3Swizzles, prelude::*};
+use bevy::{
+    math::Vec3Swizzles,
+    prelude::{
+        App, Bundle, Changed, Commands, Component, ComputedVisibility, DespawnRecursiveExt, Entity,
+        GlobalTransform, Parent, Plugin, Query, Transform, Vec2, Visibility, With, Without,
+    },
+    reflect::Reflect,
+};
 use bevy_mod_transform2d::transform2d::Transform2d;
 use bevy_rapier2d::prelude::*;
 
@@ -33,7 +40,7 @@ pub struct ActorBundle {
     pub faction: Faction,
     pub visibility: Visibility,
     pub computer_visibility: ComputedVisibility,
-    pub transform3d: Transform,
+    pub _transform: Transform,
     pub transform: Transform2d,
     pub global_transform: GlobalTransform,
     pub rigidbody: RigidBody,
@@ -53,7 +60,7 @@ impl Default for ActorBundle {
             faction: Faction::FriendlyToAll,
             visibility: Visibility::Visible,
             transform: Default::default(),
-            transform3d: Default::default(),
+            _transform: Default::default(),
             global_transform: Default::default(),
             rigidbody: RigidBody::Dynamic,
             mass_properties: ColliderMassProperties::Density(0.3),
@@ -125,11 +132,13 @@ fn facing_update_system(
             .xy(),
             None => match parents.get(transforms.get(entity).unwrap().4.unwrap().get()) {
                 Ok(parent_vel) => parent_vel.linvel * 1.,
-                Err(_) => Vec2::Y,
+                Err(_) => Vec2::X,
             },
         };
         let transform: &mut Transform2d = &mut transforms.get_mut(entity).unwrap().3;
-        transform.rotation = (direction.x / direction.y).atan();
+        transform.rotation = -2.
+            * (direction.x / (direction.y + (direction.y.powi(2) + direction.x.powi(2)).sqrt()))
+                .atan();
     }
 }
 
