@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 pub extern crate bevy_egui;
+use bevy_egui::EguiContexts;
 pub use bevy_egui::{
     egui::{self, TextureId},
     EguiContext, EguiPlugin,
@@ -19,7 +20,7 @@ impl Plugin for GUIPlugin {
     }
 }
 
-fn ui_test(mut egui: ResMut<EguiContext>) {
+fn ui_test(mut egui: EguiContexts) {
     egui::Window::new("Hello").show(egui.ctx_mut(), |ui| {
         ui.label("world");
         ui.add(TextImageButton::new(

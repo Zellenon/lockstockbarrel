@@ -1,14 +1,21 @@
-use bevy::prelude::*;
+use bevy::{ecs::system::EntityCommands, prelude::*};
+use bevy_composable::{spawn_complex, ComponentTree, EntityCommandSet};
 use bevy_stats::{Speed, Stat};
-use iyes_loopless::prelude::AppLooplessStateExt;
+use std::sync::Arc;
 use twin_stick::{
-    actors::{ActorBundle, Legs, Tracking},
+    actors::ActorBundle,
     ai::KeyboardAI,
     player::{Cursor, Player},
-    weapons::make_peashooter,
 };
 
-use crate::states::AppState;
+use crate::{
+    content::{
+        actor_bits::{basic_head, basic_legs},
+        shift_tracking,
+        weapons::{peashooter, wallgun},
+    },
+    states::AppState,
+};
 
 use self::{
     level::{spawn_arena_from_map, to_map, Level},
@@ -27,46 +34,46 @@ impl Plugin for GamePlugin {
         app.add_plugin(LeveleventPlugin)
             .add_plugin(LeveleventManagerPlugin);
 
-        app.add_enter_system(AppState::Game, player_setup)
-            .add_enter_system(AppState::Game, test_lemanager_setup)
-            .add_enter_system(AppState::Game, test_load_level);
+        app.add_system(player_setup.in_schedule(OnEnter(AppState::Game)))
+            .add_system(test_lemanager_setup.in_schedule(OnEnter(AppState::Game)))
+            .add_system(test_load_level.in_schedule(OnEnter(AppState::Game)));
     }
 }
 
 fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>, cursor: Res<Cursor>) {
-    commands
-        .spawn((
+    spawn_complex(
+        &mut commands,
+        player_tree(
+            asset_server.load("img/player_head.png").clone(),
+            asset_server.load("img/player_legs.png").clone(),
+            cursor,
+        ),
+    );
+}
+
+fn player_tree_base() -> ComponentTree {
+    let func = move |parent: &mut EntityCommands| {
+        parent.insert((
             Player,
+            Name::new("Player"),
             ActorBundle::default(),
             Stat::<Speed>::new(1500.),
             KeyboardAI,
-        ))
-        .with_children(|parent| {
-            parent.spawn((
-                Tracking(Some(cursor.0)),
-                SpriteBundle {
-                    sprite: Sprite {
-                        custom_size: Vec2::new(40., 40.).into(),
-                        ..Default::default()
-                    },
-                    texture: asset_server.load("img/player_head.png"),
-                    ..Default::default()
-                },
-            ));
-            parent.spawn((
-                Legs::default(),
-                Tracking(None),
-                SpriteBundle {
-                    sprite: Sprite {
-                        custom_size: Vec2::new(30., 35.).into(),
-                        ..Default::default()
-                    },
-                    texture: asset_server.load("img/player_legs.png"),
-                    ..Default::default()
-                },
-            ));
-            parent.spawn(make_peashooter());
-        });
+        ));
+    };
+    (Arc::new(func) as EntityCommandSet).into()
+}
+
+pub fn player_tree(
+    head_tex: Handle<Image>,
+    leg_tex: Handle<Image>,
+    cursor: Res<Cursor>,
+) -> ComponentTree {
+    player_tree_base()
+        << (basic_head(head_tex) + shift_tracking(Some(cursor.0)))
+        << basic_legs(leg_tex)
+        << peashooter()
+    // << wallgun()
 }
 
 fn test_load_level(commands: Commands) {

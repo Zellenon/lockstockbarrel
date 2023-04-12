@@ -1,7 +1,7 @@
-use bevy::prelude::ResMut;
-use prettegui::bevy_egui::{egui, EguiContext};
+use bevy_egui::EguiContexts;
+use prettegui::bevy_egui::egui;
 
-pub(crate) fn hud_gui(mut root: ResMut<EguiContext>) {
+pub(crate) fn hud_gui(mut root: EguiContexts) {
     egui::Window::new("HUD1")
         .resizable(false)
         .collapsible(false)

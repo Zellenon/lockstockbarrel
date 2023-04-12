@@ -2,7 +2,7 @@ use bevy::{
     app::App,
     prelude::{bevy_main, default, ClearColor, PluginGroup},
     render::color::Color,
-    window::{WindowDescriptor, WindowPlugin},
+    window::{Window, WindowPlugin},
     DefaultPlugins,
 };
 use bevy_embedded_assets::EmbeddedAssetPlugin;
@@ -20,25 +20,25 @@ mod mainmenu;
 mod pause;
 mod states;
 
-#[bevy_main]
+// #[bevy_main]
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut app = App::new();
     app.add_plugins(
         DefaultPlugins
             .build()
             .set(WindowPlugin {
-                window: WindowDescriptor {
+                primary_window: Some(Window {
                     title: "Lock Stock and Barrel".to_string(),
                     fit_canvas_to_parent: true,
                     // mode: WindowMode::BorderlessFullscreen,
-                    width: 1600.,
-                    height: 900.,
+                    // width: 1600.,
+                    // height: 900.,
                     // monitor: todo!(),
                     // resizable: todo!(),
                     // cursor_visible: todo!(),
                     // cursor_grab_mode: todo!(),
                     ..Default::default()
-                },
+                }),
                 ..default()
             })
             .add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin),

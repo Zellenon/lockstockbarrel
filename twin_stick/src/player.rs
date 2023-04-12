@@ -1,10 +1,13 @@
 use crate::utils::*;
 use crate::weapons::{FireWeaponEvent, Weapon, WeaponFireMode};
 
-use iyes_loopless::prelude::*;
-
-use bevy::prelude::*;
-// use bevy_rapier2d::prelude::*;
+use bevy::prelude::{
+    App, Camera2dBundle, Children, Commands, Component, Entity, EventWriter, Input,
+    IntoSystemConfig, MouseButton, Name, Plugin, Query, Res, Resource, With,
+};
+use bevy::window::Window;
+use bevy_mod_transform2d::prelude::Spatial2dBundle;
+use bevy_mod_transform2d::transform2d::Transform2d;
 
 #[derive(Component, Resource)]
 pub struct MainCamera(pub Entity);
@@ -27,43 +30,41 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(player_setup)
             .add_system(update_cursor_tracker);
-        app.add_system_set(
-            ConditionSet::new()
-                .run_if(player_exists)
-                .with_system(fire_player_weapons)
-                .with_system(camera_movement)
-                .into(),
-        );
+        app.add_system(fire_player_weapons.run_if(player_exists))
+            .add_system(camera_movement.run_if(player_exists));
     }
 }
 
 pub fn player_setup(mut commands: Commands) {
     let camera_entity = commands
         .spawn(Camera2dBundle::default())
+        .insert(Name::new("Camera"))
+        .insert(Transform2d::default())
         .insert(ArenaCamera)
         .id();
     commands.insert_resource(MainCamera(camera_entity));
 
     let cursor_entity = commands
-        .spawn(SpatialBundle::default())
+        .spawn(Spatial2dBundle::default())
+        .insert(Name::new("Cursor"))
         .insert(CursorTracker)
         .id();
     commands.insert_resource(Cursor(cursor_entity));
 }
 
 pub fn update_cursor_tracker(
-    mut transforms: Query<&mut Transform>,
-    windows: Res<Windows>,
+    mut transforms: Query<&mut Transform2d>,
+    windows: Query<&Window>,
     cam: Res<MainCamera>,
     cursor: Res<Cursor>,
 ) {
     let camera_transform = transforms.get(cam.0).unwrap().clone();
     let mut cursor_transform = transforms.get_mut(cursor.0).unwrap();
-    let window = windows.get_primary().unwrap();
+    let window = windows.single();
 
     if let Some(_position) = window.cursor_position() {
-        let new_cursor_pos = screen_to_world(_position, &camera_transform, &windows);
-        cursor_transform.translation = new_cursor_pos.extend(0.);
+        let new_cursor_pos = screen_to_world(_position, &camera_transform, window);
+        cursor_transform.translation = new_cursor_pos;
     }
 }
 
@@ -98,7 +99,7 @@ fn camera_movement(
     cursor: Query<Entity, With<CursorTracker>>,
     player: Query<Entity, With<Player>>,
     camera: Res<MainCamera>,
-    mut transforms: Query<&mut Transform>,
+    mut transforms: Query<&mut Transform2d>,
 ) {
     let player_weight = 0.7;
     let delay = 0.15;

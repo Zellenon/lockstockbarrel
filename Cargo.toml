@@ -15,6 +15,7 @@ members = [
   "prettegui",
   "twin_stick",
   "lock_stock_barrel",
+  "bevy_prototype_lyon",
 ]
 
 [dependencies]

@@ -6,4 +6,4 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = {version = "0.9.1", features = ['dynamic']} # Find a way to disable this for release
+bevy = {version = "0.10.0"} # Find a way to disable this for release

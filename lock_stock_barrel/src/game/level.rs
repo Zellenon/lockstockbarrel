@@ -1,6 +1,7 @@
 use bevy::{ecs::system::EntityCommands, prelude::*};
 use bevy_composable::{spawn_complex, ComponentTree, EntityCommandSet};
-use bevy_prototype_lyon::prelude as lyon;
+use bevy_mod_transform2d::transform2d::Transform2d;
+use bevy_prototype_lyon::prelude::{self as lyon, Fill, ShapeBundle};
 use std::sync::Arc;
 use twin_stick::bevy_rapier2d::prelude::{Collider, RigidBody};
 
@@ -51,19 +52,18 @@ pub fn spawn_arena_from_map(mut commands: Commands, level: &Level) {
 pub fn wall(x: f32, y: f32, width: f32, height: f32) -> ComponentTree {
     (Arc::new(move |e: &mut EntityCommands| {
         e.insert((
-            lyon::GeometryBuilder::build_as(
-                &lyon::shapes::Rectangle {
+            ShapeBundle {
+                path: lyon::GeometryBuilder::build_as(&lyon::shapes::Rectangle {
                     extents: Vec2::new(width, height),
                     origin: lyon::shapes::RectangleOrigin::Center,
-                },
-                lyon::DrawMode::Outlined {
-                    fill_mode: lyon::FillMode::color(Color::TEAL),
-                    outline_mode: lyon::StrokeMode::color(Color::TEAL),
-                },
-                Transform::from_xyz(x, y, 0.0),
-            ),
+                }),
+                ..default()
+            },
+            Transform2d::from_xy(x, y),
+            Fill::color(Color::TEAL),
             RigidBody::Fixed,
             Collider::cuboid(width / 2., height / 2.),
+            Name::new("Wall"),
         ));
     }) as EntityCommandSet)
         .into()
