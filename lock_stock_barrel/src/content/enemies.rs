@@ -4,7 +4,7 @@ use bevy::{
     ecs::system::EntityCommands,
     prelude::{Handle, Image, Name},
 };
-use bevy_composable::*;
+use bevy_composable::tree::{ComponentTree, EntityCommandSet};
 use bevy_stats::{Health, Speed, Stat};
 use twin_stick::{
     actors::{ActorBundle, Faction},

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_composable::{spawn_complex, ComponentTree};
+use bevy_composable::{app_impl::ComplexSpawnable, tree::ComponentTree};
 
 pub struct LeveleventPlugin;
 
@@ -37,7 +37,7 @@ pub struct SpawnEvent(pub Vec<ComponentTree>);
 fn spawn_events(mut commands: Commands, mut events: EventReader<SpawnEvent>) {
     for event in events.iter() {
         for component_tree in event.0.iter() {
-            spawn_complex(&mut commands, component_tree.clone());
+            commands.spawn_complex(component_tree.clone());
         }
     }
 }

@@ -1,5 +1,8 @@
 use bevy::{ecs::system::EntityCommands, prelude::*};
-use bevy_composable::{spawn_complex, ComponentTree, EntityCommandSet};
+use bevy_composable::{
+    app_impl::ComplexSpawnable,
+    tree::{ComponentTree, EntityCommandSet},
+};
 use bevy_mod_transform2d::transform2d::Transform2d;
 use bevy_prototype_lyon::prelude::{self as lyon, Fill, ShapeBundle};
 use std::sync::Arc;
@@ -33,15 +36,12 @@ pub fn spawn_arena_from_map(mut commands: Commands, level: &Level) {
         let mut j = 0.;
         for block in row.iter() {
             if *block {
-                spawn_complex(
-                    &mut commands,
-                    wall(
-                        j * level.resolution - (x_len * 0.5),
-                        (y_len * 0.5) - i * level.resolution,
-                        level.resolution,
-                        level.resolution,
-                    ),
-                )
+                &mut commands.spawn_complex(wall(
+                    j * level.resolution - (x_len * 0.5),
+                    (y_len * 0.5) - i * level.resolution,
+                    level.resolution,
+                    level.resolution,
+                ));
             };
             j = j + 1.;
         }

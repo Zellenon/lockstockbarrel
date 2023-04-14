@@ -4,7 +4,7 @@ use bevy::{
     ecs::system::EntityCommands,
     prelude::{Entity, Transform, Vec2},
 };
-use bevy_composable::EntityCommandSet;
+use bevy_composable::tree::EntityCommandSet;
 use twin_stick::actors::Tracking;
 
 pub mod actor_bits;

@@ -5,10 +5,13 @@ use bevy::{
     prelude::{Color, Handle, Name, Vec2},
     sprite::{Material2d, Mesh2dHandle},
 };
-use bevy_composable::{spawn_complex, ComponentTree, EntityCommandSet};
+use bevy_composable::{
+    app_impl::ComplexSpawnable,
+    tree::{ComponentTree, EntityCommandSet},
+};
 use bevy_mod_transform2d::transform2d::Transform2d;
 use bevy_prototype_lyon::{
-    prelude::{Fill, GeometryBuilder, ShapeBundle, Stroke},
+    prelude::{Fill, GeometryBuilder, Stroke},
     render::ShapeMaterial,
     shapes,
 };
@@ -38,11 +41,11 @@ pub fn peashooter() -> ComponentTree {
                     a.commands.spawn((
                         ProjectileBundle {
                             velocity: Velocity {
-                                linvel: fire_direction * 800.,
+                                linvel: fire_direction * 5000.,
                                 angvel: 0.,
                             },
                             transform: Transform2d {
-                                translation: parent_transform.translation + fire_direction * 100.,
+                                translation: parent_transform.translation + fire_direction * 30.,
                                 ..Default::default()
                             },
                             ..Default::default()
@@ -82,15 +85,12 @@ pub fn wallgun() -> ComponentTree {
                         cursor_transform.translation - parent_transform.translation,
                     );
 
-                    spawn_complex(
-                        a.commands,
-                        wall(
-                            parent_transform.translation.x,
-                            parent_transform.translation.y,
-                            50.,
-                            50.,
-                        ),
-                    );
+                    a.commands.spawn_complex(wall(
+                        parent_transform.translation.x,
+                        parent_transform.translation.y,
+                        50.,
+                        50.,
+                    ));
                 }),
             },
         ));

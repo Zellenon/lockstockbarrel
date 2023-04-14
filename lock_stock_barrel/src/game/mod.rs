@@ -1,5 +1,8 @@
 use bevy::{ecs::system::EntityCommands, prelude::*};
-use bevy_composable::{spawn_complex, ComponentTree, EntityCommandSet};
+use bevy_composable::{
+    app_impl::ComplexSpawnable,
+    tree::{ComponentTree, EntityCommandSet},
+};
 use bevy_stats::{Speed, Stat};
 use std::sync::Arc;
 use twin_stick::{
@@ -12,7 +15,7 @@ use crate::{
     content::{
         actor_bits::{basic_head, basic_legs},
         shift_tracking,
-        weapons::{peashooter, wallgun},
+        weapons::peashooter,
     },
     states::AppState,
 };
@@ -41,14 +44,11 @@ impl Plugin for GamePlugin {
 }
 
 fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>, cursor: Res<Cursor>) {
-    spawn_complex(
-        &mut commands,
-        player_tree(
-            asset_server.load("img/player_head.png").clone(),
-            asset_server.load("img/player_legs.png").clone(),
-            cursor,
-        ),
-    );
+    commands.spawn_complex(player_tree(
+        asset_server.load("img/player_head.png").clone(),
+        asset_server.load("img/player_legs.png").clone(),
+        cursor,
+    ));
 }
 
 fn player_tree_base() -> ComponentTree {
