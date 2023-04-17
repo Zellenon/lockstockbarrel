@@ -36,7 +36,7 @@ pub fn spawn_arena_from_map(mut commands: Commands, level: &Level) {
         let mut j = 0.;
         for block in row.iter() {
             if *block {
-                &mut commands.spawn_complex(wall(
+                commands.spawn_complex(wall(
                     j * level.resolution - (x_len * 0.5),
                     (y_len * 0.5) - i * level.resolution,
                     level.resolution,

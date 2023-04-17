@@ -1,6 +1,6 @@
 use bevy::{
     app::App,
-    prelude::{bevy_main, default, ClearColor, PluginGroup},
+    prelude::{default, ClearColor, PluginGroup},
     render::color::Color,
     window::{Window, WindowPlugin},
     DefaultPlugins,

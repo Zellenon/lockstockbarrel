@@ -1,12 +1,10 @@
 pub extern crate bevy_mod_transform2d;
 pub extern crate bevy_rapier2d;
-use bevy::prelude::{App, Commands, Plugin, ResMut, Vec2};
-use bevy_mod_transform2d::{prelude::Spatial2dBundle, transform2d::Transform2d, Transform2dPlugin};
-use bevy_prototype_lyon::prelude as lyon;
+use bevy::prelude::{App, Plugin, ResMut, Vec2};
+use bevy_mod_transform2d::{transform2d::Transform2d, Transform2dPlugin};
+
 use bevy_prototype_lyon::prelude::ShapePlugin;
-use bevy_rapier2d::prelude::{
-    Collider, NoUserData, RapierConfiguration, RapierPhysicsPlugin, RigidBody,
-};
+use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin};
 
 use self::{
     actors::ActorPlugin, ai::AIPlugin, player::PlayerPlugin, projectile::ProjectilePlugin,

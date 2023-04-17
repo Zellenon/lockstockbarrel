@@ -1,9 +1,9 @@
-use std::{sync::Arc, time::Duration};
+use std::sync::Arc;
 
 use bevy::{
     ecs::system::EntityCommands,
     prelude::{Color, Handle, Name, Vec2},
-    sprite::{Material2d, Mesh2dHandle},
+    sprite::Mesh2dHandle,
 };
 use bevy_composable::{
     app_impl::ComplexSpawnable,
@@ -17,10 +17,7 @@ use bevy_prototype_lyon::{
 };
 use twin_stick::{
     bevy_rapier2d::prelude::{Ccd, Velocity},
-    projectile::{
-        Damaging, Knockback, Lifespan, Projectile, ProjectileBundle, ProjectileHitBehavior,
-        ProjectileImpactBehavior,
-    },
+    projectile::{Damaging, Knockback, ProjectileBundle},
     weapons::{Cooldown, Weapon, WeaponArguments, WeaponFireMode},
 };
 
@@ -80,10 +77,6 @@ pub fn wallgun() -> ComponentTree {
                 fire_mode: WeaponFireMode::SemiAuto,
                 fire_func: Box::new(move |a: &mut WeaponArguments| {
                     let parent_transform = a.transforms.get(a.parent).unwrap().clone();
-                    let cursor_transform = a.transforms.get(a.cursor).unwrap().clone();
-                    let fire_direction = Vec2::normalize(
-                        cursor_transform.translation - parent_transform.translation,
-                    );
 
                     a.commands.spawn_complex(wall(
                         parent_transform.translation.x,
