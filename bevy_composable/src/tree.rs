@@ -2,7 +2,6 @@ use std::ops;
 use std::sync::Arc;
 
 use bevy::ecs::system::EntityCommands;
-use bevy::prelude::*;
 
 pub type EntityCommandSet = Arc<dyn Fn(&mut EntityCommands) + Send + Sync>;
 

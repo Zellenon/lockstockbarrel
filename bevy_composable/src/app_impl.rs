@@ -1,10 +1,9 @@
-use std::ops;
 use std::sync::Arc;
 
 use bevy::ecs::system::EntityCommands;
 use bevy::prelude::*;
 
-use crate::tree::ComponentTree;
+use crate::tree::{ComponentTree, EntityCommandSet};
 
 pub trait ComplexSpawnable {
     fn spawn_complex(&mut self, tree: ComponentTree) -> Entity;
@@ -12,7 +11,7 @@ pub trait ComplexSpawnable {
 
 impl ComplexSpawnable for Commands<'_, '_> {
     fn spawn_complex(&mut self, tree: ComponentTree) -> Entity {
-        let mut entity = &mut self.spawn_empty();
+        let entity = &mut self.spawn_empty();
         spawn_complex_inner(entity, &tree);
         entity.id()
     }
