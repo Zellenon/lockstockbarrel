@@ -1,50 +1,23 @@
 use std::marker::PhantomData;
 
 use bevy::prelude::*;
+pub use stat::{RPGResource, RPGStat, Stat};
+mod app_impl;
+mod stat;
+mod statmod;
 
-#[derive(Component)]
-pub struct Stat<T>
-where
-    T: ActorStat,
-{
-    pub max: f32,
-    pub current: f32,
-    pub phantom: PhantomData<T>,
-}
+pub struct StatPlugin;
 
-pub trait ActorStat: 'static + Send + Sync {
-    fn can_negative() -> bool;
-    fn can_overmax() -> bool;
-}
-
-impl<T> Stat<T>
-where
-    T: ActorStat,
-{
-    pub fn new(max: f32) -> Self {
-        Self {
-            max,
-            current: max,
-            phantom: PhantomData,
-        }
-    }
-    pub fn max_value(&self) -> f32 {
-        self.max
-    }
-    pub fn current_value(&self) -> f32 {
-        self.current
-    }
-    pub fn can_be_negative() -> bool {
-        false
-    }
-    pub fn can_overmax() -> bool {
-        false
+impl Plugin for StatPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_event::<StatChangeEvent<Health>>()
+            .add_system(do_stat_change::<Health>);
     }
 }
 
 pub struct StatChangeEvent<T>
 where
-    T: ActorStat,
+    T: RPGStat,
 {
     pub target: Entity,
     pub amount: f32,
@@ -55,7 +28,7 @@ fn do_stat_change<T>(
     mut change_events: EventReader<StatChangeEvent<T>>,
     mut targets: Query<&mut Stat<T>>,
 ) where
-    T: ActorStat,
+    T: RPGStat,
 {
     for StatChangeEvent {
         target,
@@ -68,33 +41,13 @@ fn do_stat_change<T>(
     }
 }
 
-pub struct StatPlugin;
-
-impl Plugin for StatPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_event::<StatChangeEvent<Health>>()
-            .add_system(do_stat_change::<Health>);
-    }
-}
-
 pub struct Speed;
-impl ActorStat for Speed {
-    fn can_negative() -> bool {
-        false
-    }
-
-    fn can_overmax() -> bool {
-        true
-    }
-}
+impl RPGStat for Speed {}
 
 pub struct Health;
-impl ActorStat for Health {
-    fn can_negative() -> bool {
-        true
-    }
-
+impl RPGStat for Health {}
+impl RPGResource for Health {
     fn can_overmax() -> bool {
-        false
+        true
     }
 }
