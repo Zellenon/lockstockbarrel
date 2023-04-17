@@ -28,3 +28,37 @@ fn spawn_complex_inner(entity: &mut EntityCommands, component_tree: &ComponentTr
         });
     }
 }
+
+// impl<T> From<dyn Component<Storage = T>> for ComponentTree {
+//     fn from(value: dyn Component<Storage = T>) -> Self {
+//         let func = move |parent: &mut EntityCommands| {
+//             parent.insert(value);
+//         };
+//         (Arc::new(func) as EntityCommandSet).into()
+//     }
+// }
+
+pub fn from<T>(value: impl Component<Storage = T> + Clone) -> EntityCommandSet {
+    let temp = value.clone();
+    let func = move |parent: &mut EntityCommands| {
+        parent.insert(temp.clone());
+    };
+    (Arc::new(func) as EntityCommandSet).into()
+}
+
+pub trait ComponentTreeable {
+    fn tree(self) -> ComponentTree;
+}
+
+impl<W, T> ComponentTreeable for W
+where
+    W: Component<Storage = T> + Clone,
+{
+    fn tree(self) -> ComponentTree {
+        let temp = self.clone();
+        let func = move |parent: &mut EntityCommands| {
+            parent.insert(temp.clone());
+        };
+        (Arc::new(func) as EntityCommandSet).into()
+    }
+}
