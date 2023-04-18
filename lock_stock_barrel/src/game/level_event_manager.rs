@@ -57,6 +57,9 @@ pub fn test_lemanager_setup(mut commands: Commands, asset_server: Res<AssetServe
         basic_walker(head_tex.clone(), leg_tex.clone()) + shift_pos((500., 0.)),
         basic_walker(head_tex.clone(), leg_tex.clone()) + shift_pos((0., 500.)),
         basic_walker(head_tex.clone(), leg_tex.clone()) + shift_pos((-500., 0.)),
+        basic_walker(head_tex.clone(), leg_tex.clone()) + shift_pos((500., 0.)),
+        basic_walker(head_tex.clone(), leg_tex.clone()) + shift_pos((0., 500.)),
+        basic_walker(head_tex.clone(), leg_tex.clone()) + shift_pos((-500., 0.)),
     ]);
     commands.spawn(LeveleventManager::new(spawn_event));
 }
