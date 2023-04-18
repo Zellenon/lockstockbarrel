@@ -8,7 +8,7 @@ use bevy_composable::tree::{ComponentTree, EntityCommandSet};
 use bevy_stats::{Health, Speed, Stat};
 use twin_stick::{
     actors::{ActorBundle, Faction},
-    ai::{PerlinWanderAI, TrackerAI},
+    ai::{tracking::TrackerAI, wander::PerlinWanderAI},
 };
 
 use super::actor_bits::{basic_head, basic_legs};
