@@ -106,13 +106,12 @@ pub struct ActorPlugin;
 impl Plugin for ActorPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(facing_update_system)
-            .add_system(actor_movement)
             .add_system(animate_legs)
             .add_system(health_death);
     }
 }
 
-fn facing_update_system(
+pub fn facing_update_system(
     todo_entities: Query<Entity, (With<Tracking>, With<Transform2d>, With<Parent>)>,
     mut transforms: Query<(
         &GlobalTransform,
@@ -168,13 +167,13 @@ fn animate_legs(
     }
 }
 
-fn actor_movement(mut enemies: Query<(&mut ExternalForce, &Actor, &Stat<Speed>)>) {
+pub fn actor_movement(mut enemies: Query<(&mut ExternalForce, &Actor, &Stat<Speed>)>) {
     for (mut force, actor, speed) in enemies.iter_mut() {
-        force.force = Vec2::normalize_or_zero(actor.desired_direction) * speed.current_value();
+        force.force = Vec2::clamp_length_max(actor.desired_direction, 1.) * speed.current_value();
     }
 }
 
-fn health_death(
+pub fn health_death(
     mut commands: Commands,
     health_query: Query<(Entity, &Stat<Health>), (Without<Player>, Changed<Stat<Health>>)>,
 ) {

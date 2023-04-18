@@ -7,7 +7,7 @@ use bevy_stats::{Speed, Stat};
 use std::sync::Arc;
 use twin_stick::{
     actors::ActorBundle,
-    ai::KeyboardAI,
+    ai::keyboard::KeyboardAI,
     player::{Cursor, Player},
 };
 
