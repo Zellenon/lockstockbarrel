@@ -11,6 +11,7 @@ bevy = {version = "0.10"} # Find a way to disable this for release
 bevy_rapier2d = "0.21"
 bevy_mod_transform2d = { version = "0", features = ["bevy_rapier2d"] }
 bevy-inspector-egui = "0.18"
+bevy_turborand = "0.5"
 # bevy-inspector-egui-rapier = {version = "0", features = ['rapier2d']}
 # iyes_loopless = "0.9"
 
