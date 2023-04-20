@@ -1,18 +1,16 @@
 use std::marker::PhantomData;
 
 use bevy::prelude::*;
-pub use stat::{RPGResource, RPGStat, Stat};
-mod app_impl;
+
+pub use stat::{RPGResource, RPGStat, Resource, Stat};
 mod stat;
 mod statmod;
+mod systems;
 
 pub struct StatPlugin;
 
 impl Plugin for StatPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_event::<StatChangeEvent<Health>>()
-            .add_system(do_stat_change::<Health>);
-    }
+    fn build(&self, app: &mut App) {}
 }
 
 pub struct StatChangeEvent<T>
@@ -41,13 +39,13 @@ fn do_stat_change<T>(
     }
 }
 
-pub struct Speed;
-impl RPGStat for Speed {}
+// pub struct Speed;
+// impl RPGStat for Speed {}
 
-pub struct Health;
-impl RPGStat for Health {}
-impl RPGResource for Health {
-    fn can_overmax() -> bool {
-        true
-    }
-}
+// pub struct Health;
+// impl RPGStat for Health {}
+// impl RPGResource for Health {
+//     fn can_overmax() -> bool {
+//         true
+//     }
+// }
