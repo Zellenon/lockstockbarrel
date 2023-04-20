@@ -17,6 +17,7 @@ pub mod actors;
 pub mod ai;
 pub mod player;
 pub mod projectile;
+pub mod stats;
 pub mod transform2d_mods;
 pub mod utils;
 pub mod weapons;

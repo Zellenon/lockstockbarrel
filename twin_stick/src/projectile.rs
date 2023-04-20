@@ -1,4 +1,4 @@
-use std::{marker::PhantomData, time::Duration};
+use std::time::Duration;
 
 use bevy::{
     prelude::{
@@ -15,7 +15,7 @@ use bevy_rapier2d::{
     },
 };
 
-use bevy_stats::{Health, Stat, StatChangeEvent};
+use crate::stats::Health;
 
 #[derive(Component)]
 pub struct Lifespan(Timer);
@@ -32,29 +32,25 @@ impl Default for Lifespan {
     }
 }
 
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
+pub enum ProjectileImpactBehavior {
+    Die,
+    Bounce,
+}
+
 #[derive(Component)]
 pub struct Projectile {
-    pub on_hit: ProjectileHitBehavior,
+    pub on_hit: ProjectileImpactBehavior,
     pub on_impact: ProjectileImpactBehavior,
 }
 
 impl Default for Projectile {
     fn default() -> Self {
         Self {
-            on_hit: ProjectileHitBehavior::Die,
+            on_hit: ProjectileImpactBehavior::Die,
             on_impact: ProjectileImpactBehavior::Die,
         }
     }
-}
-
-pub enum ProjectileHitBehavior {
-    Die,
-    Bounce,
-}
-
-pub enum ProjectileImpactBehavior {
-    Die,
-    Bounce,
 }
 
 #[derive(Component)]
@@ -102,6 +98,13 @@ pub struct KnockbackEvent {
     force: f32,
 }
 
+pub struct ProjectileImpactEvent {
+    pub projectile: Entity,
+    pub impacted: Entity,
+}
+
+pub struct ProjectileClashEvent(pub Entity, pub Entity);
+
 pub struct ProjectilePlugin;
 
 impl Plugin for ProjectilePlugin {
@@ -109,7 +112,13 @@ impl Plugin for ProjectilePlugin {
         app.add_event::<KnockbackEvent>()
             .add_system(tick_lifetimes)
             .add_system(knockback_events)
-            .add_system(projectile_impact);
+            // .add_system(projectile_impact)
+            .add_system(projectile_event_dispatcher)
+            .add_system(kill_projectiles_post_impact)
+            .add_system(knockback_from_projectiles);
+
+        app.add_event::<ProjectileImpactEvent>()
+            .add_event::<ProjectileClashEvent>();
     }
 }
 
@@ -136,9 +145,10 @@ fn projectile_impact(
         Option<&Damaging>,
         Option<&Knockback>,
     )>,
-    target_query: Query<(&RigidBody, Option<&ExternalImpulse>, Option<&Stat<Health>>)>,
+    target_query: Query<(&RigidBody, Option<&ExternalImpulse>, Option<&Health>)>,
     mut knockback_events: EventWriter<KnockbackEvent>,
-    mut health_events: EventWriter<StatChangeEvent<Health>>,
+    mut projectile_events: EventWriter<ProjectileImpactEvent>,
+    mut clash_events: EventWriter<ProjectileClashEvent>,
 ) {
     for collision_event in collision_events.iter() {
         if let CollisionEvent::Started(e1, e2, _) = collision_event {
@@ -160,21 +170,76 @@ fn projectile_impact(
                     })
                 }
             }
-            if let Some(Damaging(damage)) = projectile_data.2 {
-                if let Some(_) = target_data.2 {
-                    health_events.send(StatChangeEvent {
-                        target: *target,
-                        amount: damage * -1.,
-                        phantom: PhantomData,
-                    })
-                }
-            }
             match projectile_data.0.on_impact {
                 ProjectileImpactBehavior::Die => commands.entity(*projectile).despawn_recursive(),
                 ProjectileImpactBehavior::Bounce => (),
             };
+        }
+    }
+}
 
-            // println!("Received collision event: {:?}", collision_event);
+pub fn projectile_event_dispatcher(
+    mut collision_events: EventReader<CollisionEvent>,
+    projectile_query: Query<&Projectile>,
+    mut projectile_events: EventWriter<ProjectileImpactEvent>,
+    mut clash_events: EventWriter<ProjectileClashEvent>,
+) {
+    for collision_event in collision_events.iter() {
+        if let CollisionEvent::Started(e1, e2, _) = collision_event {
+            match (projectile_query.get(*e1), projectile_query.get(*e2)) {
+                (Ok(_), Ok(_)) => clash_events.send(ProjectileClashEvent(*e1, *e2)),
+                (Ok(_), _) => projectile_events.send(ProjectileImpactEvent {
+                    projectile: *e1,
+                    impacted: *e2,
+                }),
+                (Err(_), Ok(_)) => projectile_events.send(ProjectileImpactEvent {
+                    impacted: *e1,
+                    projectile: *e2,
+                }),
+                (Err(_), Err(_)) => continue,
+            };
+        }
+    }
+}
+
+fn knockback_from_projectiles(
+    mut knockback_events: EventWriter<KnockbackEvent>,
+    mut projectile_events: EventReader<ProjectileImpactEvent>,
+    projectiles: Query<(&Knockback, Option<&Velocity>)>,
+    positions: Query<&Transform2d>,
+) {
+    for ProjectileImpactEvent {
+        projectile,
+        impacted,
+    } in projectile_events.iter()
+    {
+        if let Ok((Knockback(knockback), vel)) = projectiles.get(*projectile) {
+            let hit_angle = positions.get(*projectile).unwrap().translation
+                - positions.get(*impacted).unwrap().translation;
+            knockback_events.send(KnockbackEvent {
+                entity: *impacted,
+                direction: match vel {
+                    Some(Velocity { linvel, angvel: _ }) => hit_angle + *linvel,
+                    None => hit_angle,
+                },
+                force: *knockback,
+            })
+        }
+    }
+}
+
+fn kill_projectiles_post_impact(
+    mut events: EventReader<ProjectileImpactEvent>,
+    mut commands: Commands,
+    query: Query<&Projectile>,
+) {
+    for ProjectileImpactEvent {
+        projectile,
+        impacted: _,
+    } in events.iter()
+    {
+        if query.get(*projectile).unwrap().on_impact == ProjectileImpactBehavior::Die {
+            commands.entity(*projectile).despawn_recursive();
         }
     }
 }
@@ -190,7 +255,8 @@ fn knockback_events(
     } in knockback_events.iter()
     {
         let impulse_vector = Vec2::normalize(*direction) * *force;
-        let mut impulse = target_query.get_mut(*entity).unwrap();
-        impulse.impulse = impulse_vector;
+        if let Ok(mut impulse) = target_query.get_mut(*entity) {
+            impulse.impulse += impulse_vector;
+        }
     }
 }

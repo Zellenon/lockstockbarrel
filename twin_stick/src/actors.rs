@@ -9,8 +9,10 @@ use bevy::{
 use bevy_mod_transform2d::transform2d::Transform2d;
 use bevy_rapier2d::prelude::*;
 
-use crate::player::Player;
-use bevy_stats::{Health, Speed, Stat};
+use crate::{
+    player::Player,
+    stats::{Health, Speed},
+};
 
 #[derive(Component, Reflect)]
 pub struct Actor {
@@ -167,18 +169,18 @@ fn animate_legs(
     }
 }
 
-pub fn actor_movement(mut enemies: Query<(&mut ExternalForce, &Actor, &Stat<Speed>)>) {
+pub fn actor_movement(mut enemies: Query<(&mut ExternalForce, &Actor, &Speed)>) {
     for (mut force, actor, speed) in enemies.iter_mut() {
-        force.force = Vec2::clamp_length_max(actor.desired_direction, 1.) * speed.current_value();
+        force.force = Vec2::clamp_length_max(actor.desired_direction, 1.) * speed.0;
     }
 }
 
 pub fn health_death(
     mut commands: Commands,
-    health_query: Query<(Entity, &Stat<Health>), (Without<Player>, Changed<Stat<Health>>)>,
+    health_query: Query<(Entity, &Health), (Without<Player>, Changed<Health>)>,
 ) {
     for (entity, health) in health_query.iter() {
-        if health.current_value() < 0. {
+        if health.0 < 0. {
             commands.entity(entity).despawn_recursive();
         }
     }
