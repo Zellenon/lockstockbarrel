@@ -3,7 +3,7 @@ use bevy_composable::{
     app_impl::ComplexSpawnable,
     tree::{ComponentTree, EntityCommandSet},
 };
-use bevy_stats::{Speed, Stat};
+use bevy_stats::Stat;
 use std::sync::Arc;
 use twin_stick::{
     actors::ActorBundle,
@@ -15,7 +15,9 @@ use crate::{
     content::{
         actor_bits::{basic_head, basic_legs},
         shift_tracking,
+        stats::Speed,
         weapons::peashooter,
+        ContentPlugin,
     },
     states::AppState,
 };
@@ -34,7 +36,8 @@ pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(LeveleventPlugin)
+        app.add_plugin(ContentPlugin)
+            .add_plugin(LeveleventPlugin)
             .add_plugin(LeveleventManagerPlugin);
 
         app.add_system(player_setup.in_schedule(OnEnter(AppState::Game)))
