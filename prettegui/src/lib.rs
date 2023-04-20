@@ -16,7 +16,7 @@ impl Plugin for GUIPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(NinePatchPlugin::<()>::default());
         app.add_plugin(EguiPlugin);
-        app.add_system(ui_test);
+        // app.add_system(ui_test);
     }
 }
 
