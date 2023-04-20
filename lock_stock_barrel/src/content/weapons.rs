@@ -53,7 +53,7 @@ pub fn peashooter() -> ComponentTree {
                         }),
                         Fill::color(Color::YELLOW),
                         Stroke::new(Color::BLACK, 2.0),
-                        Knockback(250.),
+                        Knockback(150.),
                         Damaging(20.),
                         Ccd::enabled(),
                         Mesh2dHandle::default(),
