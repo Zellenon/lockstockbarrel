@@ -10,12 +10,14 @@ use crate::{
 };
 
 pub trait StatRegisterable {
-    fn register_stat<T: RPGStat>(&mut self);
+    fn register_stat<T: RPGStat>(&mut self) -> &mut App;
 }
 
 impl StatRegisterable for App {
-    fn register_stat<T: RPGStat>(&mut self) {
+    fn register_stat<T: RPGStat>(&mut self) -> &mut App {
         self.add_event::<StatChangeEvent<T>>();
+
+        // self.register_type::<Resource>().register_type::<Stat>();
 
         self.add_system(do_stat_change::<T>);
 
@@ -34,6 +36,7 @@ impl StatRegisterable for App {
                 self.add_system(update_modded_stats_sumdiff::<T>);
             }
         }
+        return self;
     }
 }
 
@@ -46,7 +49,7 @@ fn mul_stats<T: RPGStat, F: ReadOnlyWorldQuery>(
         .iter()
         .filter_map(|w| mods.get(*w).ok())
         .filter(|w| w.mod_type == ModType::Multiplier)
-        .fold(base, |w, v| w * v.value) // TODO: Add handling for additive multiplierstyle
+        .fold(base, |w, v| w * (1. + v.value)) // TODO: Add handling for additive multiplierstyle
 }
 
 fn mul_diff<T: RPGStat, F: ReadOnlyWorldQuery>(
@@ -58,7 +61,7 @@ fn mul_diff<T: RPGStat, F: ReadOnlyWorldQuery>(
         .iter()
         .filter_map(|w| mods.get(*w).ok())
         .filter(|w| w.mod_type == ModType::Multiplier)
-        .fold(0., |w, v| w + v.value * base - base) // TODO: Add handling for additive multiplierstyle
+        .fold(0., |w, v| w + v.value * base) // TODO: Add handling for additive multiplierstyle
 }
 
 fn add_stats<T: RPGStat, F: ReadOnlyWorldQuery>(
