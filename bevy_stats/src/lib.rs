@@ -3,9 +3,9 @@ use std::marker::PhantomData;
 use bevy::prelude::*;
 
 pub use stat::{RPGResource, RPGStat, Resource, Stat};
-mod stat;
-mod statmod;
-mod systems;
+pub mod stat;
+pub mod statmod;
+pub mod systems;
 
 pub struct StatPlugin;
 
