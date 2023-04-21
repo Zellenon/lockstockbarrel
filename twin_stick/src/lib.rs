@@ -7,6 +7,7 @@ use bevy_mod_transform2d::{transform2d::Transform2d, Transform2dPlugin};
 use bevy_prototype_lyon::prelude::ShapePlugin;
 use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin};
 use bevy_turborand::RngPlugin;
+use stats::{Health, Knockback, Speed};
 
 use self::{
     actors::ActorPlugin, ai::AIPlugin, player::PlayerPlugin, projectile::ProjectilePlugin,
@@ -39,6 +40,9 @@ impl Plugin for TwinStickPlugin {
             .add_plugin(ProjectilePlugin);
 
         app.register_type::<Transform2d>();
+        app.register_type::<Speed>();
+        app.register_type::<Health>();
+        app.register_type::<Knockback>();
     }
 }
 
