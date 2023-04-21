@@ -15,5 +15,4 @@ bevy_turborand = "0.5"
 # bevy-inspector-egui-rapier = {version = "0", features = ['rapier2d']}
 # iyes_loopless = "0.9"
 
-bevy_stats = {path = "../bevy_stats"}
 bevy_prototype_lyon = {path = "../bevy_prototype_lyon"}
