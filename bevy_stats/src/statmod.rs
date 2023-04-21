@@ -41,6 +41,19 @@ where
     _phantom: PhantomData<T>,
 }
 
+impl<T> StatValueChange<T>
+where
+    T: RPGStat,
+{
+    pub fn new(mod_type: ModType, value: f32) -> Self {
+        Self {
+            mod_type,
+            value,
+            _phantom: PhantomData,
+        }
+    }
+}
+
 #[derive(Component)]
 pub struct ResourceChange<T>
 where
