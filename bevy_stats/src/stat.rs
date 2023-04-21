@@ -51,7 +51,7 @@ pub trait RPGResource: RPGStat {
 pub struct Stat<T> {
     pub base: f32,
     pub current: f32,
-    pub _phantom: PhantomData<T>,
+    _phantom: PhantomData<T>,
     pub(crate) mods: Vec<Entity>,
 }
 
@@ -67,8 +67,20 @@ where
             mods: Vec::new(),
         }
     }
+
     pub fn current_value(&self) -> f32 {
         self.current
+    }
+
+    pub fn add_mod(&mut self, new_mod: Entity) {
+        self.mods.insert(0, new_mod);
+    }
+
+    pub fn remove_mod(&mut self, dead_mod: Entity) {
+        let i = self.mods.iter().position(|w| *w == dead_mod);
+        if let Some(i) = i {
+            self.mods.remove(i);
+        }
     }
 }
 
