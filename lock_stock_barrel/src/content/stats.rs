@@ -9,6 +9,8 @@ impl RPGResource for Health {}
 
 impl RPGStat for Speed {}
 
+pub struct DeleteStatMod(pub Entity);
+
 pub(crate) fn ensure_health(
     mut commands: Commands,
     query: Query<(&Resource<Health>, Entity), Without<twin_stick::stats::Health>>,

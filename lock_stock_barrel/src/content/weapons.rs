@@ -23,6 +23,8 @@ use twin_stick::{
 
 use crate::game::level::wall;
 
+use super::projectile_components::SlowOnImpact;
+
 pub fn peashooter() -> ComponentTree {
     let func = move |parent: &mut EntityCommands| {
         parent.insert((
@@ -54,6 +56,11 @@ pub fn peashooter() -> ComponentTree {
                         Fill::color(Color::YELLOW),
                         Stroke::new(Color::BLACK, 2.0),
                         Knockback(150.),
+                        SlowOnImpact {
+                            strength: -0.6,
+                            decay: 0.4,
+                            threshhold: -0.05,
+                        },
                         Damaging(20.),
                         Ccd::enabled(),
                         Mesh2dHandle::default(),
