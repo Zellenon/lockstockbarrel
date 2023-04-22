@@ -4,22 +4,21 @@ use bevy::{
 };
 
 use crate::{
-    do_stat_change,
-    statmod::{DeleteStatMod, ModType, StatModifier, StatValueChange},
-    RPGStat, Stat, StatChangeEvent,
+    statmod::{
+        DeleteStatMod, ModType, ResourceChangeEvent, StatChangeEvent, StatModifier, StatValueChange,
+    },
+    RPGResource, RPGStat, Resource, Stat,
 };
 
 pub trait StatRegisterable {
     fn register_stat<T: RPGStat>(&mut self) -> &mut App;
+    fn register_resource<T: RPGResource>(&mut self) -> &mut App;
 }
 
 impl StatRegisterable for App {
     fn register_stat<T: RPGStat>(&mut self) -> &mut App {
+        // self.register_type::<Stat<T>>();
         self.add_event::<StatChangeEvent<T>>();
-
-        // self.register_type::<Resource>().register_type::<Stat>();
-
-        self.add_system(do_stat_change::<T>);
 
         match T::modstyle() {
             crate::stat::ModStyle::AddMul => {
@@ -28,7 +27,6 @@ impl StatRegisterable for App {
             crate::stat::ModStyle::MulAdd => {
                 self.add_system(update_modded_stats_muladd::<T>);
             }
-
             crate::stat::ModStyle::AverageDifferences => {
                 self.add_system(update_modded_stats_avediff::<T>);
             }
@@ -36,6 +34,12 @@ impl StatRegisterable for App {
                 self.add_system(update_modded_stats_sumdiff::<T>);
             }
         }
+        return self;
+    }
+
+    fn register_resource<T: RPGResource>(&mut self) -> &mut App {
+        self.register_stat::<T>();
+        self.add_event::<ResourceChangeEvent<T>>();
         return self;
     }
 }
@@ -76,7 +80,7 @@ fn add_stats<T: RPGStat, F: ReadOnlyWorldQuery>(
         .fold(base, |w, v| w + v.value)
 }
 
-pub fn update_modded_stats_addmul<T: RPGStat>(
+fn update_modded_stats_addmul<T: RPGStat>(
     mut stats: Query<&mut Stat<T>>,
     mods: Query<&StatValueChange<T>, With<StatModifier>>,
 ) {
@@ -86,7 +90,7 @@ pub fn update_modded_stats_addmul<T: RPGStat>(
     }
 }
 
-pub fn update_modded_stats_muladd<T: RPGStat>(
+fn update_modded_stats_muladd<T: RPGStat>(
     mut stats: Query<&mut Stat<T>>,
     mods: Query<&StatValueChange<T>, With<StatModifier>>,
 ) {
@@ -96,7 +100,7 @@ pub fn update_modded_stats_muladd<T: RPGStat>(
     }
 }
 
-pub fn update_modded_stats_sumdiff<T: RPGStat>(
+fn update_modded_stats_sumdiff<T: RPGStat>(
     mut stats: Query<&mut Stat<T>>,
     mods: Query<&StatValueChange<T>, With<StatModifier>>,
 ) {
@@ -107,7 +111,7 @@ pub fn update_modded_stats_sumdiff<T: RPGStat>(
     }
 }
 
-pub fn update_modded_stats_avediff<T: RPGStat>(
+fn update_modded_stats_avediff<T: RPGStat>(
     mut stats: Query<&mut Stat<T>>,
     mods: Query<&StatValueChange<T>, With<StatModifier>>,
 ) {
@@ -122,5 +126,25 @@ pub fn update_modded_stats_avediff<T: RPGStat>(
 pub fn delete_stat_mod(mut commands: Commands, mut events: EventReader<DeleteStatMod>) {
     for DeleteStatMod(entity) in events.iter() {
         commands.get_entity(*entity).unwrap().despawn();
+    }
+}
+
+pub fn change_stat<T: RPGStat>(
+    mut events: EventReader<StatChangeEvent<T>>,
+    mut query: Query<&mut Stat<T>>,
+) {
+    for StatChangeEvent { change, target } in events.iter() {
+        let base = change.apply(query.get(*target).unwrap().base);
+        query.get_mut(*target).unwrap().base = base;
+    }
+}
+
+pub fn change_resource<T: RPGResource>(
+    mut events: EventReader<ResourceChangeEvent<T>>,
+    mut query: Query<&mut Resource<T>>,
+) {
+    for ResourceChangeEvent { change, target } in events.iter() {
+        let base = change.apply(query.get(*target).unwrap().value_base);
+        query.get_mut(*target).unwrap().value_base = base;
     }
 }

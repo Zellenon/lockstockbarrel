@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 
 use bevy::prelude::{Component, Entity};
 
-use crate::{RPGResource, RPGStat};
+use crate::{RPGResource, RPGStat, Stat};
 
 #[derive(PartialEq, Eq, PartialOrd, Ord)]
 pub enum ModType {
@@ -52,19 +52,32 @@ where
             _phantom: PhantomData,
         }
     }
-}
 
-#[derive(Component)]
-pub struct ResourceChange<T>
-where
-    T: RPGResource,
-{
-    category: ModType,
-    value: f32,
-    _phantom: PhantomData<T>,
+    pub fn apply(&self, stat: f32) -> f32 {
+        match self.mod_type {
+            ModType::Offset => stat + self.value,
+            ModType::Multiplier => stat * self.value,
+        }
+    }
 }
 
 #[derive(Component)]
 pub struct StatModifier;
 
 pub struct DeleteStatMod(pub Entity);
+
+pub struct StatChangeEvent<T>
+where
+    T: RPGStat,
+{
+    pub change: StatValueChange<T>,
+    pub target: Entity,
+}
+
+pub struct ResourceChangeEvent<T>
+where
+    T: RPGResource,
+{
+    pub change: StatValueChange<T>,
+    pub target: Entity,
+}
