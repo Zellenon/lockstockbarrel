@@ -4,11 +4,11 @@ use bevy::{
 };
 use bevy_stats::{
     statmod::{StatModifier, StatValueChange},
-    Stat,
+    DeleteStatMod, Stat,
 };
 use twin_stick::projectile::ProjectileImpactEvent;
 
-use super::stats::{DeleteStatMod, Speed};
+use super::stats::Speed;
 
 #[derive(Component, Clone, Copy)]
 pub struct SlowOnImpact {

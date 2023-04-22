@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use bevy::prelude::Component;
+use bevy::prelude::{Component, Entity};
 
 use crate::{RPGResource, RPGStat};
 
@@ -66,3 +66,5 @@ where
 
 #[derive(Component)]
 pub struct StatModifier;
+
+pub struct DeleteStatMod(pub Entity);

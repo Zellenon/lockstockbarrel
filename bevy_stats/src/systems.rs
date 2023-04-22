@@ -1,11 +1,11 @@
 use bevy::{
     ecs::query::ReadOnlyWorldQuery,
-    prelude::{App, Entity, Query, With},
+    prelude::{App, Commands, Entity, EventReader, Query, With},
 };
 
 use crate::{
     do_stat_change,
-    statmod::{ModType, StatModifier, StatValueChange},
+    statmod::{DeleteStatMod, ModType, StatModifier, StatValueChange},
     RPGStat, Stat, StatChangeEvent,
 };
 
@@ -116,5 +116,11 @@ pub fn update_modded_stats_avediff<T: RPGStat>(
         stat.current = (add_stats(stat.base, &stat.mods, &mods)
             + mul_diff(stat.base, &stat.mods, &mods))
             / stat.mods.len() as f32;
+    }
+}
+
+pub fn delete_stat_mod(mut commands: Commands, mut events: EventReader<DeleteStatMod>) {
+    for DeleteStatMod(entity) in events.iter() {
+        commands.get_entity(*entity).unwrap().despawn();
     }
 }

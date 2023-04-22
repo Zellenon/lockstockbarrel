@@ -3,6 +3,8 @@ use std::marker::PhantomData;
 use bevy::prelude::*;
 
 pub use stat::{RPGResource, RPGStat, Resource, Stat};
+pub use statmod::DeleteStatMod;
+use systems::delete_stat_mod;
 pub mod stat;
 pub mod statmod;
 pub mod systems;
@@ -10,7 +12,10 @@ pub mod systems;
 pub struct StatPlugin;
 
 impl Plugin for StatPlugin {
-    fn build(&self, app: &mut App) {}
+    fn build(&self, app: &mut App) {
+        app.add_event::<DeleteStatMod>();
+        app.add_system(delete_stat_mod);
+    }
 }
 
 pub struct StatChangeEvent<T>
