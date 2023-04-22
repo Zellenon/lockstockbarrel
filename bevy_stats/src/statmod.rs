@@ -2,19 +2,20 @@ use std::marker::PhantomData;
 
 use bevy::prelude::{Component, Entity};
 
-use crate::{RPGResource, RPGStat, Stat};
-
-#[derive(PartialEq, Eq, PartialOrd, Ord)]
-pub enum ModType {
-    Offset,
-    Multiplier,
-}
+use crate::{RPGResource, RPGStat};
 
 #[derive(PartialEq, Eq, PartialOrd, Ord)]
 pub enum ModStyle {
     AddMul,
     MulAdd,
     AverageDifferences,
+    SumDifferences,
+}
+
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
+pub enum ModType {
+    Offset,
+    Multiplier,
 }
 
 #[derive(PartialEq, Eq, PartialOrd, Ord)]

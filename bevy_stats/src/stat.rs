@@ -5,17 +5,7 @@ use bevy::{
     reflect::Reflect,
 };
 
-pub enum ModStyle {
-    AddMul,
-    MulAdd,
-    AverageDifferences,
-    SumDifferences,
-}
-
-pub enum MultiplierStyle {
-    Additive,
-    Multiplicative,
-}
+use crate::statmod::{ModStyle, MultiplierStyle};
 
 pub trait RPGStat: 'static + Send + Sync {
     fn can_negative() -> bool {

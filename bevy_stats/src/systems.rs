@@ -5,7 +5,8 @@ use bevy::{
 
 use crate::{
     statmod::{
-        DeleteStatMod, ModType, ResourceChangeEvent, StatChangeEvent, StatModifier, StatValueChange,
+        DeleteStatMod, ModStyle, ModType, ResourceChangeEvent, StatChangeEvent, StatModifier,
+        StatValueChange,
     },
     RPGResource, RPGStat, Resource, Stat,
 };
@@ -21,16 +22,16 @@ impl StatRegisterable for App {
         self.add_event::<StatChangeEvent<T>>();
 
         match T::modstyle() {
-            crate::stat::ModStyle::AddMul => {
+            ModStyle::AddMul => {
                 self.add_system(update_modded_stats_addmul::<T>);
             }
-            crate::stat::ModStyle::MulAdd => {
+            ModStyle::MulAdd => {
                 self.add_system(update_modded_stats_muladd::<T>);
             }
-            crate::stat::ModStyle::AverageDifferences => {
+            ModStyle::AverageDifferences => {
                 self.add_system(update_modded_stats_avediff::<T>);
             }
-            crate::stat::ModStyle::SumDifferences => {
+            ModStyle::SumDifferences => {
                 self.add_system(update_modded_stats_sumdiff::<T>);
             }
         }
