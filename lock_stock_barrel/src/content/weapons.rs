@@ -17,7 +17,7 @@ use bevy_prototype_lyon::{
 };
 use twin_stick::{
     bevy_rapier2d::prelude::{Ccd, Velocity},
-    projectile::{Damaging, Knockback, ProjectileBundle},
+    projectile::{Knockback, ProjectileBundle},
     weapons::{Cooldown, Weapon, WeaponArguments, WeaponFireMode},
 };
 
@@ -61,7 +61,6 @@ pub fn peashooter() -> ComponentTree {
                             decay: 0.4,
                             threshhold: -0.05,
                         },
-                        Damaging(20.),
                         Ccd::enabled(),
                         Mesh2dHandle::default(),
                         Handle::<ShapeMaterial>::default(),

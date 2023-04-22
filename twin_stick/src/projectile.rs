@@ -56,9 +56,6 @@ impl Default for Projectile {
 #[derive(Component)]
 pub struct Knockback(pub f32);
 
-#[derive(Component)]
-pub struct Damaging(pub f32);
-
 #[derive(Bundle)]
 pub struct ProjectileBundle {
     pub projectile: Projectile,
@@ -132,48 +129,6 @@ fn tick_lifetimes(
 
         if lifespan.0.finished() {
             commands.entity(entity).despawn_recursive();
-        }
-    }
-}
-
-fn projectile_impact(
-    mut commands: Commands,
-    mut collision_events: EventReader<CollisionEvent>,
-    projectile_query: Query<(
-        &Projectile,
-        &Velocity,
-        Option<&Damaging>,
-        Option<&Knockback>,
-    )>,
-    target_query: Query<(&RigidBody, Option<&ExternalImpulse>, Option<&Health>)>,
-    mut knockback_events: EventWriter<KnockbackEvent>,
-    mut projectile_events: EventWriter<ProjectileImpactEvent>,
-    mut clash_events: EventWriter<ProjectileClashEvent>,
-) {
-    for collision_event in collision_events.iter() {
-        if let CollisionEvent::Started(e1, e2, _) = collision_event {
-            let (projectile, target): (&Entity, &Entity) =
-                match (projectile_query.get(*e1), projectile_query.get(*e2)) {
-                    (Ok(_), _) => (e1, e2),
-                    (Err(_), Ok(_)) => (e2, e1),
-                    (Err(_), Err(_)) => continue,
-                };
-
-            let projectile_data = projectile_query.get(*projectile).unwrap();
-            let target_data = target_query.get(*target).unwrap();
-            if let Some(Knockback(force)) = projectile_data.3 {
-                if let Some(_) = target_data.1 {
-                    knockback_events.send(KnockbackEvent {
-                        entity: *target,
-                        direction: projectile_data.1.linvel,
-                        force: *force,
-                    })
-                }
-            }
-            match projectile_data.0.on_impact {
-                ProjectileImpactBehavior::Die => commands.entity(*projectile).despawn_recursive(),
-                ProjectileImpactBehavior::Bounce => (),
-            };
         }
     }
 }
