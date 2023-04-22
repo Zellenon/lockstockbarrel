@@ -56,11 +56,6 @@ pub fn peashooter() -> ComponentTree {
                         Fill::color(Color::YELLOW),
                         Stroke::new(Color::BLACK, 2.0),
                         Knockback(150.),
-                        SlowOnImpact {
-                            strength: -0.6,
-                            decay: 0.4,
-                            threshhold: -0.05,
-                        },
                         Ccd::enabled(),
                         Mesh2dHandle::default(),
                         Handle::<ShapeMaterial>::default(),
