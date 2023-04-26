@@ -23,11 +23,13 @@ use crate::{
 };
 
 use self::{
+    graphics::GraphicsPlugin,
     level::{spawn_arena_from_map, to_map, Level},
     level_event::LeveleventPlugin,
     level_event_manager::{test_lemanager_setup, LeveleventManagerPlugin},
 };
 
+pub mod graphics;
 pub mod level;
 pub mod level_event;
 pub mod level_event_manager;
@@ -37,6 +39,7 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(ContentPlugin)
+            .add_plugin(GraphicsPlugin)
             .add_plugin(LeveleventPlugin)
             .add_plugin(LeveleventManagerPlugin);
 

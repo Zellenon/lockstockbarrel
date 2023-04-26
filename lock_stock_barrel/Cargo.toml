@@ -14,6 +14,8 @@ serde = "1.0"
 strum = "0.24"
 strum_macros = "0.24"
 bevy_mod_transform2d = "0.4"
+bevy-vfx-bag = "0.2"
+bevy_hanabi = "0.6"
 # iyes_loopless = "0.9"
 
 bevy_prototype_lyon = {path = "../bevy_prototype_lyon"}

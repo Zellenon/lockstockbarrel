@@ -6,6 +6,7 @@ use bevy::{
     DefaultPlugins,
 };
 use bevy_embedded_assets::EmbeddedAssetPlugin;
+use bevy_hanabi::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_stats::StatPlugin;
 use game::GamePlugin;
