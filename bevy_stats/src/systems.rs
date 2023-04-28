@@ -1,6 +1,6 @@
 use bevy::{
     ecs::query::ReadOnlyWorldQuery,
-    prelude::{App, Commands, Entity, EventReader, Query, With},
+    prelude::{resource_changed, App, Commands, Entity, EventReader, Query, With},
 };
 
 use crate::{
@@ -41,6 +41,7 @@ impl StatRegisterable for App {
     fn register_resource<T: RPGResource>(&mut self) -> &mut App {
         self.register_stat::<T>();
         self.add_event::<ResourceChangeEvent<T>>();
+        self.add_system(change_resource::<T>);
         return self;
     }
 }

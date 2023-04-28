@@ -10,9 +10,10 @@ use bevy_stats::systems::{delete_stat_mod, StatRegisterable};
 use twin_stick::actors::Tracking;
 
 use self::{
-    projectile_components::{apply_slow_on_hit, tick_fading_slow},
+    projectile_components::{apply_slow_on_hit, damaging_projectile, tick_fading_slow},
     stats::{
-        ensure_health, ensure_speed, sync_health_to_health, sync_speed_to_speed, Health, Speed,
+        ensure_health, ensure_speed, sync_health_to_health, sync_speed_to_speed, Damage, Health,
+        Speed,
     },
 };
 
@@ -26,13 +27,16 @@ pub struct ContentPlugin;
 
 impl Plugin for ContentPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.register_stat::<Speed>().register_stat::<Health>();
+        app.register_stat::<Speed>()
+            .register_resource::<Health>()
+            .register_stat::<Damage>();
 
         app.add_system(ensure_speed);
         app.add_system(ensure_health);
         app.add_system(sync_speed_to_speed);
         app.add_system(sync_health_to_health);
         app.add_system(tick_fading_slow.before(delete_stat_mod))
+            .add_system(damaging_projectile)
             .add_system(apply_slow_on_hit);
     }
 }

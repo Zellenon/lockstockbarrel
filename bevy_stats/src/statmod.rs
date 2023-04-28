@@ -54,10 +54,31 @@ where
         }
     }
 
+    pub fn offset(value: f32) -> Self {
+        Self {
+            mod_type: ModType::Offset,
+            value,
+            _phantom: PhantomData,
+        }
+    }
+
+    pub fn multiplier(value: f32) -> Self {
+        Self {
+            mod_type: ModType::Multiplier,
+            value,
+            _phantom: PhantomData,
+        }
+    }
     pub fn apply(&self, stat: f32) -> f32 {
-        match self.mod_type {
-            ModType::Offset => stat + self.value,
-            ModType::Multiplier => stat * self.value,
+        match T::can_negative() {
+            true => match self.mod_type {
+                ModType::Offset => stat + self.value,
+                ModType::Multiplier => stat * self.value,
+            },
+            false => match self.mod_type {
+                ModType::Offset => (stat + self.value).max(0.),
+                ModType::Multiplier => (stat * self.value).max(0.),
+            },
         }
     }
 }
