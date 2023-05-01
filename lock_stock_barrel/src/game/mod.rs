@@ -28,6 +28,7 @@ use self::{
     level_event_manager::{test_lemanager_setup, LeveleventManagerPlugin},
 };
 
+pub mod arms;
 pub mod level;
 pub mod level_event;
 pub mod level_event_manager;
