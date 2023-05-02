@@ -61,7 +61,7 @@ pub fn peashooter() -> ComponentTree {
                         Mesh2dHandle::default(),
                         Handle::<ShapeMaterial>::default(),
                         Name::new("Bullet"),
-                        Stat::<Damage>::new(50.),
+                        Stat::<Damage>::new(20.),
                     ));
                 }),
             },
