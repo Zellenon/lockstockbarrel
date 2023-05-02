@@ -1,5 +1,3 @@
-use std::marker::PhantomData;
-
 use bevy::prelude::*;
 
 pub use resource::{RPGResource, Resource};

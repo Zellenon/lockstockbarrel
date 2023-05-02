@@ -15,6 +15,7 @@ use bevy_prototype_lyon::{
     render::ShapeMaterial,
     shapes,
 };
+use bevy_stats::Stat;
 use twin_stick::{
     bevy_rapier2d::prelude::{Ccd, Velocity},
     projectile::{Knockback, ProjectileBundle},
@@ -23,7 +24,7 @@ use twin_stick::{
 
 use crate::game::level::wall;
 
-use super::projectile_components::SlowOnImpact;
+use super::stats::Damage;
 
 pub fn peashooter() -> ComponentTree {
     let func = move |parent: &mut EntityCommands| {
@@ -60,6 +61,7 @@ pub fn peashooter() -> ComponentTree {
                         Mesh2dHandle::default(),
                         Handle::<ShapeMaterial>::default(),
                         Name::new("Bullet"),
+                        Stat::<Damage>::new(20.),
                     ));
                 }),
             },

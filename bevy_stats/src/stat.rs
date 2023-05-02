@@ -1,11 +1,14 @@
 use std::marker::PhantomData;
 
 use bevy::{
-    prelude::{Component, Entity},
+    prelude::{Component, Entity, Query, With},
     reflect::Reflect,
 };
 
-use crate::statmod::{ModStyle, MultiplierStyle};
+use crate::{
+    statmod::{ModStyle, MultiplierStyle, StatModifier, StatValueChange},
+    systems::{add_stats, mul_diff, mul_stats},
+};
 
 pub trait RPGStat: 'static + Send + Sync {
     fn can_negative() -> bool {
@@ -25,8 +28,9 @@ pub trait RPGStat: 'static + Send + Sync {
 pub struct Stat<T> {
     pub base: f32,
     pub current: f32,
-    _phantom: PhantomData<T>,
     pub(crate) mods: Vec<Entity>,
+    #[reflect(ignore)]
+    _phantom: PhantomData<T>,
 }
 
 impl<T> Stat<T>
@@ -55,5 +59,48 @@ where
         if let Some(i) = i {
             self.mods.remove(i);
         }
+    }
+}
+
+pub(crate) fn update_modded_stats_addmul<T: RPGStat>(
+    mut stats: Query<&mut Stat<T>>,
+    mods: Query<&StatValueChange<T>, With<StatModifier>>,
+) {
+    for mut stat in stats.iter_mut() {
+        // TODO: Remove dead modifiers
+        stat.current = mul_stats(add_stats(stat.base, &stat.mods, &mods), &stat.mods, &mods);
+    }
+}
+
+pub(crate) fn update_modded_stats_muladd<T: RPGStat>(
+    mut stats: Query<&mut Stat<T>>,
+    mods: Query<&StatValueChange<T>, With<StatModifier>>,
+) {
+    for mut stat in stats.iter_mut() {
+        // TODO: Remove dead modifiers
+        stat.current = add_stats(mul_stats(stat.base, &stat.mods, &mods), &stat.mods, &mods);
+    }
+}
+
+pub(crate) fn update_modded_stats_sumdiff<T: RPGStat>(
+    mut stats: Query<&mut Stat<T>>,
+    mods: Query<&StatValueChange<T>, With<StatModifier>>,
+) {
+    for mut stat in stats.iter_mut() {
+        // TODO: Remove dead modifiers
+        stat.current =
+            add_stats(stat.base, &stat.mods, &mods) + mul_diff(stat.base, &stat.mods, &mods);
+    }
+}
+
+pub(crate) fn update_modded_stats_avediff<T: RPGStat>(
+    mut stats: Query<&mut Stat<T>>,
+    mods: Query<&StatValueChange<T>, With<StatModifier>>,
+) {
+    for mut stat in stats.iter_mut() {
+        // TODO: Remove dead modifiers
+        stat.current = (add_stats(stat.base, &stat.mods, &mods)
+            + mul_diff(stat.base, &stat.mods, &mods))
+            / stat.mods.len() as f32;
     }
 }
