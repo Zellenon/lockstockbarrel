@@ -180,7 +180,7 @@ pub fn health_death(
     health_query: Query<(Entity, &Health), (Without<Player>, Changed<Health>)>,
 ) {
     for (entity, health) in health_query.iter() {
-        if health.0 < 0. {
+        if health.0 <= 0. {
             commands.entity(entity).despawn_recursive();
         }
     }
