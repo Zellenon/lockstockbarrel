@@ -24,7 +24,7 @@ use twin_stick::{
 
 use crate::game::level::wall;
 
-use super::{projectile_components::SlowOnImpact, stats::Damage};
+use super::stats::Damage;
 
 pub fn peashooter() -> ComponentTree {
     let func = move |parent: &mut EntityCommands| {

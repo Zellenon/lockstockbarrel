@@ -4,7 +4,7 @@ use bevy::{
 };
 
 use crate::{
-    resource::{self, ensure_max_stat, ensure_max_stat_with_percentage},
+    resource::{ensure_max_stat, ensure_max_stat_with_percentage},
     stat::{
         update_modded_stats_addmul, update_modded_stats_avediff, update_modded_stats_muladd,
         update_modded_stats_sumdiff,

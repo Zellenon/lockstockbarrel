@@ -1,11 +1,5 @@
-use bevy::prelude::{
-    Added, Changed, Commands, Entity, EventReader, EventWriter, Or, Query, Without,
-};
-use bevy_stats::{
-    statmod::{ResourceChangeEvent, StatValueChange},
-    RPGResource, RPGStat, Resource, Stat,
-};
-use twin_stick::projectile::ProjectileImpactEvent;
+use bevy::prelude::{Added, Changed, Commands, Entity, Or, Query, Without};
+use bevy_stats::{RPGResource, RPGStat, Resource, Stat};
 
 pub struct Health;
 pub struct Speed;
