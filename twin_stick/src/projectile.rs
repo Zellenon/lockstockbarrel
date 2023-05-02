@@ -15,8 +15,6 @@ use bevy_rapier2d::{
     },
 };
 
-use crate::stats::Health;
-
 #[derive(Component)]
 pub struct Lifespan(Timer);
 

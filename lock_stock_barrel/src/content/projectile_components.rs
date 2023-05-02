@@ -3,12 +3,12 @@ use bevy::{
     time::Time,
 };
 use bevy_stats::{
-    statmod::{StatModifier, StatValueChange},
-    DeleteStatMod, Stat,
+    statmod::{ResourceChangeEvent, StatModifier, StatValueChange},
+    DeleteStatMod, Resource, Stat,
 };
 use twin_stick::projectile::ProjectileImpactEvent;
 
-use super::stats::Speed;
+use super::stats::{Damage, Health, Speed};
 
 #[derive(Component, Clone, Copy)]
 pub struct SlowOnImpact {
@@ -56,6 +56,32 @@ pub(crate) fn tick_fading_slow(
             events.send(DeleteStatMod(entity));
         } else {
             change.value *= 1. - slow.decay * time.delta_seconds_f64() as f32;
+        }
+    }
+}
+
+pub(crate) fn damaging_projectile(
+    mut targets: Query<(Entity, &mut Resource<Health>)>,
+    attacks: Query<&Stat<Damage>>,
+    mut events: EventReader<ProjectileImpactEvent>,
+    mut damages: EventWriter<ResourceChangeEvent<Health>>,
+) {
+    for ProjectileImpactEvent {
+        projectile,
+        impacted,
+    } in events.iter()
+    {
+        if let Ok(Stat::<Damage> {
+            base: _, current, ..
+        }) = attacks.get(*projectile)
+        {
+            if let Ok((_entity, _)) = targets.get_mut(*impacted) {
+                println!("Damage");
+                damages.send(ResourceChangeEvent {
+                    change: StatValueChange::offset(-1. * current),
+                    target: *impacted,
+                })
+            }
         }
     }
 }
