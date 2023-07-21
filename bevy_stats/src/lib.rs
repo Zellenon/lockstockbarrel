@@ -14,7 +14,8 @@ pub struct StatPlugin;
 impl Plugin for StatPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<DeleteStatMod>();
-        app.add_system(delete_stat_mod);
+        app.add_systems(Update, delete_stat_mod); //TODO: See if Update is the right time to be
+                                                  //running this
     }
 }
 

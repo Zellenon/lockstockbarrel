@@ -2,12 +2,15 @@ use crate::utils::*;
 use crate::weapons::{FireWeaponEvent, Weapon, WeaponFireMode};
 
 use bevy::prelude::{
-    App, Camera2dBundle, Children, Commands, Component, Entity, EventWriter, Input,
-    IntoSystemConfig, MouseButton, Name, Plugin, Query, Res, Resource, With,
+    default, App, Camera2dBundle, Children, Commands, Component, Entity, EventWriter, Input,
+    IntoSystemConfigs, MouseButton, Name, Plugin, Query, Res, Resource, Startup, Update, Vec2,
+    With,
 };
 use bevy::window::Window;
 use bevy_mod_transform2d::prelude::Spatial2dBundle;
 use bevy_mod_transform2d::transform2d::Transform2d;
+use bevy_prototype_lyon::prelude::{GeometryBuilder, ShapeBundle};
+use bevy_prototype_lyon::shapes;
 
 #[derive(Component, Resource)]
 pub struct MainCamera(pub Entity);
@@ -28,10 +31,17 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(player_setup)
-            .add_system(update_cursor_tracker);
-        app.add_system(fire_player_weapons.run_if(player_exists))
-            .add_system(camera_movement.run_if(player_exists));
+        app.add_systems(Startup, player_setup);
+        app.add_systems(
+            Update,
+            (
+                update_cursor_tracker,
+                (fire_player_weapons, camera_movement).run_if(player_exists),
+            ),
+        );
+        //     .add_system(update_cursor_tracker);
+        // app.add_system(fire_player_weapons.run_if(player_exists))
+        //     .add_system(camera_movement.run_if(player_exists));
     }
 }
 
@@ -39,13 +49,23 @@ pub fn player_setup(mut commands: Commands) {
     let camera_entity = commands
         .spawn(Camera2dBundle::default())
         .insert(Name::new("Camera"))
-        .insert(Transform2d::default())
+        .insert(Transform2d {
+            z_translation: 100.,
+            ..Default::default()
+        })
         .insert(ArenaCamera)
         .id();
     commands.insert_resource(MainCamera(camera_entity));
 
     let cursor_entity = commands
         .spawn(Spatial2dBundle::default())
+        .insert(ShapeBundle {
+            path: GeometryBuilder::build_as(&shapes::Rectangle {
+                extents: Vec2::new(20., 20.),
+                origin: bevy_prototype_lyon::shapes::RectangleOrigin::Center,
+            }),
+            ..default()
+        })
         .insert(Name::new("Cursor"))
         .insert(CursorTracker)
         .id();

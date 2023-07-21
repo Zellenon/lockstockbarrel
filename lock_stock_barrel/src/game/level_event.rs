@@ -6,13 +6,14 @@ pub struct LeveleventPlugin;
 impl Plugin for LeveleventPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<LevelEvent>()
-            .add_system(levelevent_to_local_event);
-        app.add_event::<SpawnEvent>().add_system(spawn_events);
+            .add_systems(Update, levelevent_to_local_event);
+        app.add_event::<SpawnEvent>();
+        app.add_systems(Update, spawn_events);
     }
 }
 
 // pub trait LevelEvent: Send + Sync {}
-#[derive(Clone)]
+#[derive(Clone, Event)]
 pub enum LevelEvent {
     Spawn(Vec<ComponentTree>),
 }
@@ -30,6 +31,7 @@ fn levelevent_to_local_event(
 
 // -------------------------------------
 
+#[derive(Clone, Event)]
 pub struct SpawnEvent(pub Vec<ComponentTree>);
 
 // impl LevelEvent for SpawnEvent {}

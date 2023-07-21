@@ -1,4 +1,4 @@
-use bevy::{app::AppExit, prelude::*};
+use bevy::{app::AppExit, prelude::*, reflect::Reflect};
 use twin_stick::bevy_rapier2d::prelude::RigidBody;
 
 use crate::{
@@ -15,21 +15,25 @@ impl Plugin for StatePlugin {
         app.add_state::<GameState>();
         app.add_state::<InGameMenu>();
 
-        app.add_system(exit.in_schedule(OnEnter(AppState::Exit)));
-        app.add_system(unload_world.in_schedule(OnEnter(AppState::MainMenu)));
-        app.add_system(main_menu_gui.in_set(OnUpdate(AppState::MainMenu)));
-        app.add_system(
+        app.add_systems(OnEnter(AppState::Exit), exit);
+        app.add_systems(OnEnter(AppState::MainMenu), unload_world);
+
+        // app.add_systems(AppState::MainMenu, main_menu_gui);
+        app.add_systems(Update, main_menu_gui.run_if(in_state(AppState::MainMenu)));
+        app.add_systems(
+            Update,
             pause_gui
-                .run_if(in_state(AppState::Game))
-                .run_if(in_state(InGameMenu::Pause)),
+                .run_if(in_state(InGameMenu::Pause))
+                .run_if(in_state(AppState::Game)),
         );
-        app.add_system(
+        app.add_systems(
+            Update,
             hud_gui
-                .run_if(in_state(AppState::Game))
-                .run_if(in_state(GameState::PlayingArena)),
+                .run_if(in_state(GameState::PlayingArena))
+                .run_if(in_state(AppState::Game)),
         );
 
-        app.add_system(pause_on_esc.in_set(OnUpdate(AppState::Game)));
+        app.add_systems(Update, pause_on_esc.run_if(in_state(AppState::Game)));
     }
 }
 
@@ -41,7 +45,7 @@ fn unload_world(mut commands: Commands, gameworld_entities: Query<Entity, With<R
     }
 }
 
-#[derive(States, Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(States, Debug, Default, Clone, Copy, PartialEq, Eq, Hash, Reflect)]
 pub enum AppState {
     Open,
     Loading,
@@ -51,14 +55,14 @@ pub enum AppState {
     Exit,
 }
 
-#[derive(States, Default, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(States, Default, Debug, Clone, Copy, PartialEq, Eq, Hash, Reflect)]
 pub enum GameState {
     PlayingArena,
     #[default]
     Map,
 }
 
-#[derive(States, Default, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(States, Default, Debug, Clone, Copy, PartialEq, Eq, Hash, Reflect)]
 pub enum InGameMenu {
     #[default]
     None,

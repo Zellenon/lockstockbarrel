@@ -1,5 +1,8 @@
 use bevy::{
-    prelude::{App, Commands, Component, Entity, EventReader, Parent, Plugin, Query, Res, With},
+    prelude::{
+        App, Commands, Component, Entity, Event, EventReader, Parent, Plugin, Query, Res, Update,
+        With,
+    },
     time::{Time, Timer, TimerMode},
 };
 use bevy_mod_transform2d::transform2d::Transform2d;
@@ -10,11 +13,16 @@ pub struct WeaponPlugin;
 
 impl Plugin for WeaponPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<FireWeaponEvent>()
-            .add_system(fire_weapons)
-            .add_system(tick_cooldowns)
-            .add_system(reset_weapon_cooldowns)
-            .add_system(enable_weapons_on_cooldown);
+        app.add_event::<FireWeaponEvent>();
+        app.add_systems(
+            Update,
+            (
+                fire_weapons,
+                tick_cooldowns,
+                reset_weapon_cooldowns,
+                enable_weapons_on_cooldown,
+            ),
+        );
     }
 }
 
@@ -54,6 +62,7 @@ impl Cooldown {
     }
 }
 
+#[derive(Event)]
 pub struct FireWeaponEvent {
     pub weapon: Entity,
     pub target: Option<Entity>,

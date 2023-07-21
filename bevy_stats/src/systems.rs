@@ -1,6 +1,7 @@
 use bevy::{
     ecs::query::ReadOnlyWorldQuery,
-    prelude::{App, Commands, Entity, EventReader, Query},
+    prelude::{App, Commands, Entity, EventReader, Query, Update},
+    reflect::TypePath,
 };
 
 use crate::{
@@ -16,40 +17,45 @@ use crate::{
 };
 
 pub trait StatRegisterable {
-    fn register_stat<T: RPGStat>(&mut self) -> &mut App;
-    fn register_resource<T: RPGResource>(&mut self) -> &mut App;
+    fn register_stat<T: RPGStat + TypePath>(&mut self) -> &mut App;
+    fn register_resource<T: RPGResource + TypePath>(&mut self) -> &mut App;
 }
 
 impl StatRegisterable for App {
-    fn register_stat<T: RPGStat>(&mut self) -> &mut App {
+    fn register_stat<T: RPGStat + TypePath>(&mut self) -> &mut App {
         self.register_type::<Stat<T>>();
         self.add_event::<StatChangeEvent<T>>();
 
         match T::modstyle() {
             ModStyle::AddMul => {
-                self.add_system(update_modded_stats_addmul::<T>);
+                self.add_systems(Update, update_modded_stats_addmul::<T>);
             }
             ModStyle::MulAdd => {
-                self.add_system(update_modded_stats_muladd::<T>);
+                self.add_systems(Update, update_modded_stats_muladd::<T>);
             }
             ModStyle::AverageDifferences => {
-                self.add_system(update_modded_stats_avediff::<T>);
+                self.add_systems(Update, update_modded_stats_avediff::<T>);
             }
             ModStyle::SumDifferences => {
-                self.add_system(update_modded_stats_sumdiff::<T>);
+                self.add_systems(Update, update_modded_stats_sumdiff::<T>);
             }
         }
         return self;
     }
 
-    fn register_resource<T: RPGResource>(&mut self) -> &mut App {
+    fn register_resource<T: RPGResource + TypePath>(&mut self) -> &mut App {
         self.register_stat::<T>();
         self.register_type::<Resource<T>>();
         self.add_event::<ResourceChangeEvent<T>>();
 
-        self.add_system(change_resource::<T>);
-        self.add_system(ensure_max_stat::<T>);
-        self.add_system(ensure_max_stat_with_percentage::<T>);
+        self.add_systems(
+            Update,
+            (
+                change_resource::<T>,
+                ensure_max_stat::<T>,
+                ensure_max_stat_with_percentage::<T>,
+            ),
+        );
         return self;
     }
 }

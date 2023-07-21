@@ -1,9 +1,16 @@
-use bevy::prelude::{Added, Changed, Commands, Entity, Or, Query, Without};
+use bevy::{
+    prelude::{Added, Changed, Commands, Entity, Or, Query, Without},
+    reflect::TypePath,
+};
 use bevy_stats::{RPGResource, RPGStat, Resource, Stat};
 
+#[derive(TypePath)]
 pub struct Health;
+#[derive(TypePath)]
 pub struct Speed;
+#[derive(TypePath)]
 pub struct Damage;
+#[derive(TypePath)]
 pub struct Knockback;
 
 impl RPGStat for Health {}

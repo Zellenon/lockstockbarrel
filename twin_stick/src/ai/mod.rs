@@ -1,4 +1,4 @@
-use bevy::prelude::{App, IntoSystemConfig, Plugin, Query};
+use bevy::prelude::{App, IntoSystemConfigs, Plugin, Query, Update};
 
 use crate::{
     actors::{actor_movement, Actor},
@@ -19,11 +19,16 @@ pub struct AIPlugin;
 
 impl Plugin for AIPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(do_tracker_ai.run_if(player_exists))
-            .add_system(keyboard_input_handler.run_if(player_exists))
-            .add_system(ai_wander)
-            .add_system(normalize_ai.after(do_tracker_ai).after(ai_wander))
-            .add_system(actor_movement.after(normalize_ai));
+        app.add_systems(
+            Update,
+            (
+                do_tracker_ai.run_if(player_exists),
+                keyboard_input_handler.run_if(player_exists),
+                ai_wander,
+                normalize_ai.after(do_tracker_ai).after(ai_wander),
+                actor_movement.after(normalize_ai),
+            ),
+        );
         app.register_type::<PerlinWanderAI>();
     }
 }

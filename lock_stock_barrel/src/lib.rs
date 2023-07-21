@@ -44,15 +44,12 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
             .add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin),
     );
 
-    app.add_plugin(TwinStickPlugin)
-        .add_plugin(GUIPlugin)
-        .add_plugin(StatPlugin);
+    app.add_plugins((TwinStickPlugin, GUIPlugin, StatPlugin));
 
-    app.add_plugin(StatePlugin);
-    app.add_plugin(GamePlugin);
+    app.add_plugins((StatePlugin, GamePlugin));
 
     if cfg!(debug_assertions) {
-        app.add_plugin(WorldInspectorPlugin::new());
+        app.add_plugins(WorldInspectorPlugin::new());
         // app.add_plugin(RapierDebugRenderPlugin::default());
     }
 

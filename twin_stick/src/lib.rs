@@ -1,12 +1,12 @@
 pub extern crate bevy_mod_transform2d;
 pub extern crate bevy_rapier2d;
 pub extern crate bevy_turborand;
-use bevy::prelude::{App, Plugin, ResMut, Vec2};
+use bevy::prelude::{App, Plugin, ResMut, Startup, Vec2};
 use bevy_mod_transform2d::{transform2d::Transform2d, Transform2dPlugin};
 
 use bevy_prototype_lyon::prelude::ShapePlugin;
 use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin};
-use bevy_turborand::RngPlugin;
+use bevy_turborand::prelude::RngPlugin;
 use stats::{Health, Knockback, Speed};
 
 use self::{
@@ -27,25 +27,30 @@ pub struct TwinStickPlugin;
 
 impl Plugin for TwinStickPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(setup)
-            .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(50.))
-            .add_plugin(Transform2dPlugin)
-            .add_plugin(ShapePlugin);
+        app.add_plugins((
+            RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(50.),
+            Transform2dPlugin,
+            ShapePlugin,
+            RngPlugin::default(),
+        ));
 
-        app.add_plugin(PlayerPlugin)
-            .add_plugin(RngPlugin::default())
-            .add_plugin(ActorPlugin)
-            .add_plugin(WeaponPlugin)
-            .add_plugin(AIPlugin)
-            .add_plugin(ProjectilePlugin);
+        app.add_plugins((
+            PlayerPlugin,
+            ActorPlugin,
+            WeaponPlugin,
+            AIPlugin,
+            ProjectilePlugin,
+        ));
 
         app.register_type::<Transform2d>();
         app.register_type::<Speed>();
         app.register_type::<Health>();
         app.register_type::<Knockback>();
+
+        app.add_systems(Startup, rapier_config_setup);
     }
 }
 
-fn setup(mut rapier_config: ResMut<RapierConfiguration>) {
+fn rapier_config_setup(mut rapier_config: ResMut<RapierConfiguration>) {
     rapier_config.gravity = Vec2::new(0., 0.);
 }

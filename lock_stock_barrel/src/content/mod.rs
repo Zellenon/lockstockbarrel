@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use bevy::{
     ecs::system::EntityCommands,
-    prelude::{Entity, IntoSystemConfig, Plugin, Vec2},
+    prelude::{Entity, IntoSystemConfigs, Plugin, Update, Vec2},
 };
 use bevy_composable::tree::EntityCommandSet;
 use bevy_mod_transform2d::transform2d::Transform2d;
@@ -31,13 +31,18 @@ impl Plugin for ContentPlugin {
             .register_resource::<Health>()
             .register_stat::<Damage>();
 
-        app.add_system(ensure_speed);
-        app.add_system(ensure_health);
-        app.add_system(sync_speed_to_speed);
-        app.add_system(sync_health_to_health);
-        app.add_system(tick_fading_slow.before(delete_stat_mod))
-            .add_system(damaging_projectile)
-            .add_system(apply_slow_on_hit);
+        app.add_systems(
+            Update,
+            (
+                ensure_speed,
+                ensure_health,
+                sync_speed_to_speed,
+                sync_health_to_health,
+                tick_fading_slow.before(delete_stat_mod),
+                damaging_projectile,
+                apply_slow_on_hit,
+            ),
+        );
     }
 }
 

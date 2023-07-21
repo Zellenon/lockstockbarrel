@@ -2,8 +2,9 @@ use std::time::Duration;
 
 use bevy::{
     prelude::{
-        App, Bundle, Commands, Component, ComputedVisibility, DespawnRecursiveExt, Entity,
-        EventReader, EventWriter, GlobalTransform, Plugin, Query, Res, Transform, Vec2, Visibility,
+        App, Bundle, Commands, Component, ComputedVisibility, DespawnRecursiveExt, Entity, Event,
+        EventReader, EventWriter, GlobalTransform, Plugin, Query, Res, Transform, Update, Vec2,
+        Visibility,
     },
     time::{Time, Timer, TimerMode},
 };
@@ -87,30 +88,38 @@ impl Default for ProjectileBundle {
     }
 }
 
+#[derive(Event)]
 pub struct KnockbackEvent {
     entity: Entity,
     direction: Vec2,
     force: f32,
 }
 
+#[derive(Event)]
 pub struct ProjectileImpactEvent {
     pub projectile: Entity,
     pub impacted: Entity,
 }
 
+#[derive(Event)]
 pub struct ProjectileClashEvent(pub Entity, pub Entity);
 
 pub struct ProjectilePlugin;
 
 impl Plugin for ProjectilePlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<KnockbackEvent>()
-            .add_system(tick_lifetimes)
-            .add_system(knockback_events)
-            // .add_system(projectile_impact)
-            .add_system(projectile_event_dispatcher)
-            .add_system(kill_projectiles_post_impact)
-            .add_system(knockback_from_projectiles);
+        app.add_event::<KnockbackEvent>();
+        // .add_system(projectile_impact)
+        app.add_systems(
+            Update,
+            (
+                tick_lifetimes,
+                knockback_events,
+                projectile_event_dispatcher,
+                kill_projectiles_post_impact,
+                knockback_from_projectiles,
+            ),
+        );
 
         app.add_event::<ProjectileImpactEvent>()
             .add_event::<ProjectileClashEvent>();
@@ -187,12 +196,18 @@ fn kill_projectiles_post_impact(
     query: Query<&Projectile>,
 ) {
     for ProjectileImpactEvent {
-        projectile,
+        projectile: projectile_id,
         impacted: _,
     } in events.iter()
     {
-        if query.get(*projectile).unwrap().on_impact == ProjectileImpactBehavior::Die {
-            commands.entity(*projectile).despawn_recursive();
+        let proj = query.get(*projectile_id);
+        match proj {
+            Ok(projectile) => {
+                if projectile.on_impact == ProjectileImpactBehavior::Die {
+                    commands.entity(*projectile_id).despawn_recursive();
+                }
+            }
+            Err(_) => (),
         }
     }
 }

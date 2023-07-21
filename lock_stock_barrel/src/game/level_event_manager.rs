@@ -10,10 +10,15 @@ impl Plugin for LeveleventManagerPlugin {
         app.add_event::<WakeLEManager>()
             .add_event::<FireLEManager>();
 
-        app.add_system(activate_levelevent_timer)
-            .add_system(activate_child_managers)
-            .add_system(tick_basic_timers)
-            .add_system(fire_lemanagers);
+        app.add_systems(
+            Update,
+            (
+                activate_levelevent_timer,
+                activate_child_managers,
+                tick_basic_timers,
+                fire_lemanagers,
+            ),
+        );
     }
 }
 
@@ -37,7 +42,9 @@ impl LeveleventManager {
     }
 }
 
+#[derive(Event)]
 struct WakeLEManager(Entity);
+#[derive(Event)]
 struct FireLEManager(Entity);
 
 #[derive(Eq, PartialEq)]

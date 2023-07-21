@@ -2,7 +2,7 @@ use bevy::{
     math::Vec3Swizzles,
     prelude::{
         App, Bundle, Changed, Commands, Component, ComputedVisibility, DespawnRecursiveExt, Entity,
-        GlobalTransform, Parent, Plugin, Query, Transform, Vec2, Visibility, With, Without,
+        GlobalTransform, Parent, Plugin, Query, Transform, Update, Vec2, Visibility, With, Without,
     },
     reflect::Reflect,
 };
@@ -107,9 +107,7 @@ pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(facing_update_system)
-            .add_system(animate_legs)
-            .add_system(health_death);
+        app.add_systems(Update, (facing_update_system, animate_legs, health_death));
     }
 }
 

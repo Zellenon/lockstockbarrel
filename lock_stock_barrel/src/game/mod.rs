@@ -36,13 +36,12 @@ pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(ContentPlugin)
-            .add_plugin(LeveleventPlugin)
-            .add_plugin(LeveleventManagerPlugin);
+        app.add_plugins((ContentPlugin, LeveleventPlugin, LeveleventManagerPlugin));
 
-        app.add_system(player_setup.in_schedule(OnEnter(AppState::Game)))
-            .add_system(test_lemanager_setup.in_schedule(OnEnter(AppState::Game)))
-            .add_system(test_load_level.in_schedule(OnEnter(AppState::Game)));
+        app.add_systems(
+            OnEnter(AppState::Game),
+            (player_setup, test_lemanager_setup, test_load_level),
+        );
     }
 }
 
