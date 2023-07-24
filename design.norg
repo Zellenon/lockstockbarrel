@@ -1,0 +1,11 @@
+* Ideas
+** Actuator stuff
+   Hand is normal actuator
+   Wrist gun is actuator with 2x firerate, 1/4 power
+   shift is an actuator with 0x range and 0x lifetime, 0.5x cooldown
+**  Grab jobber melee attack
+    slow self 0.2 sec -> spawn attack hitbox:(damage enemies inside + slow enemies inside)
+* Things we'll have
+* Formatting?
+  arm = activator()
+
