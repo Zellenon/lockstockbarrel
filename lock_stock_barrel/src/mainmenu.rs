@@ -1,6 +1,6 @@
 use bevy::prelude::{NextState, ResMut};
+use bevy_egui::egui;
 use bevy_egui::EguiContexts;
-use prettegui::bevy_egui::egui;
 
 use crate::states::AppState;
 

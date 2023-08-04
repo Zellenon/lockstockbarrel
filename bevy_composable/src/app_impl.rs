@@ -39,9 +39,8 @@ fn spawn_complex_inner(entity: &mut EntityCommands, component_tree: &ComponentTr
 // }
 
 pub fn from<T>(value: impl Component<Storage = T> + Clone) -> EntityCommandSet {
-    let temp = value.clone();
     let func = move |parent: &mut EntityCommands| {
-        parent.insert(temp.clone());
+        parent.insert(value.clone());
     };
     (Arc::new(func) as EntityCommandSet).into()
 }
@@ -55,9 +54,8 @@ where
     W: Component<Storage = T> + Clone,
 {
     fn tree(self) -> ComponentTree {
-        let temp = self.clone();
         let func = move |parent: &mut EntityCommands| {
-            parent.insert(temp.clone());
+            parent.insert(self.clone());
         };
         (Arc::new(func) as EntityCommandSet).into()
     }

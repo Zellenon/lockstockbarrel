@@ -9,7 +9,6 @@ use bevy_embedded_assets::EmbeddedAssetPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_stats::StatPlugin;
 use game::GamePlugin;
-use prettegui::GUIPlugin;
 use states::StatePlugin;
 use twin_stick::TwinStickPlugin;
 
@@ -44,7 +43,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
             .add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin),
     );
 
-    app.add_plugins((TwinStickPlugin, GUIPlugin, StatPlugin));
+    app.add_plugins((TwinStickPlugin, StatPlugin));
 
     app.add_plugins((StatePlugin, GamePlugin));
 

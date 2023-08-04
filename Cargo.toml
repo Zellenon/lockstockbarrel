@@ -12,7 +12,7 @@ resolver = "2"
 members = [
   "bevy_composable",
   "bevy_stats",
-  "prettegui",
+  # "prettegui",
   "twin_stick",
   "lock_stock_barrel",
   "bevy_mod_transform2d"

@@ -101,15 +101,15 @@ fn fire_player_weapons(
     for &child in players_children_query.single().iter() {
         if let Ok((entity, weapon)) = weapons.get(child) {
             let trigger_func = weapon.fire_mode;
-            if (buttons.just_pressed(MouseButton::Left) && trigger_func == WeaponFireMode::SemiAuto)
-                || (buttons.pressed(MouseButton::Left) && trigger_func == WeaponFireMode::FullAuto)
+            if ((buttons.just_pressed(MouseButton::Left)
+                && trigger_func == WeaponFireMode::SemiAuto)
+                || (buttons.pressed(MouseButton::Left) && trigger_func == WeaponFireMode::FullAuto))
+                && weapon.can_fire
             {
-                if weapon.can_fire {
-                    events.send(FireWeaponEvent {
-                        weapon: entity,
-                        target: None,
-                    })
-                }
+                events.send(FireWeaponEvent {
+                    weapon: entity,
+                    target: None,
+                })
             }
         }
     }
