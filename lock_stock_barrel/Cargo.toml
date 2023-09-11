@@ -13,7 +13,6 @@ bevy_embedded_assets = "0.8"
 serde = "1.0"
 strum = "0.25"
 strum_macros = "0.25"
-bevy_mod_transform2d = {path = "../bevy_mod_transform2d"}
 bevy_prototype_lyon = {version = "0.9"}
 # iyes_loopless = "0.9"
 
