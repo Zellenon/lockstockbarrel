@@ -7,6 +7,7 @@
 # linker = "clang"
 # rustflags = ["-C", "link-arg=-fuse-ld=lld", "-Zshare-generics=y"]
 rustflags = ["-C", "link-arg=-fuse-ld=mold", "-Zshare-generics=y"]
+# rustflags = ["-C", "link-arg=-fuse-ld=mold"]
 
 # NOTE: you must manually install https://github.com/michaeleisel/zld on mac. you can easily do this with the "brew" package manager:
 # `brew install michaeleisel/zld/zld`
