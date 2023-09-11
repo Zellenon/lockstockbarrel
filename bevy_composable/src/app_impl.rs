@@ -29,15 +29,6 @@ fn spawn_complex_inner(entity: &mut EntityCommands, component_tree: &ComponentTr
     }
 }
 
-// impl<T> From<dyn Component<Storage = T>> for ComponentTree {
-//     fn from(value: dyn Component<Storage = T>) -> Self {
-//         let func = move |parent: &mut EntityCommands| {
-//             parent.insert(value);
-//         };
-//         (Arc::new(func) as EntityCommandSet).into()
-//     }
-// }
-
 pub fn from<T>(value: impl Component<Storage = T> + Clone) -> EntityCommandSet {
     let func = move |parent: &mut EntityCommands| {
         parent.insert(value.clone());
