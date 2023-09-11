@@ -5,9 +5,9 @@ use bevy::{
     prelude::{Entity, IntoSystemConfigs, Plugin, Update, Vec2},
 };
 use bevy_composable::tree::EntityCommandSet;
-use bevy_mod_transform2d::transform2d::Transform2d;
 use bevy_stats::systems::{delete_stat_mod, StatRegisterable};
 use twin_stick::actors::Tracking;
+use twin_stick::bevy_mod_transform2d::transform2d::Transform2d;
 
 use self::{
     projectile_components::{apply_slow_on_hit, damaging_projectile, tick_fading_slow},

@@ -15,7 +15,7 @@ members = [
   # "prettegui",
   "twin_stick",
   "lock_stock_barrel",
-  "bevy_mod_transform2d"
+  # "bevy_mod_transform2d"
   # "bevy_prototype_lyon",
 ]
 
