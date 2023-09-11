@@ -5,6 +5,24 @@ use bevy::ecs::system::EntityCommands;
 
 pub type EntityCommandSet = Arc<dyn Fn(&mut EntityCommands) + Send + Sync>;
 
+#[macro_export]
+macro_rules! CT {
+    (
+    $($a:expr),*
+    )=> {
+        {
+            use std::ops;
+            use std::sync::Arc;
+            use bevy::ecs::system::EntityCommands;
+
+            ComponentTree::from(Arc::new(
+            move |parent: &mut EntityCommands| {
+                parent.insert(($($a,)*));
+            },
+        ) as EntityCommandSet)}
+    };
+}
+
 #[derive(Clone)]
 pub struct ComponentTree {
     pub commands: Vec<EntityCommandSet>,
