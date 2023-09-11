@@ -1,3 +1,4 @@
+* Game Setup
 * Ideas
 ** Actuator stuff
    Hand is normal actuator
@@ -9,3 +10,25 @@
 * Formatting?
   arm = activator()
 
+* Plugins
+** AI
+   - https://crates.io/crates/bevy_flowfield_tiles_plugin
+   - https://crates.io/crates/big-brain
+
+** UI
+   - https://github.com/bytestring-net/bevy-lunex
+   - https://crates.io/crates/bevy_ui_bits
+
+** Core Mechanics
+   - https://github.com/MrGVSV/bevy_proto
+   - https://crates.io/crates/aery
+** Graphics
+   - https://crates.io/crates/bevy_flicker
+   - https://crates.io/crates/bevy_despawn_particles
+   - https://crates.io/crates/bevy_hanabi
+** Multiplayer
+   - https://crates.io/crates/bevy_replicon
+
+** World Design
+   - https://crates.io/crates/bevy_ecs_ldtk
+   - https://crates.io/crates/bevy_ecs_ldtk_macros
