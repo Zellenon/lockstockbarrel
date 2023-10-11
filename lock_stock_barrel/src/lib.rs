@@ -5,6 +5,7 @@ use bevy::{
     window::{Window, WindowPlugin},
     DefaultPlugins,
 };
+use bevy_egui::EguiPlugin;
 use bevy_embedded_assets::EmbeddedAssetPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_stats::StatPlugin;
@@ -19,7 +20,6 @@ mod mainmenu;
 mod pause;
 mod states;
 
-// #[bevy_main]
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut app = App::new();
     app.add_plugins(
@@ -42,6 +42,8 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
             })
             .add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin),
     );
+
+    app.add_plugins(EguiPlugin);
 
     app.add_plugins((TwinStickPlugin, StatPlugin));
 
