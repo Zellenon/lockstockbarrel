@@ -6,7 +6,7 @@ use bevy::{
 };
 use bevy_composable::tree::{ComponentTree, EntityCommandSet};
 use bevy_stats::{Resource, Stat};
-use twin_stick::{
+use bevy_twin_stick::{
     actors::{ActorBundle, Faction},
     ai::{tracking::TrackerAI, wander::PerlinWanderAI},
 };

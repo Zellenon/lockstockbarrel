@@ -4,12 +4,12 @@ use bevy_composable::{
     tree::{ComponentTree, EntityCommandSet},
 };
 use bevy_stats::Stat;
-use std::sync::Arc;
-use twin_stick::{
+use bevy_twin_stick::{
     actors::ActorBundle,
     ai::keyboard::KeyboardAI,
     player::{Cursor, Player},
 };
+use std::sync::Arc;
 
 use crate::{
     content::{

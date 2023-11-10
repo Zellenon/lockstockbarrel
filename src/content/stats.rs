@@ -1,16 +1,18 @@
 use bevy::{
     prelude::{Added, Changed, Commands, Entity, Or, Query, Without},
-    reflect::TypePath,
+    reflect::Reflect,
 };
+use bevy_stats;
 use bevy_stats::{RPGResource, RPGStat, Resource, Stat};
+use bevy_twin_stick::stats;
 
-#[derive(TypePath)]
+#[derive(Reflect)]
 pub struct Health;
-#[derive(TypePath)]
+#[derive(Reflect)]
 pub struct Speed;
-#[derive(TypePath)]
+#[derive(Reflect)]
 pub struct Damage;
-#[derive(TypePath)]
+#[derive(Reflect)]
 pub struct Knockback;
 
 impl RPGStat for Health {}
@@ -21,32 +23,32 @@ impl RPGStat for Knockback {}
 
 pub(crate) fn ensure_health(
     mut commands: Commands,
-    query: Query<(&Resource<Health>, Entity), Without<twin_stick::stats::Health>>,
+    query: Query<(&Resource<Health>, Entity), Without<stats::Health>>,
 ) {
     for (stat, entity) in query.iter() {
         commands
             .get_entity(entity)
             .unwrap()
-            .insert(twin_stick::stats::Health(stat.current_value()));
+            .insert(stats::Health(stat.current_value()));
     }
 }
 
 pub(crate) fn ensure_speed(
     mut commands: Commands,
-    query: Query<(&Stat<Speed>, Entity), Without<twin_stick::stats::Speed>>,
+    query: Query<(&Stat<Speed>, Entity), Without<stats::Speed>>,
 ) {
     for (stat, entity) in query.iter() {
         commands
             .get_entity(entity)
             .unwrap()
-            .insert(twin_stick::stats::Speed(stat.current_value()));
+            .insert(stats::Speed(stat.current_value()));
     }
 }
 
 pub(crate) fn sync_speed_to_speed(
     mut commands: Commands,
     mut query: Query<
-        (Option<&mut twin_stick::stats::Speed>, &Stat<Speed>, Entity),
+        (Option<&mut stats::Speed>, &Stat<Speed>, Entity),
         Or<(Changed<Stat<Speed>>, Added<Stat<Speed>>)>,
     >,
 ) {
@@ -63,10 +65,7 @@ pub(crate) fn sync_speed_to_speed(
 }
 
 pub(crate) fn sync_health_to_health(
-    mut query: Query<
-        (&mut twin_stick::stats::Health, &Resource<Health>),
-        Changed<Resource<Health>>,
-    >,
+    mut query: Query<(&mut stats::Health, &Resource<Health>), Changed<Resource<Health>>>,
 ) {
     for (mut twin_health, health) in query.iter_mut() {
         twin_health.0 = health.current_value();

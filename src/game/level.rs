@@ -4,9 +4,9 @@ use bevy_composable::{
     tree::{ComponentTree, EntityCommandSet},
 };
 use bevy_prototype_lyon::prelude::{self as lyon, Fill, ShapeBundle};
+use bevy_twin_stick::bevy_mod_transform2d::transform2d::Transform2d;
+use bevy_twin_stick::bevy_rapier2d::prelude::{Collider, RigidBody};
 use std::sync::Arc;
-use twin_stick::bevy_mod_transform2d::transform2d::Transform2d;
-use twin_stick::bevy_rapier2d::prelude::{Collider, RigidBody};
 
 type LevelMap = Vec<Vec<bool>>;
 

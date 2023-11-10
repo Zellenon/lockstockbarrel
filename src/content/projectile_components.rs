@@ -6,7 +6,7 @@ use bevy_stats::{
     statmod::{ResourceChangeEvent, StatModifier, StatValueChange},
     DeleteStatMod, Resource, Stat,
 };
-use twin_stick::projectile::ProjectileImpactEvent;
+use bevy_twin_stick::projectile::ProjectileImpactEvent;
 
 use super::stats::{Damage, Health, Speed};
 
@@ -34,8 +34,8 @@ pub(crate) fn apply_slow_on_hit(
             let id = commands
                 .spawn((
                     StatValueChange::<Speed>::new(
-                        bevy_stats::statmod::ModType::Multiplier,
                         projectile.strength,
+                        bevy_stats::statmod::ModType::Multiplier,
                     ),
                     StatModifier,
                     *projectile,

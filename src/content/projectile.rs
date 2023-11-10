@@ -11,7 +11,7 @@ use bevy_prototype_lyon::{
     render::ShapeMaterial,
     shapes,
 };
-use twin_stick::{bevy_rapier2d::prelude::Ccd, projectile::ProjectileBundle};
+use bevy_twin_stick::{bevy_rapier2d::prelude::Ccd, projectile::ProjectileBundle};
 
 pub fn basic_bullet() -> ComponentTree {
     return CT!(
