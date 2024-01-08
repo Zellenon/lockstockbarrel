@@ -1,10 +1,11 @@
 use crate::utils::*;
 use crate::weapons::{FireWeaponEvent, Weapon, WeaponFireMode};
 
+use bevy::ecs::system::EntityCommands;
 use bevy::prelude::{
     default, App, Camera2dBundle, Children, Commands, Component, Entity, EventWriter, Input,
     IntoSystemConfigs, MouseButton, Name, Plugin, Query, Res, Resource, Startup, Update, Vec2,
-    With,
+    Visibility, With,
 };
 use bevy::window::Window;
 use bevy_mod_transform2d::prelude::Spatial2dBundle;
@@ -64,6 +65,13 @@ pub fn player_setup(mut commands: Commands) {
                 extents: Vec2::new(20., 20.),
                 origin: bevy_prototype_lyon::shapes::RectangleOrigin::Center,
             }),
+            visibility: {
+                if cfg!(debug_assertions) {
+                    Visibility::Visible
+                } else {
+                    Visibility::Hidden
+                }
+            },
             ..default()
         })
         .insert(Name::new("Cursor"))
