@@ -1,4 +1,4 @@
-use bevy::{ecs::system::EntityCommands, prelude::*};
+use bevy::prelude::*;
 use bevy_composable::{
     app_impl::ComplexSpawnable,
     tree::{ComponentTree, EntityCommandSet},
@@ -6,7 +6,6 @@ use bevy_composable::{
 };
 use bevy_twin_stick::bevy_mod_transform2d::transform2d::Transform2d;
 use bevy_twin_stick::bevy_rapier2d::prelude::{Collider, RigidBody};
-use std::sync::Arc;
 
 use crate::graphics::Square;
 
