@@ -9,10 +9,12 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_stats::StatPlugin;
 use bevy_twin_stick::TwinStickPlugin;
 use game::GamePlugin;
+use graphics::GraphicsPlugin;
 use states::StatePlugin;
 
 mod content;
 mod game;
+mod graphics;
 mod hud;
 mod mainmenu;
 mod pause;
@@ -39,7 +41,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     app.add_plugins((TwinStickPlugin, StatPlugin));
 
-    app.add_plugins((StatePlugin, GamePlugin));
+    app.add_plugins((StatePlugin, GamePlugin, GraphicsPlugin));
 
     if cfg!(debug_assertions) {
         app.add_plugins(WorldInspectorPlugin::new());
