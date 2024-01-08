@@ -26,7 +26,7 @@ pub(crate) fn apply_slow_on_hit(
     for ProjectileImpactEvent {
         projectile,
         impacted,
-    } in impacts.iter()
+    } in impacts.read()
     {
         if let (Ok(projectile), Ok(mut impacted)) =
             (projectiles.get(*projectile), targets.get_mut(*impacted))

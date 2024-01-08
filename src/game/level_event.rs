@@ -22,7 +22,7 @@ fn levelevent_to_local_event(
     mut levelevents: EventReader<LevelEvent>,
     mut spawn_events: EventWriter<SpawnEvent>,
 ) {
-    for levelevent in levelevents.iter() {
+    for levelevent in levelevents.read() {
         match levelevent {
             LevelEvent::Spawn(wave) => spawn_events.send(SpawnEvent(wave.to_vec())),
         }
@@ -37,7 +37,7 @@ pub struct SpawnEvent(pub Vec<ComponentTree>);
 // impl LevelEvent for SpawnEvent {}
 
 fn spawn_events(mut commands: Commands, mut events: EventReader<SpawnEvent>) {
-    for event in events.iter() {
+    for event in events.read() {
         for component_tree in event.0.iter() {
             commands.spawn_complex(component_tree.clone());
         }
