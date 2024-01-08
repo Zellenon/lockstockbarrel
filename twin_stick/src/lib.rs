@@ -16,6 +16,7 @@ use self::{
 
 pub mod actors;
 pub mod ai;
+pub mod level_event;
 pub mod player;
 pub mod projectile;
 pub mod stats;
