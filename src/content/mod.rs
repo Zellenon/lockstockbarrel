@@ -19,6 +19,7 @@ use self::{
 
 pub mod actor_bits;
 pub mod enemies;
+pub mod player;
 pub mod projectile;
 pub mod projectile_components;
 pub mod stats;

@@ -1,24 +1,17 @@
-use bevy::{ecs::system::EntityCommands, prelude::*};
-use bevy_composable::{
-    app_impl::ComplexSpawnable,
-    tree::{ComponentTree, EntityCommandSet},
+use bevy::{
+    app::{App, Plugin, Update},
+    ecs::{
+        entity::Entity,
+        query::Without,
+        schedule::OnEnter,
+        system::{Commands, Query},
+    },
+    transform::components::Transform,
 };
-use bevy_stats::Stat;
-use bevy_twin_stick::{
-    actors::ActorBundle,
-    ai::keyboard::KeyboardAI,
-    player::{Cursor, Player},
-};
-use std::sync::Arc;
+use bevy_twin_stick::bevy_mod_transform2d::transform2d::Transform2d;
 
 use crate::{
-    content::{
-        actor_bits::{basic_head, basic_legs},
-        shift_tracking,
-        stats::Speed,
-        weapons::peashooter,
-        ContentPlugin,
-    },
+    content::{player::player_setup, ContentPlugin},
     states::AppState,
 };
 
@@ -42,40 +35,9 @@ impl Plugin for GamePlugin {
             OnEnter(AppState::Game),
             (player_setup, test_lemanager_setup, test_load_level),
         );
+
+        app.add_systems(Update, ensure_transform2d);
     }
-}
-
-fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>, cursor: Res<Cursor>) {
-    commands.spawn_complex(player_tree(
-        asset_server.load("img/player_head.png").clone(),
-        asset_server.load("img/player_legs.png").clone(),
-        cursor,
-    ));
-}
-
-fn player_tree_base() -> ComponentTree {
-    let func = move |parent: &mut EntityCommands| {
-        parent.insert((
-            Player,
-            Name::new("Player"),
-            ActorBundle::default(),
-            Stat::<Speed>::new(1500.),
-            KeyboardAI,
-        ));
-    };
-    (Arc::new(func) as EntityCommandSet).into()
-}
-
-pub fn player_tree(
-    head_tex: Handle<Image>,
-    leg_tex: Handle<Image>,
-    cursor: Res<Cursor>,
-) -> ComponentTree {
-    player_tree_base()
-        << (basic_head(head_tex) + shift_tracking(Some(cursor.0)))
-        << basic_legs(leg_tex)
-        << peashooter()
-    // << wallgun()
 }
 
 fn test_load_level(commands: Commands) {
@@ -92,4 +54,16 @@ fn test_load_level(commands: Commands) {
         resolution: 600.,
     };
     spawn_arena_from_map(commands, &level);
+}
+
+pub fn ensure_transform2d(
+    mut commands: Commands,
+    query: Query<(Entity, &Transform2d), Without<Transform>>,
+) {
+    for (e, transform) in query.iter() {
+        commands.entity(e).insert({
+            let t: Transform = (*transform).into();
+            t
+        });
+    }
 }
