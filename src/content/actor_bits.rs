@@ -6,7 +6,7 @@ use bevy::{
     sprite::Sprite,
 };
 use bevy_composable::tree::{ComponentTree, EntityCommandSet};
-use twin_stick::{
+use bevy_twin_stick::{
     actors::{Legs, Tracking},
     bevy_mod_transform2d::transform2d::Transform2d,
     transform2d_mods::Sprite2dBundle,

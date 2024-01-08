@@ -1,0 +1,5 @@
+Peashooter: Graphic(StandardGun) + Action(Shoot(Pea),Sound(Gunshot))
+
+Grenade_Launcher: Graphics(Grenade_Launcher_Overhead) + Action(Shoot(PiglettGrenade),Sound(Thuump))
+
+Shoot: Spawn(%a,WithPosition(%P.gloc),WithOrientation(%P.grot),WithVelocity(%P.grot * $a.vel))

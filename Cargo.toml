@@ -9,18 +9,18 @@ license = "MIT OR Apache-2.0"
 [workspace]
 resolver = "2"
 
-members = [
-  "bevy_composable",
-  "bevy_stats",
-  # "prettegui",
-  "twin_stick",
-  "lock_stock_barrel",
-  "bevy_mod_transform2d"
-  # "bevy_prototype_lyon",
-]
-
 [dependencies]
-lock_stock_barrel = {path = "lock_stock_barrel"}
+bevy = {version = "0.12", features = ["wayland"]} 
+bevy_egui = "0.23"
+bevy-inspector-egui = "0.21"
+serde = "1.0"
+strum = "0.25"
+strum_macros = "0.25"
+bevy_vector_shapes = "0.6"
+
+bevy_twin_stick = {git = "https://github.com/Zellenon/bevy_twin_stick.git", branch="bevy12"}
+bevy_composable = {git = "https://github.com/Zellenon/bevy_composable.git", branch="bevy-12"}
+bevy_stats = {git = "https://github.com/Zellenon/bevy_stats.git", branch="bevy-12"}
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]

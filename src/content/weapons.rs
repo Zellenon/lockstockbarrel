@@ -6,9 +6,9 @@ use bevy_composable::{
     tree::{ComponentTree, EntityCommandSet},
     CT,
 };
-use bevy_mod_transform2d::transform2d::Transform2d;
 use bevy_stats::Stat;
-use twin_stick::{
+use bevy_twin_stick::bevy_mod_transform2d::transform2d::Transform2d;
+use bevy_twin_stick::{
     bevy_rapier2d::prelude::Velocity,
     projectile::{Knockback, ProjectileBundle},
     weapons::{Cooldown, Weapon, WeaponArguments, WeaponFireMode},

@@ -1,5 +1,5 @@
 use bevy::{app::AppExit, prelude::*, reflect::Reflect};
-use twin_stick::bevy_rapier2d::prelude::RigidBody;
+use bevy_twin_stick::bevy_rapier2d::prelude::RigidBody;
 
 use crate::{
     hud::hud_gui,
