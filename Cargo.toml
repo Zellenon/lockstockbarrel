@@ -10,18 +10,17 @@ license = "MIT OR Apache-2.0"
 resolver = "2"
 
 [dependencies]
-bevy = {version = "0.11", features = ["wayland"]} 
-bevy_egui = "0.22"
-bevy-inspector-egui = "0.20"
+bevy = {version = "0.12", features = ["wayland"]} 
+bevy_egui = "0.23"
+bevy-inspector-egui = "0.21"
 serde = "1.0"
 strum = "0.25"
 strum_macros = "0.25"
-bevy_prototype_lyon = {version = "0.9"}
 bevy_vector_shapes = "0.6"
 
-bevy_twin_stick = {git = "https://github.com/Zellenon/bevy_twin_stick.git"}
-bevy_composable = {git = "https://github.com/Zellenon/bevy_composable.git"}
-bevy_stats = {git = "https://github.com/Zellenon/bevy_stats.git"}
+bevy_twin_stick = {git = "https://github.com/Zellenon/bevy_twin_stick.git", branch="bevy12"}
+bevy_composable = {git = "https://github.com/Zellenon/bevy_composable.git", branch="bevy-12"}
+bevy_stats = {git = "https://github.com/Zellenon/bevy_stats.git", branch="bevy-12"}
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]
