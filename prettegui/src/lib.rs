@@ -20,6 +20,7 @@ impl Plugin for GUIPlugin {
     }
 }
 
+#[allow(dead_code)]
 fn ui_test(mut egui: EguiContexts) {
     egui::Window::new("Hello").show(egui.ctx_mut(), |ui| {
         ui.label("world");

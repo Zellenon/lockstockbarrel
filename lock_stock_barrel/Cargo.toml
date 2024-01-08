@@ -1,6 +1,6 @@
 [package]
 name = "lock_stock_barrel"
-version = "0.0.3"
+version = "0.0.5"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -17,6 +17,8 @@ bevy_mod_transform2d = {path = "../bevy_mod_transform2d"}
 bevy_prototype_lyon = {version = "0.9"}
 # iyes_loopless = "0.9"
 
+# bevy_prototype_lyon = {path = "../bevy_prototype_lyon"}
+bevy_prototype_lyon = "0.8"
 twin_stick = {path = "../twin_stick"}
 bevy_stats = {path = "../bevy_stats"}
 prettegui = {path = "../prettegui"}

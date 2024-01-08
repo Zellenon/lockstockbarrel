@@ -71,6 +71,7 @@ pub fn peashooter() -> ComponentTree {
     (Arc::new(func) as EntityCommandSet).into()
 }
 
+#[allow(dead_code)]
 pub fn wallgun() -> ComponentTree {
     let func = move |parent: &mut EntityCommands| {
         parent.insert((
