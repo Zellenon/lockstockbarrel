@@ -1,13 +1,14 @@
-use bevy::prelude::*;
+use bevy::ecs::system::Commands;
+use bevy::render::color::Color;
+use bevy::{core::Name, ecs::system::Resource};
 use bevy_composable::{
     app_impl::ComplexSpawnable,
     tree::{ComponentTree, EntityCommandSet},
     CT,
 };
-use bevy_twin_stick::bevy_mod_transform2d::transform2d::Transform2d;
 use bevy_twin_stick::bevy_rapier2d::prelude::{Collider, RigidBody};
 
-use crate::graphics::Square;
+use crate::graphics::rect;
 
 type LevelMap = Vec<Vec<bool>>;
 
@@ -51,15 +52,12 @@ pub fn spawn_arena_from_map(mut commands: Commands, level: &Level) {
 }
 
 pub fn wall(x: f32, y: f32, width: f32, height: f32) -> ComponentTree {
-    CT!(
-        Transform2d::from_xy(x, y),
-        Transform::from_xyz(x, y, 0.),
-        Square::new(width, Color::CYAN),
-        Visibility::Visible,
-        ViewVisibility::default(),
-        InheritedVisibility::default(),
-        RigidBody::Fixed,
-        Collider::cuboid(width / 2., height / 2.),
-        Name::new("Wall")
-    )
+    println!("Spawning wall at {}, {}", x, y);
+
+    rect(x, y, width, height, Color::rgb(0.25, 0.25, 0.75))
+        + CT!(
+            RigidBody::Fixed,
+            Collider::cuboid(width / 2., height / 2.),
+            Name::new("Wall")
+        )
 }

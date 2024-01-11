@@ -14,7 +14,7 @@ use bevy_twin_stick::{
     weapons::{Cooldown, Weapon, WeaponArguments, WeaponFireMode},
 };
 
-use crate::game::level::wall;
+use crate::{content::shift_pos, game::level::wall};
 
 use super::{projectile::basic_bullet, stats::Damage};
 
@@ -31,21 +31,14 @@ pub fn peashooter() -> ComponentTree {
                 a.commands.spawn_complex(
                     basic_bullet()
                         + CT!(
-                            ProjectileBundle {
-                                velocity: Velocity {
-                                    linvel: fire_direction * 5000.,
-                                    angvel: 0.,
-                                },
-                                transform: Transform2d {
-                                    translation: parent_transform.translation
-                                        + fire_direction * 30.,
-                                    ..Default::default()
-                                },
-                                ..Default::default()
+                            Velocity {
+                                linvel: fire_direction * 5000.,
+                                angvel: 0.,
                             },
                             Knockback(150.),
                             Stat::<Damage>::new(20.)
-                        ),
+                        )
+                        + shift_pos(parent_transform.translation + fire_direction * 30.),
                 );
             }),
         },

@@ -69,7 +69,7 @@ pub(crate) fn damaging_projectile(
     for ProjectileImpactEvent {
         projectile,
         impacted,
-    } in events.iter()
+    } in events.read()
     {
         if let Ok(Stat::<Damage> {
             base: _, current, ..

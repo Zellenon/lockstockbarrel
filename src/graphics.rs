@@ -1,58 +1,21 @@
-use bevy::prelude::{Component, Plugin, Query, Transform, Update, Vec2};
-use bevy_vector_shapes::{
-    prelude::ShapePainter,
-    shapes::{DiscPainter, RectPainter},
-    Shape2dPlugin,
-};
+use bevy::utils::default;
 
-pub struct GraphicsPlugin;
+use bevy::math::Vec2;
+use bevy::{render::color::Color, sprite::Sprite};
+use bevy_composable::tree::ComponentTree;
+use bevy_composable::tree::EntityCommandSet;
+use bevy_composable::CT;
+use bevy_twin_stick::bevy_mod_transform2d::transform2d::Transform2d;
+use bevy_twin_stick::transform2d_mods::Sprite2dBundle;
 
-impl Plugin for GraphicsPlugin {
-    fn build(&self, app: &mut bevy::prelude::App) {
-        app.add_systems(Update, (draw_circles, draw_rects));
-
-        app.add_plugins(Shape2dPlugin::default());
-    }
-}
-
-#[derive(Component)]
-pub struct Circle {
-    pub size: f32,
-    pub color: bevy::render::color::Color,
-}
-
-#[derive(Component)]
-pub struct Square {
-    pub size: f32,
-    pub color: bevy::render::color::Color,
-}
-
-impl Circle {
-    pub fn new(size: f32, color: bevy::render::color::Color) -> Self {
-        Self { size, color }
-    }
-}
-
-impl Square {
-    pub fn new(size: f32, color: bevy::render::color::Color) -> Self {
-        Self { size, color }
-    }
-}
-
-pub fn draw_rects(rects: Query<(&Transform, &Square)>, mut painter: ShapePainter) {
-    for (transform, rect) in rects.iter() {
-        painter.translate(transform.translation);
-        painter.hollow = false;
-        painter.color = rect.color;
-        painter.rect(Vec2::new(rect.size, rect.size));
-    }
-}
-
-pub fn draw_circles(circles: Query<(&Transform, &Circle)>, mut painter: ShapePainter) {
-    for (transform, circle) in circles.iter() {
-        painter.translate(transform.translation);
-        painter.hollow = false;
-        painter.color = circle.color;
-        painter.circle(circle.size);
-    }
+pub fn rect(x: f32, y: f32, h: f32, w: f32, color: Color) -> ComponentTree {
+    CT!(Sprite2dBundle {
+        sprite: Sprite {
+            color: color,
+            custom_size: Some(Vec2::new(w, h)),
+            ..default()
+        },
+        transform: Transform2d::from_xy(x, y),
+        ..default()
+    })
 }

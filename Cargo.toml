@@ -16,7 +16,6 @@ bevy-inspector-egui = "0.21"
 serde = "1.0"
 strum = "0.25"
 strum_macros = "0.25"
-bevy_vector_shapes = "0.6"
 
 bevy_twin_stick = {git = "https://github.com/Zellenon/bevy_twin_stick.git", branch="bevy12"}
 bevy_composable = {git = "https://github.com/Zellenon/bevy_composable.git", branch="bevy-12"}
