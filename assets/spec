@@ -1,3 +1,4 @@
+Pea: Contact(Damage(6.0) + Knockback(30.0))
 Peashooter: Graphic(StandardGun) + Action(Shoot(Pea),Sound(Gunshot))
 
 Grenade_Launcher: Graphics(Grenade_Launcher_Overhead) + Action(Shoot(PiglettGrenade),Sound(Thuump))
