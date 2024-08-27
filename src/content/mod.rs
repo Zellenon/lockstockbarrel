@@ -1,3 +1,4 @@
+use bevy_stats::StatRegisterable;
 use std::sync::Arc;
 
 use bevy::{
@@ -5,7 +6,7 @@ use bevy::{
     prelude::{Entity, IntoSystemConfigs, Plugin, Update, Vec2},
 };
 use bevy_composable::tree::EntityCommandSet;
-use bevy_stats::systems::{delete_stat_mod, StatRegisterable};
+use bevy_stats::systems::delete_stat_mod;
 use bevy_twin_stick::actors::Tracking;
 use bevy_twin_stick::bevy_mod_transform2d::transform2d::Transform2d;
 

@@ -1,6 +1,6 @@
 [package]
 name = "lock_stock_and_barrel"
-version = "0.0.3"
+version = "0.0.4"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 
@@ -10,16 +10,16 @@ license = "MIT OR Apache-2.0"
 resolver = "2"
 
 [dependencies]
-bevy = {version = "0.12", features = ["wayland"]} 
-bevy_egui = "0.23"
-bevy-inspector-egui = "0.21"
+bevy = {version = "0.14" } 
+bevy_egui = "0.29"
+bevy-inspector-egui = "0.25"
 serde = "1.0"
-strum = "0.25"
-strum_macros = "0.25"
+strum = "0.26"
+strum_macros = "0.26"
 
-bevy_twin_stick = {git = "https://github.com/Zellenon/bevy_twin_stick.git", branch="bevy12"}
-bevy_composable = {git = "https://github.com/Zellenon/bevy_composable.git", branch="bevy-12"}
-bevy_stats = {git = "https://github.com/Zellenon/bevy_stats.git", branch="bevy-12"}
+bevy_twin_stick = {git = "https://github.com/Zellenon/bevy_twin_stick.git"}
+bevy_composable = {git = "https://github.com/Zellenon/bevy_composable.git"}
+bevy_stats = {git = "https://github.com/Zellenon/bevy_stats.git"}
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]

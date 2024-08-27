@@ -1,7 +1,7 @@
+use bevy::prelude::Color;
 use bevy::{
     app::App,
     prelude::{default, ClearColor, PluginGroup},
-    render::color::Color,
     window::{Window, WindowPlugin},
     DefaultPlugins,
 };
@@ -19,7 +19,6 @@ mod mainmenu;
 mod pause;
 mod states;
 
-// #[bevy_main]
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut app = App::new();
     app.add_plugins(DefaultPlugins.build().set(WindowPlugin {
@@ -47,7 +46,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
         // app.add_plugin(RapierDebugRenderPlugin::default());
     }
 
-    app.insert_resource(ClearColor(Color::rgb(
+    app.insert_resource(ClearColor(Color::srgb(
         0xA9 as f32 / 255.0,
         0xA9 as f32 / 255.0,
         0xAF as f32 / 255.0,
