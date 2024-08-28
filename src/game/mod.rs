@@ -3,9 +3,9 @@ use bevy::{
     ecs::{
         entity::Entity,
         query::Without,
-        schedule::OnEnter,
         system::{Commands, Query},
     },
+    prelude::OnEnter,
     transform::components::Transform,
 };
 use bevy_twin_stick::bevy_mod_transform2d::transform2d::Transform2d;

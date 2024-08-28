@@ -8,16 +8,20 @@ use bevy::{
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_stats::StatPlugin;
 use bevy_twin_stick::TwinStickPlugin;
+use debug::DebugPlugin;
 use game::GamePlugin;
 use states::StatePlugin;
+use ui::UiPlugin;
 
 mod content;
+mod debug;
 mod game;
 mod graphics;
 mod hud;
 mod mainmenu;
 mod pause;
 mod states;
+mod ui;
 
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut app = App::new();
@@ -39,24 +43,9 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     app.add_plugins((TwinStickPlugin, StatPlugin));
 
-    app.add_plugins((StatePlugin, GamePlugin));
+    app.add_plugins((DebugPlugin, StatePlugin, GamePlugin, UiPlugin));
 
-    if cfg!(debug_assertions) {
-        app.add_plugins(WorldInspectorPlugin::new());
-        // app.add_plugin(RapierDebugRenderPlugin::default());
-    }
-
-    app.insert_resource(ClearColor(Color::srgb(
-        0xA9 as f32 / 255.0,
-        0xA9 as f32 / 255.0,
-        0xAF as f32 / 255.0,
-    )));
-    // Enable hot reloading // Figure out how to fix this I guess
-    // app.insert_resource(AssetServerSettings {
-    //     watch_for_changes: true,
-    //     ..default()
-    // });
-
+    app.insert_resource(ClearColor(Color::srgb(0.7, 0.7, 0.7)));
     app.run();
 
     Ok(())

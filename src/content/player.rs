@@ -25,7 +25,7 @@ use super::{
 };
 
 pub fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>, cursor: Res<Cursor>) {
-    commands.spawn_complex(player_tree(
+    commands.compose(player_tree(
         asset_server.load("img/player_head.png").clone(),
         asset_server.load("img/player_legs.png").clone(),
         cursor,

@@ -7,10 +7,9 @@ use bevy_composable::{
     CT,
 };
 use bevy_stats::Stat;
-use bevy_twin_stick::bevy_mod_transform2d::transform2d::Transform2d;
 use bevy_twin_stick::{
     bevy_rapier2d::prelude::Velocity,
-    projectile::{Knockback, ProjectileBundle},
+    projectile::Knockback,
     weapons::{Cooldown, Weapon, WeaponArguments, WeaponFireMode},
 };
 
@@ -28,7 +27,7 @@ pub fn peashooter() -> ComponentTree {
                 let cursor_transform = a.transforms.get(a.cursor).unwrap().clone();
                 let fire_direction =
                     Vec2::normalize(cursor_transform.translation - parent_transform.translation);
-                a.commands.spawn_complex(
+                a.commands.compose(
                     basic_bullet()
                         + CT!(
                             Velocity {
@@ -56,7 +55,7 @@ pub fn wallgun() -> ComponentTree {
                 fire_func: Box::new(move |a: &mut WeaponArguments| {
                     let parent_transform = a.transforms.get(a.parent).unwrap().clone();
 
-                    a.commands.spawn_complex(wall(
+                    a.commands.compose(wall(
                         parent_transform.translation.x,
                         parent_transform.translation.y,
                         50.,

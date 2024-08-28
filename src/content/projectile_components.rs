@@ -80,7 +80,7 @@ pub(crate) fn damaging_projectile(
                 damages.send(ResourceChangeEvent {
                     change: StatValueChange::offset(-1. * current),
                     target: *impacted,
-                })
+                });
             }
         }
     }

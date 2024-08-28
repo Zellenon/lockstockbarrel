@@ -87,7 +87,7 @@ fn activate_levelevent_timer(
     mut priming_managers: Query<&mut LeveleventManager>,
     mut wake_events: EventReader<WakeLEManager>,
 ) {
-    for event in wake_events.iter() {
+    for event in wake_events.read() {
         if let Ok(mut manager) = priming_managers.get_mut(event.0) {
             commands
                 .entity(event.0)

@@ -1,12 +1,15 @@
 use bevy::{
-    prelude::{Input, KeyCode, NextState, Query, Res, ResMut, With},
+    prelude::{ButtonInput, KeyCode, NextState, Query, Res, ResMut, With},
     window::PrimaryWindow,
 };
 use bevy_egui::{egui, EguiContext};
 
 use crate::states::{AppState, InGameMenu};
 
-pub(crate) fn pause_on_esc(input: Res<Input<KeyCode>>, mut state: ResMut<NextState<InGameMenu>>) {
+pub(crate) fn pause_on_esc(
+    input: Res<ButtonInput<KeyCode>>,
+    mut state: ResMut<NextState<InGameMenu>>,
+) {
     if input.pressed(KeyCode::Escape) {
         state.set(InGameMenu::Pause)
     }
@@ -20,7 +23,7 @@ pub(crate) fn pause_gui(
     egui::Window::new("Pause")
         .resizable(false)
         .collapsible(false)
-        .scroll2([false, false])
+        .scroll([false, false])
         .enabled(true)
         .anchor(egui::Align2::CENTER_CENTER, egui::Vec2::default())
         .show(root.single_mut().get_mut(), |ui| {

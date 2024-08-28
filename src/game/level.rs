@@ -1,6 +1,8 @@
-use bevy::ecs::system::Commands;
-use bevy::render::color::Color;
-use bevy::{core::Name, ecs::system::Resource};
+use bevy::{
+    core::Name,
+    ecs::system::{Commands, Resource},
+    prelude::Color,
+};
 use bevy_composable::{
     app_impl::ComplexSpawnable,
     tree::{ComponentTree, EntityCommandSet},
@@ -38,7 +40,7 @@ pub fn spawn_arena_from_map(mut commands: Commands, level: &Level) {
         let mut j = 0.;
         for block in row.iter() {
             if *block {
-                commands.spawn_complex(wall(
+                commands.compose(wall(
                     j * level.resolution - (x_len * 0.5),
                     (y_len * 0.5) - i * level.resolution,
                     level.resolution,
@@ -54,7 +56,7 @@ pub fn spawn_arena_from_map(mut commands: Commands, level: &Level) {
 pub fn wall(x: f32, y: f32, width: f32, height: f32) -> ComponentTree {
     println!("Spawning wall at {}, {}", x, y);
 
-    rect(x, y, width, height, Color::rgb(0.25, 0.25, 0.75))
+    rect(x, y, width, height, Color::srgb(0.25, 0.25, 0.75))
         + CT!(
             RigidBody::Fixed,
             Collider::cuboid(width / 2., height / 2.),

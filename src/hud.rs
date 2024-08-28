@@ -5,7 +5,7 @@ pub(crate) fn hud_gui(mut root: EguiContexts) {
     egui::Window::new("HUD1")
         .resizable(false)
         .collapsible(false)
-        .scroll2([false, false])
+        .scroll([false, false])
         .enabled(true)
         .anchor(egui::Align2::LEFT_TOP, egui::Vec2::new(50., 50.))
         .show(root.ctx_mut(), |ui| {
@@ -22,7 +22,7 @@ pub(crate) fn hud_gui(mut root: EguiContexts) {
     egui::Window::new("HUD2")
         .resizable(false)
         .collapsible(false)
-        .scroll2([false, false])
+        .scroll([false, false])
         .enabled(true)
         .anchor(egui::Align2::LEFT_BOTTOM, egui::Vec2::default())
         .show(root.ctx_mut(), |ui| {
@@ -34,7 +34,7 @@ pub(crate) fn hud_gui(mut root: EguiContexts) {
     egui::Window::new("HUD3")
         .resizable(false)
         .collapsible(false)
-        .scroll2([false, false])
+        .scroll([false, false])
         .enabled(true)
         .anchor(egui::Align2::RIGHT_CENTER, egui::Vec2::default())
         .show(root.ctx_mut(), |ui| {

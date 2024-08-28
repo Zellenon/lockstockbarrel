@@ -11,9 +11,9 @@ pub struct StatePlugin;
 
 impl Plugin for StatePlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.add_state::<AppState>();
-        app.add_state::<GameState>();
-        app.add_state::<InGameMenu>();
+        app.init_state::<AppState>();
+        app.init_state::<GameState>();
+        app.init_state::<InGameMenu>();
 
         app.add_systems(OnEnter(AppState::Exit), exit);
         app.add_systems(OnEnter(AppState::MainMenu), unload_world);
@@ -72,5 +72,5 @@ pub enum InGameMenu {
 }
 
 fn exit(mut app_exit_events: EventWriter<AppExit>) {
-    app_exit_events.send(AppExit);
+    app_exit_events.send(AppExit::Success);
 }
