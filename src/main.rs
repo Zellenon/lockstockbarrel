@@ -5,7 +5,6 @@ use bevy::{
     window::{Window, WindowPlugin},
     DefaultPlugins,
 };
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_stats::StatPlugin;
 use bevy_twin_stick::TwinStickPlugin;
 use debug::DebugPlugin;

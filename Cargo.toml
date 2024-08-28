@@ -10,13 +10,13 @@ license = "MIT OR Apache-2.0"
 resolver = "2"
 
 [features]
-inspect = []
+editor = []
 physdebug = []
 
 [dependencies]
 bevy = {version = "0.14" } 
 bevy_egui = "0.29"
-bevy-inspector-egui = "0.25"
+bevy_editor_pls = "0.9"
 serde = "1.0"
 strum = "0.26"
 strum_macros = "0.26"
