@@ -1,14 +1,14 @@
-use bevy_stats::StatRegisterable;
-use std::sync::Arc;
-
 use bevy::{
     ecs::system::EntityCommands,
     prelude::{Entity, IntoSystemConfigs, Plugin, Update, Vec2},
 };
-use bevy_composable::tree::EntityCommandSet;
-use bevy_stats::systems::delete_stat_mod;
-use bevy_twin_stick::actors::Tracking;
-use bevy_twin_stick::bevy_mod_transform2d::transform2d::Transform2d;
+use bevy_composable::{
+    app_impl::ComponentTreeable,
+    tree::{ComponentTree, EntityCommandSet},
+};
+use bevy_stats::{systems::delete_stat_mod, StatRegisterable};
+use bevy_twin_stick::{actors::Tracking, bevy_mod_transform2d::transform2d::Transform2d};
+use std::sync::Arc;
 
 use self::{
     projectile_components::{apply_slow_on_hit, damaging_projectile, tick_fading_slow},
@@ -49,15 +49,11 @@ impl Plugin for ContentPlugin {
     }
 }
 
-pub fn shift_pos(pos: impl Into<Vec2>) -> EntityCommandSet {
+pub fn shift_pos(pos: impl Into<Vec2>) -> ComponentTree {
     let new_pos = pos.into();
-    Arc::new(move |commands: &mut EntityCommands| {
-        commands.insert(Transform2d::from_translation(new_pos));
-    })
+    Transform2d::from_translation(new_pos).store()
 }
 
-pub fn shift_tracking(tracking: Option<Entity>) -> EntityCommandSet {
-    Arc::new(move |commands: &mut EntityCommands| {
-        commands.insert(Tracking(tracking));
-    })
+pub fn shift_tracking(tracking: Option<Entity>) -> ComponentTree {
+    Tracking(tracking).store()
 }
