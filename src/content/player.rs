@@ -1,15 +1,13 @@
-use crate::content::EntityCommands;
-use bevy_composable::app_impl::ComplexSpawnable;
-use std::sync::Arc;
-
 use bevy::{
     asset::{AssetServer, Handle},
     core::Name,
+    ecs::system::{Commands, Res},
     render::texture::Image,
 };
-use bevy_composable::tree::{ComponentTree, EntityCommandSet};
-
-use bevy::ecs::system::{Commands, Res};
+use bevy_composable::{
+    app_impl::{ComplexSpawnable, ComponentTreeable},
+    tree::ComponentTree,
+};
 use bevy_stats::Stat;
 use bevy_twin_stick::{
     actors::ActorBundle,
@@ -33,16 +31,14 @@ pub fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>, curs
 }
 
 fn player_tree_base() -> ComponentTree {
-    let func = move |parent: &mut EntityCommands| {
-        parent.insert((
-            Player,
-            Name::new("Player"),
-            ActorBundle::default(),
-            Stat::<Speed>::new(1500.),
-            KeyboardAI,
-        ));
-    };
-    (Arc::new(func) as EntityCommandSet).into()
+    (
+        Player,
+        Name::new("Player"),
+        ActorBundle::default(),
+        Stat::<Speed>::new(1500.),
+        KeyboardAI,
+    )
+        .store()
 }
 
 pub fn player_tree(

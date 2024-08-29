@@ -6,13 +6,13 @@ use bevy_stats;
 use bevy_stats::{RPGResource, RPGStat, Resource, Stat};
 use bevy_twin_stick::stats;
 
-#[derive(Reflect)]
+#[derive(Debug, Clone, Copy, Reflect)]
 pub struct Health;
-#[derive(Reflect)]
+#[derive(Debug, Clone, Copy, Reflect)]
 pub struct Speed;
-#[derive(Reflect)]
+#[derive(Debug, Clone, Copy, Reflect)]
 pub struct Damage;
-#[derive(Reflect)]
+#[derive(Debug, Clone, Copy, Reflect)]
 pub struct Knockback;
 
 impl RPGStat for Health {}
