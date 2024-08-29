@@ -6,15 +6,6 @@ use bevy_egui::{egui, EguiContext};
 
 use crate::states::{AppState, InGameMenu};
 
-pub(crate) fn pause_on_esc(
-    input: Res<ButtonInput<KeyCode>>,
-    mut state: ResMut<NextState<InGameMenu>>,
-) {
-    if input.pressed(KeyCode::Escape) {
-        state.set(InGameMenu::Pause)
-    }
-}
-
 pub(crate) fn pause_gui(
     mut root: Query<&mut EguiContext, With<PrimaryWindow>>,
     mut menu_state: ResMut<NextState<InGameMenu>>,

@@ -1,12 +1,6 @@
 use bevy::{app::AppExit, prelude::*, reflect::Reflect};
 use bevy_twin_stick::bevy_rapier2d::prelude::RigidBody;
 
-use crate::{
-    hud::hud_gui,
-    mainmenu::main_menu_gui,
-    pause::{pause_gui, pause_on_esc},
-};
-
 pub struct StatePlugin;
 
 impl Plugin for StatePlugin {
@@ -19,19 +13,6 @@ impl Plugin for StatePlugin {
         app.add_systems(OnEnter(AppState::MainMenu), unload_world);
 
         // app.add_systems(AppState::MainMenu, main_menu_gui);
-        app.add_systems(Update, main_menu_gui.run_if(in_state(AppState::MainMenu)));
-        app.add_systems(
-            Update,
-            pause_gui
-                .run_if(in_state(InGameMenu::Pause))
-                .run_if(in_state(AppState::Game)),
-        );
-        app.add_systems(
-            Update,
-            hud_gui
-                .run_if(in_state(GameState::PlayingArena))
-                .run_if(in_state(AppState::Game)),
-        );
 
         app.add_systems(Update, pause_on_esc.run_if(in_state(AppState::Game)));
     }
@@ -69,6 +50,15 @@ pub enum InGameMenu {
     Inventory,
     Pause,
     Options,
+}
+
+pub(crate) fn pause_on_esc(
+    input: Res<ButtonInput<KeyCode>>,
+    mut state: ResMut<NextState<InGameMenu>>,
+) {
+    if input.pressed(KeyCode::Escape) {
+        state.set(InGameMenu::Pause)
+    }
 }
 
 fn exit(mut app_exit_events: EventWriter<AppExit>) {

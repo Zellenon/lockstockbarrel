@@ -16,9 +16,6 @@ mod content;
 mod debug;
 mod game;
 mod graphics;
-mod hud;
-mod mainmenu;
-mod pause;
 mod states;
 mod ui;
 
@@ -42,7 +39,8 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     app.add_plugins((TwinStickPlugin, StatPlugin));
 
-    app.add_plugins((DebugPlugin, StatePlugin, GamePlugin, UiPlugin));
+    app.add_plugins((StatePlugin, GamePlugin, UiPlugin));
+    app.add_plugins(DebugPlugin);
 
     app.insert_resource(ClearColor(Color::srgb(0.7, 0.7, 0.7)));
     app.run();
