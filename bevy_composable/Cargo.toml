@@ -1,9 +1,0 @@
-[package]
-name = "bevy_composable"
-version = "0.0.1"
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-bevy = {version = "0.11"} # Find a way to disable this for release

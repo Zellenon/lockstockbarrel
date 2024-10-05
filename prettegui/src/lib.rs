@@ -5,7 +5,7 @@ pub use bevy_egui::{
     egui::{self, TextureId},
     EguiContext, EguiPlugin,
 };
-// use bevy_ninepatch::NinePatchPlugin;
+use bevy_ninepatch::NinePatchPlugin;
 use nice_image_button::TextImageButton;
 
 pub struct GUIPlugin;
@@ -14,8 +14,8 @@ pub mod nice_image_button;
 
 impl Plugin for GUIPlugin {
     fn build(&self, app: &mut App) {
-        // app.add_plugin(NinePatchPlugin::<()>::default());
-        app.add_plugins(EguiPlugin);
+        app.add_plugin(NinePatchPlugin::<()>::default());
+        app.add_plugin(EguiPlugin);
         // app.add_system(ui_test);
     }
 }
