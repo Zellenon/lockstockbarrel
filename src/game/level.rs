@@ -1,3 +1,4 @@
+use avian2d::prelude::{Collider, RigidBody};
 use bevy::{
     core::Name,
     ecs::system::{Commands, Resource},
@@ -8,7 +9,6 @@ use bevy_composable::{
     tree::{ComponentTree, EntityCommandSet},
     CT,
 };
-use bevy_twin_stick::bevy_rapier2d::prelude::{Collider, RigidBody};
 
 use crate::graphics::rect;
 
@@ -58,8 +58,8 @@ pub fn wall(x: f32, y: f32, width: f32, height: f32) -> ComponentTree {
 
     rect(x, y, width, height, Color::srgb(0.25, 0.25, 0.75))
         + CT!(
-            RigidBody::Fixed,
-            Collider::cuboid(width / 2., height / 2.),
+            RigidBody::Static,
+            Collider::rectangle(width, height),
             Name::new("Wall")
         )
 }

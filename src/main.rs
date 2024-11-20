@@ -1,3 +1,6 @@
+#![feature(trivial_bounds)]
+
+use assets::AssetPlugin;
 use bevy::prelude::Color;
 use bevy::{
     app::App,
@@ -5,18 +8,20 @@ use bevy::{
     window::{Window, WindowPlugin},
     DefaultPlugins,
 };
-use bevy_stats::StatPlugin;
-use bevy_twin_stick::TwinStickPlugin;
 use debug::DebugPlugin;
 use game::GamePlugin;
 use states::StatePlugin;
+use twin_stick::TwinStickPlugin;
 use ui::UiPlugin;
 
+mod assets;
 mod content;
 mod debug;
 mod game;
 mod graphics;
 mod states;
+mod transform2d;
+mod twin_stick;
 mod ui;
 
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -37,9 +42,13 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
         ..default()
     }));
 
-    app.add_plugins((TwinStickPlugin, StatPlugin));
+    app.add_plugins(AssetPlugin);
+    // app.add_plugins(StatPlugin);
+    app.add_plugins(TwinStickPlugin);
 
-    app.add_plugins((StatePlugin, GamePlugin, UiPlugin));
+    // app.add_plugins((StatePlugin, UiPlugin));
+    app.add_plugins(StatePlugin);
+    app.add_plugins(GamePlugin);
     app.add_plugins(DebugPlugin);
 
     app.insert_resource(ClearColor(Color::srgb(0.7, 0.7, 0.7)));

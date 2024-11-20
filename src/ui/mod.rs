@@ -8,7 +8,7 @@ use hud::hud_gui;
 use mainmenu::main_menu_gui;
 use pausemenu::pause_gui;
 
-use crate::states::{AppState, GameState, InGameMenu};
+use crate::states::{AppState, GameState, UIState};
 
 pub mod hud;
 pub mod mainmenu;
@@ -24,13 +24,13 @@ impl Plugin for UiPlugin {
         app.add_systems(
             Update,
             pause_gui
-                .run_if(in_state(InGameMenu::Pause))
+                .run_if(in_state(UIState::Pause))
                 .run_if(in_state(AppState::Game)),
         );
         app.add_systems(
             Update,
             hud_gui
-                .run_if(in_state(GameState::PlayingArena))
+                .run_if(in_state(GameState::InLevel))
                 .run_if(in_state(AppState::Game)),
         );
     }
