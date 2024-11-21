@@ -25,7 +25,7 @@ impl RPGResource for Health {
         true
     }
     fn increase_scaling() -> bevy_stats::resource::ResourceModScaleStyle {
-        bevy_stats::resource::ResourceModScaleStyle::Percentage
+        bevy_stats::resource::ResourceModScaleStyle::SumChange
     }
 }
 

@@ -8,16 +8,16 @@ use stats::stats_plugin;
 
 use crate::{content::player::spawn_player, twin_stick::player::player_exists};
 
-use self::level::{spawn_arena_from_map, to_map, Level};
+use self::arena::{spawn_arena_from_map, to_map, Arena};
 
-pub mod level;
+pub mod arena;
 pub mod stats;
 
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        // app.add_plugins((ContentPlugin, LeveleventPlugin, LeveleventManagerPlugin));
+        // app.add_plugins((ContentPlugin, ArenaeventPlugin, ArenaeventManagerPlugin));
 
         stats_plugin(app);
 
@@ -37,7 +37,7 @@ fn test_load_level(commands: Commands) {
         vec![1, 1, 0, 0, 1],
         vec![0, 1, 1, 1, 1],
     ];
-    let level = Level {
+    let level = Arena {
         arena_map: to_map(demo_map),
         resolution: 600.,
     };

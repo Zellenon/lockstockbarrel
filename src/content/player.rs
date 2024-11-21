@@ -18,7 +18,6 @@ use bevy_stats::Stat;
 use super::{
     actor_bits::{basic_head, basic_legs},
     util::tracking,
-    // stats::Speed,
     // weapons::peashooter,
 };
 

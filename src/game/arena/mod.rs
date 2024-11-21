@@ -12,21 +12,23 @@ use bevy_composable::{
 
 use crate::graphics::rect;
 
-type LevelMap = Vec<Vec<bool>>;
+pub mod arena_event;
+
+type ArenaMap = Vec<Vec<bool>>;
 
 #[derive(Resource)]
-pub struct Level {
-    pub arena_map: LevelMap,
+pub struct Arena {
+    pub arena_map: ArenaMap,
     pub resolution: f32,
 }
 
-pub fn to_map(map: Vec<Vec<u8>>) -> LevelMap {
+pub fn to_map(map: Vec<Vec<u8>>) -> ArenaMap {
     map.iter()
         .map(|w| w.iter().map(|x| *x == 1).collect())
         .collect()
 }
 
-pub fn spawn_arena_from_map(mut commands: Commands, level: &Level) {
+pub fn spawn_arena_from_map(mut commands: Commands, level: &Arena) {
     let y_len = (level.arena_map.iter().count() as f32) * level.resolution;
     let x_len = (level
         .arena_map
