@@ -1,21 +1,34 @@
-use bevy_composable::app_impl::ComponentTreeable;
-use std::time::Duration;
-
 use bevy::{
     app::{App, Update},
     color::palettes::css::RED,
     math::Vec3Swizzles,
-    prelude::{Changed, Commands, Component, Entity, Gizmos, Query, Res, Transform, With, Without},
+    prelude::{
+        Changed, Commands, Component, Entity, Gizmos, Query, Res, Transform, Trigger, With, Without,
+    },
     reflect::Reflect,
     time::{Time, Timer},
 };
-use bevy_composable::tree::ComponentTree;
+use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree};
+use std::time::Duration;
 
-use crate::action_system::actuator::{Actuator, ActuatorCondition};
+use crate::{
+    action_system::{
+        actions::TelegraphedAction,
+        actuator::{Actuator, ActuatorCondition, ActuatorCooldownFinished},
+    },
+    util::add_observer_to_component,
+};
+
+#[derive(Reflect, Clone, Copy, Debug, PartialEq, PartialOrd, Ord, Eq)]
+pub enum TimerResetMode {
+    Immediate,
+    ActuatorCooldown,
+}
 
 #[derive(Component, Reflect, Clone, Debug)]
 pub struct TimerTrigger {
     pub timer: Timer,
+    pub reset_mode: TimerResetMode,
 }
 
 impl TimerTrigger {
@@ -25,6 +38,7 @@ impl TimerTrigger {
                 Duration::from_secs_f32(duration),
                 bevy::time::TimerMode::Once,
             ),
+            reset_mode: TimerResetMode::ActuatorCooldown,
         }
     }
 
@@ -34,11 +48,15 @@ impl TimerTrigger {
             Update,
             (
                 tick_timer_triggers,
+                reset_immediate_timers,
                 activate_timer_triggers,
                 deactivate_timer_triggers,
                 display_timer_triggers,
             ),
         );
+        app.observe(add_observer_to_component::<TimerTrigger, _, _, _, _>(
+            reset_actuator_timers,
+        ));
     }
 }
 
@@ -74,6 +92,23 @@ pub fn activate_timer_triggers(
     }
 }
 
+pub fn reset_immediate_timers(mut timers: Query<&mut TimerTrigger>) {
+    for mut timer in timers
+        .iter_mut()
+        .filter(|timer| timer.reset_mode == TimerResetMode::Immediate)
+        .filter(|trigger| trigger.timer.just_finished())
+    {
+        timer.timer.reset();
+    }
+}
+
+pub fn reset_actuator_timers(
+    trigger: Trigger<ActuatorCooldownFinished>,
+    mut timers: Query<&mut TimerTrigger>,
+) {
+    timers.get_mut(trigger.entity()).unwrap().timer.reset()
+}
+
 pub fn deactivate_timer_triggers(
     timers: Query<
         (Entity, &TimerTrigger),
@@ -93,7 +128,10 @@ pub fn deactivate_timer_triggers(
     }
 }
 
-pub fn display_timer_triggers(timers: Query<(&TimerTrigger, &Transform)>, mut gizmos: Gizmos) {
+pub fn display_timer_triggers(
+    timers: Query<(&TimerTrigger, &Transform), With<TelegraphedAction>>,
+    mut gizmos: Gizmos,
+) {
     for (timer, transform) in timers.iter() {
         gizmos.circle_2d(
             transform.translation.xy(),

@@ -1,5 +1,3 @@
-use core::f32;
-
 use bevy::{
     app::{App, Update},
     color::palettes::css::BLUE,
@@ -7,9 +5,14 @@ use bevy::{
     prelude::{Commands, Component, Entity, Gizmos, Query, Transform, With, Without},
     reflect::Reflect,
 };
+use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree};
+use core::f32;
 
 use crate::{
-    action_system::actuator::{Actuator, ActuatorCondition},
+    action_system::{
+        actions::TelegraphedAction,
+        actuator::{Actuator, ActuatorCondition},
+    },
     twin_stick::actors::Faction,
 };
 
@@ -17,6 +20,10 @@ use crate::{
 pub struct ProximityTrigger {
     pub triggering_factions: u16,
     pub radius: f32,
+}
+
+pub fn proximity(factions: u16, radius: f32) -> ComponentTree {
+    ProximityTrigger::new(factions, radius).store()
 }
 
 impl ProximityTrigger {
@@ -29,7 +36,13 @@ impl ProximityTrigger {
 
     pub fn setup(app: &mut App) {
         app.register_type::<ProximityTrigger>();
-        app.add_systems(Update, (activate_deactivate_proximity_triggers));
+        app.add_systems(
+            Update,
+            (
+                activate_deactivate_proximity_triggers,
+                display_prox_triggers,
+            ),
+        );
     }
 }
 
@@ -63,12 +76,14 @@ pub fn activate_deactivate_proximity_triggers(
         .partition(|(_, _, _, option)| option.is_none());
 
     for (entity, min_distance, trigger, _) in already_deactivated.iter() {
+        println!("Not active: {} nearest", min_distance);
         if min_distance < &trigger.radius {
             commands.entity(*entity).insert(ActuatorCondition);
         }
     }
 
     for (entity, min_distance, trigger, _) in already_activated.iter() {
+        println!("Active: {} nearest", min_distance);
         if min_distance > &trigger.radius {
             commands.entity(*entity).remove::<ActuatorCondition>();
         }
@@ -76,7 +91,7 @@ pub fn activate_deactivate_proximity_triggers(
 }
 
 pub fn display_prox_triggers(
-    proximities: Query<(&ProximityTrigger, &Transform)>,
+    proximities: Query<(&ProximityTrigger, &Transform), With<TelegraphedAction>>,
     mut gizmos: Gizmos,
 ) {
     for (prox, transform) in proximities.iter() {
