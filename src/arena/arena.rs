@@ -1,18 +1,7 @@
-use avian2d::prelude::{Collider, RigidBody};
-use bevy::{
-    core::Name,
-    ecs::system::{Commands, Resource},
-    prelude::Color,
-};
-use bevy_composable::{
-    app_impl::ComplexSpawnable,
-    tree::{ComponentTree, EntityCommandSet},
-    CT,
-};
+use bevy::ecs::system::{Commands, Resource};
+use bevy_composable::app_impl::ComplexSpawnable;
 
-use crate::graphics::rect;
-
-pub mod arena_event;
+use super::arena_objects::wall;
 
 type ArenaMap = Vec<Vec<bool>>;
 
@@ -28,7 +17,7 @@ pub fn to_map(map: Vec<Vec<u8>>) -> ArenaMap {
         .collect()
 }
 
-pub fn spawn_arena_from_map(mut commands: Commands, level: &Arena) {
+pub fn spawn_arena_from_map(commands: &mut Commands, level: &Arena) {
     let y_len = (level.arena_map.iter().count() as f32) * level.resolution;
     let x_len = (level
         .arena_map
@@ -53,15 +42,4 @@ pub fn spawn_arena_from_map(mut commands: Commands, level: &Arena) {
         }
         i = i + 1.;
     }
-}
-
-pub fn wall(x: f32, y: f32, width: f32, height: f32) -> ComponentTree {
-    println!("Spawning wall at {}, {}", x, y);
-
-    rect(x, y, width, height, Color::srgb(0.25, 0.25, 0.75))
-        + CT!(
-            RigidBody::Static,
-            Collider::rectangle(width, height),
-            Name::new("Wall")
-        )
 }

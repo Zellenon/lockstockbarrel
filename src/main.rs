@@ -1,5 +1,6 @@
 #![feature(trivial_bounds)]
 
+use action_system::ActionSystemPlugin;
 use assets::AssetPlugin;
 use bevy::prelude::Color;
 use bevy::{
@@ -12,8 +13,10 @@ use debug::DebugPlugin;
 use game::GamePlugin;
 use states::StatePlugin;
 use twin_stick::TwinStickPlugin;
-use ui::UiPlugin;
+use util::UtilPlugin;
 
+mod action_system;
+mod arena;
 mod assets;
 mod content;
 mod debug;
@@ -23,6 +26,7 @@ mod states;
 mod transform2d;
 mod twin_stick;
 mod ui;
+mod util;
 
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut app = App::new();
@@ -45,11 +49,13 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     app.add_plugins(AssetPlugin);
     // app.add_plugins(StatPlugin);
     app.add_plugins(TwinStickPlugin);
+    app.add_plugins(ActionSystemPlugin);
 
     // app.add_plugins((StatePlugin, UiPlugin));
     app.add_plugins(StatePlugin);
     app.add_plugins(GamePlugin);
     app.add_plugins(DebugPlugin);
+    app.add_plugins(UtilPlugin);
 
     app.insert_resource(ClearColor(Color::srgb(0.7, 0.7, 0.7)));
     app.run();

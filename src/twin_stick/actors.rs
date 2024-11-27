@@ -7,8 +7,8 @@ use bevy::{
     math::{Quat, Vec3, Vec3Swizzles},
     prelude::{
         in_state, App, Bundle, Changed, Commands, Component, DespawnRecursiveExt, Entity,
-        GlobalTransform, InheritedVisibility, IntoSystemConfigs, Parent, Plugin, Query, Transform,
-        Update, Vec2, Visibility, With, Without,
+        GlobalTransform, InheritedVisibility, IntoSystemConfigs, Parent, Query, Transform, Update,
+        Vec2, Visibility, With, Without,
     },
     reflect::Reflect,
 };
@@ -28,11 +28,12 @@ pub struct Actor {
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Reflect, Debug, Component)]
-pub enum Faction {
-    FactionID(usize),
-    FriendlyToAll,
-    HostileToAll,
-}
+pub struct Faction(pub u16);
+
+pub const PLAYER_FACTION: u16 = 1;
+pub const MISC_ENEMY_FACTION: u16 = 2;
+// Should universal neutral just be no faction component?
+// pub const UNIVERSAL_NEUTRAL_FACTION: u16 = 0;
 
 impl Default for Actor {
     fn default() -> Self {
@@ -46,7 +47,6 @@ impl Default for Actor {
 #[derive(Clone, Debug, Bundle, Reflect)]
 pub struct ActorBundle {
     pub actor: Actor,
-    pub faction: Faction,
     pub visibility: Visibility,
     pub computer_visibility: InheritedVisibility,
     pub transform: Transform,
@@ -65,7 +65,6 @@ impl Default for ActorBundle {
     fn default() -> Self {
         Self {
             actor: Default::default(),
-            faction: Faction::FriendlyToAll,
             visibility: Visibility::Visible,
             transform: Default::default(),
             global_transform: Default::default(),

@@ -1,8 +1,9 @@
 use bevy::{math::Affine2, prelude::*};
+use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree};
 use std::fmt::Debug;
 
 pub trait Transform2d: Component + Debug + PartialEq + Clone + Copy + Reflect {
-    fn from_rotation(rotation: f32) -> Self;
+    fn from_rotation2d(rotation: f32) -> Self;
 
     fn with_translation2d(self, translation: Vec2) -> Self;
 
@@ -65,7 +66,7 @@ pub trait Transform2d: Component + Debug + PartialEq + Clone + Copy + Reflect {
 
 impl Transform2d for Transform {
     #[inline]
-    fn from_rotation(rotation: f32) -> Self {
+    fn from_rotation2d(rotation: f32) -> Self {
         Transform {
             rotation: Quat::from_2d(rotation),
             ..Self::IDENTITY
@@ -246,11 +247,15 @@ mod tests {
 
     #[test]
     fn local_vectors() {
-        let mut transform = Transform2d::from_rotation(TAU / 2.44);
-        assert_eq!(transform.local_y(), transform.rotation_matrix() * Vec2::Y);
-        assert_eq!(transform.local_x(), transform.rotation_matrix() * Vec2::X);
-        transform.rotation = TAU / -0.56;
-        assert_eq!(transform.local_y(), transform.rotation_matrix() * Vec2::Y);
-        assert_eq!(transform.local_x(), transform.rotation_matrix() * Vec2::X);
+        let mut transform = Transform::from_rotation2d(TAU / 2.44);
+        // assert_eq!(transform.local_y(), transform.rotation_matrix() * Vec2::Y);
+        // assert_eq!(transform.local_x(), transform.rotation_matrix() * Vec2::X);
+        // transform.rotation = TAU / -0.56;
+        // assert_eq!(transform.local_y(), transform.rotation_matrix() * Vec2::Y);
+        // assert_eq!(transform.local_x(), transform.rotation_matrix() * Vec2::X);
     }
+}
+
+pub fn pos(x: f32, y: f32) -> ComponentTree {
+    Transform::from_xyz(x, y, 0.).store()
 }

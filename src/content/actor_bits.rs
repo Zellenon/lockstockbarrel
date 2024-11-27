@@ -1,9 +1,10 @@
 use crate::{
     game::stats::{Health, MoveSpeed},
     twin_stick::actors::{ActorBundle, Legs, Tracking},
+    util::{image, ImageFn},
 };
 use bevy::{
-    prelude::{Handle, Image, Transform, Vec2},
+    prelude::{Transform, Vec2},
     sprite::{Sprite, SpriteBundle},
 };
 use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree, wrappers::name};
@@ -19,15 +20,13 @@ pub fn basic_actor() -> ComponentTree {
         + name("actor")
 }
 
-pub fn basic_head(head_tex: Handle<Image>) -> ComponentTree {
-    let tex = head_tex.clone();
+pub fn basic_head() -> ComponentTree {
     (
         SpriteBundle {
             sprite: Sprite {
                 custom_size: Vec2::new(40., 40.).into(),
                 ..Default::default()
             },
-            texture: tex.clone(),
             ..Default::default()
         },
         Tracking(None),
@@ -35,8 +34,7 @@ pub fn basic_head(head_tex: Handle<Image>) -> ComponentTree {
         .store()
 }
 
-pub fn basic_legs(leg_tex: Handle<Image>) -> ComponentTree {
-    let tex = leg_tex.clone();
+pub fn basic_legs() -> ComponentTree {
     (
         SpriteBundle {
             sprite: Sprite {
@@ -44,11 +42,14 @@ pub fn basic_legs(leg_tex: Handle<Image>) -> ComponentTree {
                 ..Default::default()
             },
             transform: Transform::from_xyz(0., 0., -1.),
-            texture: tex.clone(),
             ..Default::default()
         },
         Tracking(None),
         Legs::default(),
     )
         .store()
+}
+
+pub fn basic_walker(head_tex: impl ImageFn, leg_tex: impl ImageFn) -> ComponentTree {
+    basic_actor() << (basic_legs() + image(leg_tex)) << (basic_head() + image(head_tex))
 }
