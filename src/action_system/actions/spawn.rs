@@ -1,6 +1,6 @@
 use bevy::{
     app::App,
-    prelude::{Commands, Component, OnAdd, Query, Transform, Trigger},
+    prelude::{Commands, Component, Query, Transform, Trigger},
 };
 use bevy_composable::{
     app_impl::{ComplexSpawnable, ComponentTreeable},

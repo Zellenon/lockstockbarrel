@@ -8,15 +8,15 @@ use stats::stats_plugin;
 
 use crate::{
     action_system::{
-        actions::spawn::spawn,
+        actions::{oneshot::oneshot, spawn::spawn, telegraphed},
         actuator::{actuator, ActuatorTrigger},
+        prefabs::{spawn_delay, spawn_prox},
         triggers::timer::timer,
     },
     arena::{spawn_arena_from_map, to_map, Arena},
-    assets::images::ImageResources,
     content::{enemies::stumbler, player::spawn_player},
     transform2d::pos,
-    twin_stick::player::player_exists,
+    twin_stick::{actors::PLAYER_FACTION, player::player_exists},
 };
 
 pub mod stats;
@@ -50,6 +50,12 @@ fn test_load_level(mut commands: Commands) {
     spawn_arena_from_map(&mut commands, &level);
 
     commands.compose(
-        pos(5., 5.) + actuator(ActuatorTrigger::RisingEdge, 5.) + timer(4.) + spawn(stumbler()),
+        pos(450., 450.)
+            + spawn_prox(
+                1 << PLAYER_FACTION,
+                200.,
+                spawn_delay(1.0, stumbler()) + telegraphed(),
+            )
+            + telegraphed(),
     );
 }

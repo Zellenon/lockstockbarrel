@@ -13,6 +13,8 @@ use crate::util::add_observer_to_component;
 
 #[derive(Event, Reflect, Debug)]
 pub struct Actuate;
+#[derive(Event, Reflect, Debug)]
+pub struct ActuatorCooldownFinished;
 
 #[derive(Reflect, Clone, Debug, PartialEq, PartialOrd, Ord, Eq)]
 pub enum ActuatorTrigger {
@@ -115,6 +117,7 @@ pub fn fire_actuator_on_cooldown_over(
         .iter_mut()
         .filter(|(_, act, _)| act.cooldown.just_finished())
     {
+        commands.trigger_targets(ActuatorCooldownFinished, e);
         match act.trigger_type {
             ActuatorTrigger::Constantly => {
                 if condition.is_some() {
@@ -149,33 +152,4 @@ pub fn actuator_cooldown_on_actuate(
         .unwrap()
         .cooldown
         .reset();
-    println!("peepee poopoo");
 }
-//
-// pub fn add_observer_to_component<T, S, E, B, M>(
-//     observer_function: S,
-// ) -> impl FnMut(Trigger<OnAdd, T>, Commands) -> ()
-// where
-//     T: Component,
-//     B: Component,
-//     E: Event + 'static,
-//     S: IntoObserverSystem<E, B, M> + Send + Sync + Clone,
-// {
-//     app.observe(move |trigger: Trigger<OnAdd, T>, mut commands: Commands| {
-//         commands
-//             .entity(trigger.entity())
-//             .observe(observer_function.clone());
-//     });
-//
-//     move |trigger: Trigger<OnAdd, T>, mut commands: Commands| {
-//         commands
-//             .entity(trigger.entity())
-//             .observe(observer_function.clone());
-//     }
-// }
-//
-// pub fn add_spawn_observers(trigger: Trigger<OnAdd, Actuator>, mut commands: Commands) {
-//     commands
-//         .entity(trigger.entity())
-//         .observe(actuator_cooldown_on_actuate);
-// }

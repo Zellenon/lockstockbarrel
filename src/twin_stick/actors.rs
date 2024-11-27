@@ -28,10 +28,10 @@ pub struct Actor {
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Reflect, Debug, Component)]
-pub struct Faction(pub u16);
+pub struct Faction(pub usize);
 
-pub const PLAYER_FACTION: u16 = 1;
-pub const MISC_ENEMY_FACTION: u16 = 2;
+pub const PLAYER_FACTION: usize = 1;
+pub const MISC_ENEMY_FACTION: usize = 2;
 // Should universal neutral just be no faction component?
 // pub const UNIVERSAL_NEUTRAL_FACTION: u16 = 0;
 
@@ -92,7 +92,7 @@ pub struct Head;
 
 #[derive(Clone, Copy, PartialEq, Reflect, Debug, Component)]
 pub struct Legs {
-    pub animation_stage: isize,
+    pub animation_stage: f32,
     pub stroke: isize,
     pub max_scale: f32,
 }
@@ -100,7 +100,7 @@ pub struct Legs {
 impl Default for Legs {
     fn default() -> Self {
         Self {
-            animation_stage: 0,
+            animation_stage: 0.,
             stroke: 1,
             max_scale: 1.,
         }
@@ -109,6 +109,7 @@ impl Default for Legs {
 
 pub(super) fn actor_plugin(app: &mut App) {
     app.register_type::<Actor>()
+        .register_type::<Faction>()
         .register_type::<Legs>()
         .register_type::<Head>()
         .register_type::<Tracking>();
@@ -156,19 +157,19 @@ fn animate_legs(
     parents: Query<&LinearVelocity>,
 ) {
     for (mut transform, mut legs, parent) in legs.iter_mut() {
-        if legs.animation_stage > 199 {
+        if legs.animation_stage > 199. {
             legs.stroke = -1;
         }
-        if legs.animation_stage < -199 {
+        if legs.animation_stage < -199. {
             legs.stroke = 1;
         }
         match parents.get(parent.get()) {
             Ok(parent_vel) => {
-                let parent_speed = parent_vel.0.length() as isize;
-                if parent_speed > 0 {
-                    legs.animation_stage += parent_speed * legs.stroke / 20;
+                let parent_speed = parent_vel.0.length();
+                if parent_speed > 0.02 {
+                    legs.animation_stage += parent_speed * legs.stroke as f32 / 20.;
                 } else {
-                    legs.animation_stage = (legs.animation_stage as f32 * 0.9) as isize;
+                    legs.animation_stage = legs.animation_stage as f32 * 0.9;
                 }
                 transform.scale = Vec3::new(1., legs.animation_stage as f32 / 100., 1.);
             }

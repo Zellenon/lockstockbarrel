@@ -2,7 +2,7 @@ use crate::{
     assets::images::ImageResources,
     game::stats::MoveSpeed,
     twin_stick::{
-        actors::ActorBundle,
+        actors::{ActorBundle, Faction, PLAYER_FACTION},
         ai::keyboard::KeyboardAI,
         player::{Cursor, Player},
     },
@@ -29,6 +29,7 @@ pub fn spawn_player(mut commands: Commands, cursor: Res<Cursor>) {
 fn player_tree_base() -> ComponentTree {
     (Player, ActorBundle::default(), KeyboardAI).store()
         + Stat::<MoveSpeed>::new(50.).store()
+        + Faction(PLAYER_FACTION).store()
         + name("Player")
 }
 
