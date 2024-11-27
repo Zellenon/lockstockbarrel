@@ -1,12 +1,10 @@
 use bevy::{
-    app::{Plugin, Update},
+    app::Plugin,
     asset::Handle,
     ecs::system::IntoObserverSystem,
     prelude::{Bundle, Commands, Component, Event, Image, OnAdd, Query, Res, Trigger},
-    reflect::Reflect,
 };
-use bevy_composable::app_impl::ComponentTreeable;
-use bevy_composable::tree::ComponentTree;
+use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree};
 use std::sync::Arc;
 
 use crate::assets::images::ImageResources;

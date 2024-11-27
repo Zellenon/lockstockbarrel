@@ -1,4 +1,4 @@
-use avian2d::prelude::{Collider, LinearVelocity, RigidBody};
+use avian2d::prelude::{Collider, LinearVelocity};
 use bevy::{app::AppExit, prelude::*, reflect::Reflect};
 
 pub struct StatePlugin;

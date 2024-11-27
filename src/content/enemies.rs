@@ -7,7 +7,7 @@ use crate::{
 };
 use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree, wrappers::name};
 
-use super::actor_bits::{basic_actor, basic_walker};
+use super::actor_bits::basic_walker;
 
 pub fn stumbler() -> ComponentTree {
     basic_walker(

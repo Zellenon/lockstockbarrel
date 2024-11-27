@@ -1,17 +1,15 @@
 use bevy::{
     app::{App, Plugin, Startup},
     ecs::system::Commands,
-    prelude::{not, IntoSystemConfigs, Res, Update},
+    prelude::{not, IntoSystemConfigs, Update},
 };
 use bevy_composable::app_impl::ComplexSpawnable;
 use stats::stats_plugin;
 
 use crate::{
     action_system::{
-        actions::{oneshot::oneshot, spawn::spawn, telegraphed},
-        actuator::{actuator, ActuatorTrigger},
+        actions::telegraphed,
         prefabs::{spawn_delay, spawn_prox},
-        triggers::timer::timer,
     },
     arena::{spawn_arena_from_map, to_map, Arena},
     content::{enemies::stumbler, player::spawn_player},

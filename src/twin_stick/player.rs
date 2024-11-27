@@ -2,8 +2,8 @@ use bevy::prelude::{Reflect, SpatialBundle, Transform};
 
 use bevy::{
     prelude::{
-        in_state, App, Camera2dBundle, Children, Commands, Component, Entity, EventWriter,
-        IntoSystemConfigs, MouseButton, Name, Plugin, Query, Res, Resource, Startup, Update, With,
+        in_state, App, Camera2dBundle, Commands, Component, Entity, IntoSystemConfigs, Name, Query,
+        Res, Resource, Startup, Update, With,
     },
     window::Window,
 };
