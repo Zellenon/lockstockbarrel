@@ -76,14 +76,12 @@ pub fn activate_deactivate_proximity_triggers(
         .partition(|(_, _, _, option)| option.is_none());
 
     for (entity, min_distance, trigger, _) in already_deactivated.iter() {
-        println!("Not active: {} nearest", min_distance);
         if min_distance < &trigger.radius {
             commands.entity(*entity).insert(ActuatorCondition);
         }
     }
 
     for (entity, min_distance, trigger, _) in already_activated.iter() {
-        println!("Active: {} nearest", min_distance);
         if min_distance > &trigger.radius {
             commands.entity(*entity).remove::<ActuatorCondition>();
         }
