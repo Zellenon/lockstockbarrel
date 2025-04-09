@@ -13,7 +13,7 @@ use bevy_stats::{Resource, Stat};
 pub fn basic_actor() -> ComponentTree {
     (
         ActorBundle::default(),
-        Stat::<MoveSpeed>::new(50.),
+        Stat::<MoveSpeed>::new(230.),
         Resource::<Health>::new(50.),
     )
         .store()
