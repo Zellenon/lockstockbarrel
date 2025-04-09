@@ -27,7 +27,7 @@
                 pkg-config
                 eza
                 fd
-                rust-bin.beta.latest.default
+                rust-bin.nightly.latest.default
                 rustfmt
                 pre-commit
                 alsa-lib
