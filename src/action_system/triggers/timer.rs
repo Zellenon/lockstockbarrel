@@ -54,7 +54,7 @@ impl TimerTrigger {
                 display_timer_triggers,
             ),
         );
-        app.observe(add_observer_to_component::<TimerTrigger, _, _, _, _>(
+        app.add_observer(add_observer_to_component::<TimerTrigger, _, _, _, _>(
             reset_actuator_timers,
         ));
     }

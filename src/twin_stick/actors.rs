@@ -1,7 +1,6 @@
 use crate::transform2d::To2D;
 use avian2d::prelude::{
-    Collider, ColliderMassProperties, ExternalForce, ExternalImpulse, LinearDamping,
-    LinearVelocity, LockedAxes, RigidBody,
+    Collider, ColliderMassProperties, ExternalForce, ExternalImpulse, LinearDamping, LinearVelocity, LockedAxes, Mass, MassProperties2d, RigidBody
 };
 use bevy::{
     math::{Quat, Vec3, Vec3Swizzles},
@@ -52,7 +51,7 @@ pub struct ActorBundle {
     pub transform: Transform,
     pub global_transform: GlobalTransform,
     pub rigidbody: RigidBody,
-    pub mass_properties: ColliderMassProperties,
+    pub mass_properties: Mass,
     pub damping: LinearDamping,
     pub velocity: LinearVelocity,
     pub external_force: ExternalForce,
@@ -69,11 +68,8 @@ impl Default for ActorBundle {
             transform: Default::default(),
             global_transform: Default::default(),
             rigidbody: RigidBody::Dynamic,
-            mass_properties: ColliderMassProperties {
-                mass: avian2d::prelude::Mass(1.),
-                ..Default::default()
-            },
-            damping: LinearDamping(5.),
+            mass_properties: Mass(300.0),
+            damping: LinearDamping(13.),
             velocity: Default::default(),
             external_force: Default::default(),
             external_impulse: Default::default(),

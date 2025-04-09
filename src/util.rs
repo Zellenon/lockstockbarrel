@@ -2,7 +2,7 @@ use bevy::{
     app::Plugin,
     asset::Handle,
     ecs::system::IntoObserverSystem,
-    prelude::{Bundle, Commands, Component, Event, Image, OnAdd, Query, Res, Trigger},
+    prelude::{Bundle, Commands, Component, Event, Image, OnAdd, Query, Res, Trigger}, sprite::Sprite,
 };
 use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree};
 use std::sync::Arc;
@@ -44,7 +44,7 @@ pub struct UtilPlugin;
 
 impl Plugin for UtilPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.observe(give_images);
+        app.add_observer(give_images);
     }
 }
 
@@ -58,6 +58,6 @@ pub fn give_images(
     commands
         .get_entity(entity)
         .unwrap()
-        .insert(requests.get(entity).unwrap().0(&images))
+        .insert(Sprite{image:requests.get(entity).unwrap().0(&images), ..Default::default()})
         .remove::<GiveMeImage>();
 }

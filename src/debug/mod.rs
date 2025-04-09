@@ -1,9 +1,8 @@
 use bevy::{
-    app::{Plugin, Update},
-    prelude::KeyCode,
+    app::{Plugin, Update}, input::keyboard::KeyCode,
 };
-use bevy_editor_pls::EditorPlugin;
-use bevy_egui::EguiSettings;
+//use bevy_editor_pls::prelude::EditorPlugin;
+use bevy_egui::EguiContextSettings;
 use grid::grid_system;
 
 pub struct DebugPlugin;
@@ -11,13 +10,9 @@ pub mod grid;
 
 impl Plugin for DebugPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.insert_resource(EguiSettings {
-            scale_factor: 1.0,
-            default_open_url_target: None,
-        });
         // #[cfg(feature = "editor")]
-        app.add_plugins(EditorPlugin::new())
-            .insert_resource(default_editor_controls());
+        //app.add_plugins(EditorPlugin::new())
+        //    .insert_resource(default_editor_controls());
 
         #[cfg(feature = "physdebug")]
         app.add_plugin(RapierDebugRenderPlugin::default());
@@ -26,16 +21,16 @@ impl Plugin for DebugPlugin {
     }
 }
 
-fn default_editor_controls() -> bevy_editor_pls::controls::EditorControls {
-    use bevy_editor_pls::controls::*;
-    let mut editor_controls = EditorControls::default_bindings();
-    editor_controls.unbind(Action::PlayPauseEditor);
-    editor_controls.insert(
-        Action::PlayPauseEditor,
-        Binding {
-            input: UserInput::Single(Button::Keyboard(KeyCode::KeyQ)),
-            conditions: vec![BindingCondition::ListeningForText(false)],
-        },
-    );
-    editor_controls
-}
+//fn default_editor_controls() -> bevy_editor_pls::controls::EditorControls {
+//    use bevy_editor_pls::controls::*;
+//    let mut editor_controls = EditorControls::default_bindings();
+//    editor_controls.unbind(Action::PlayPauseEditor);
+//    editor_controls.insert(
+//        Action::PlayPauseEditor,
+//        Binding {
+//            input: UserInput::Single(Button::Keyboard(KeyCode::KeyQ)),
+//            conditions: vec![BindingCondition::ListeningForText(false)],
+//        },
+//    );
+//    editor_controls
+//}

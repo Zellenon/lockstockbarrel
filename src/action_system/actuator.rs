@@ -41,7 +41,7 @@ impl Actuator {
                 fire_actuator_on_cooldown_over,
             ),
         );
-        app.observe(add_observer_to_component::<Actuator, _, _, _, _>(
+        app.add_observer(add_observer_to_component::<Actuator, _, _, _, _>(
             actuator_cooldown_on_actuate,
         ));
     }

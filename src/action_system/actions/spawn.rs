@@ -29,7 +29,7 @@ impl SpawnAction {
 
     pub fn setup(app: &mut App) {
         // app.register_type::<SpawnAction>();
-        app.observe(add_observer_to_component::<SpawnAction, _, _, _, _>(
+        app.add_observer(add_observer_to_component::<SpawnAction, _, _, _, _>(
             do_spawn_action,
         ));
     }

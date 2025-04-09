@@ -13,7 +13,7 @@ pub struct OneShotAction;
 impl OneShotAction {
     pub fn setup(app: &mut App) {
         app.register_type::<OneShotAction>();
-        app.observe(add_observer_to_component::<OneShotAction, _, _, _, _>(
+        app.add_observer(add_observer_to_component::<OneShotAction, _, _, _, _>(
             despawn_oneshot,
         ));
     }
