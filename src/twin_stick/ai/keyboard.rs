@@ -1,32 +1,47 @@
+use bevy::input::mouse::MouseButton;
 use bevy::prelude::Reflect;
-use bevy::{
-    input::ButtonInput,
-    prelude::{Component, KeyCode, Query, Res, Vec2, With},
-};
+use bevy::prelude::{Component, KeyCode, Query, With};
+use leafwing_input_manager::{prelude::{ActionState, InputMap, VirtualDPad}, Actionlike, InputControlKind, InputManagerBundle};
 
 use super::super::actors::Actor;
 
 #[derive(Component, Clone, Copy, PartialEq, Eq, Reflect, Debug)]
 pub struct KeyboardAI;
 
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Ord, Eq, Hash, Reflect, Default)]
+pub(crate) enum PlayerAction {
+    #[default]
+    Walk,
+    Sprint,
+    Aim
+}
+
+impl Actionlike for PlayerAction {
+    fn input_control_kind(&self) -> InputControlKind {
+        match self {
+            PlayerAction::Walk => InputControlKind::DualAxis,
+            _ => InputControlKind::Button,
+        }
+    }
+}
+
+pub(crate) fn create_player_action_input_manager_bundle() -> InputManagerBundle<PlayerAction> {
+    InputManagerBundle::with_map(
+        InputMap::new([
+            (PlayerAction::Sprint, KeyCode::ShiftLeft),
+        ])
+            .with(PlayerAction::Aim, MouseButton::Right)
+            .with_dual_axis(
+                PlayerAction::Walk,
+                VirtualDPad::new(KeyCode::KeyW, KeyCode::KeyS, KeyCode::KeyA, KeyCode::KeyD)
+            )
+    )
+}
+
 pub(crate) fn keyboard_input_handler(
-    keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut ais: Query<&mut Actor, With<KeyboardAI>>,
+    mut ais: Query<(&mut Actor, &ActionState<PlayerAction>), With<KeyboardAI>>,
 ) {
-    let mut total_force = Vec2::new(0., 0.);
-    if keyboard_input.pressed(KeyCode::KeyA) {
-        total_force.x += -1.;
-    }
-    if keyboard_input.pressed(KeyCode::KeyD) {
-        total_force.x += 1.;
-    }
-    if keyboard_input.pressed(KeyCode::KeyW) {
-        total_force.y += 1.;
-    }
-    if keyboard_input.pressed(KeyCode::KeyS) {
-        total_force.y += -1.;
-    }
     for mut actor in ais.iter_mut() {
-        actor.desired_direction = total_force;
+        actor.0.desired_direction = actor.1.axis_pair(&PlayerAction::Walk);
     }
 }

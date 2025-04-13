@@ -15,6 +15,7 @@ serde = "1.0"
 strum = "0.26"
 strum_macros = "0.26"
 bevy_asset_loader = "0.22"
+leafwing-input-manager = { version = "0.16", features = ["egui"] }
 
 bevy_composable = {git = "https://github.com/Zellenon/bevy_composable.git"}
 bevy_stats = {git = "https://github.com/Zellenon/bevy_stats.git"}

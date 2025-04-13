@@ -1,5 +1,7 @@
 use bevy::prelude::Reflect;
 use bevy::prelude::{App, IntoSystemConfigs, Plugin, Query, Update};
+use keyboard::PlayerAction;
+use leafwing_input_manager::plugin::InputManagerPlugin;
 
 use super::{
     actors::{actor_movement, Actor},
@@ -21,6 +23,8 @@ pub struct AIPlugin;
 
 impl Plugin for AIPlugin {
     fn build(&self, app: &mut App) {
+        app.register_type::<PerlinWanderAI>().register_type::<PlayerAction>();
+        app.add_plugins(InputManagerPlugin::<PlayerAction>::default());
         app.add_systems(
             Update,
             (
@@ -31,7 +35,6 @@ impl Plugin for AIPlugin {
                 actor_movement.after(normalize_ai),
             ),
         );
-        app.register_type::<PerlinWanderAI>();
     }
 }
 
