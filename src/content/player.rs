@@ -3,7 +3,7 @@ use crate::{
     game::stats::MoveSpeed,
     twin_stick::{
         actors::{ActorBundle, Faction, PLAYER_FACTION},
-        ai::keyboard::KeyboardAI,
+        ai::keyboard::{create_player_action_input_manager_bundle, KeyboardAI},
         player::{Cursor, Player},
     },
     util::image,
@@ -23,12 +23,13 @@ use super::{
 };
 
 pub fn spawn_player(mut commands: Commands, cursor: Res<Cursor>) {
-    commands.compose(player_tree(cursor));
+    let player_id = commands.compose(player_tree(cursor));
+    commands.get_entity(player_id).unwrap().insert(create_player_action_input_manager_bundle());
 }
 
 fn player_tree_base() -> ComponentTree {
     (Player, ActorBundle::default(), KeyboardAI).store()
-        + Stat::<MoveSpeed>::new(50.).store()
+        + Stat::<MoveSpeed>::new(80.).store()
         + Faction(PLAYER_FACTION).store()
         + name("Player")
 }

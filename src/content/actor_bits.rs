@@ -5,7 +5,7 @@ use crate::{
 };
 use bevy::{
     prelude::{Transform, Vec2},
-    sprite::{Sprite, SpriteBundle},
+    sprite::Sprite,
 };
 use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree, wrappers::name};
 use bevy_stats::{Resource, Stat};
@@ -13,11 +13,11 @@ use bevy_stats::{Resource, Stat};
 pub fn basic_actor() -> ComponentTree {
     (
         ActorBundle::default(),
-        Stat::<MoveSpeed>::new(230.),
+        Stat::<MoveSpeed>::new(70.),
         Resource::<Health>::new(50.),
     )
         .store()
-        + name("actor")
+    + name("actor")
 }
 
 pub fn basic_head() -> ComponentTree {
