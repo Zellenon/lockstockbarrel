@@ -1,6 +1,6 @@
 use crate::transform2d::To2D;
 use avian2d::prelude::{
-    Collider, ColliderMassProperties, ExternalForce, ExternalImpulse, LinearDamping, LinearVelocity, LockedAxes, Mass, MassProperties2d, RigidBody
+    Collider, ExternalForce, ExternalImpulse, LinearDamping, LinearVelocity, LockedAxes, Mass, RigidBody
 };
 use bevy::{
     math::{Quat, Vec3, Vec3Swizzles},
