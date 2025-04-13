@@ -1,5 +1,5 @@
 use bevy_composable::app_impl::ComponentTreeable;
-use std::{time::Duration, u64};
+use std::time::Duration;
 
 use bevy::{
     app::{App, Update},
@@ -47,12 +47,12 @@ impl Actuator {
     }
 }
 
-pub fn actuator(trigger: ActuatorTrigger, duration: f32) -> ComponentTree {
+pub fn actuator(trigger: ActuatorTrigger, cooldown: f32) -> ComponentTree {
     Actuator {
         trigger_type: trigger,
         cooldown: {
             let mut a = Timer::new(
-                Duration::from_secs_f32(duration),
+                Duration::from_secs_f32(cooldown),
                 bevy::time::TimerMode::Once,
             );
             a.set_elapsed(Duration::from_secs(u64::MAX));
