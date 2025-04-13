@@ -1,5 +1,6 @@
-use bevy::prelude::{Reflect, SpatialBundle, Transform};
+use bevy::prelude::{Reflect, Transform};
 
+use bevy::render::view::Visibility;
 use bevy::{
     prelude::{
         in_state, App, Camera2dBundle, Commands, Component, Entity, IntoSystemConfigs, Name, Query,
@@ -49,7 +50,7 @@ pub fn player_setup(mut commands: Commands) {
     commands.insert_resource(MainCamera(camera_entity));
 
     let cursor_entity = commands
-        .spawn(SpatialBundle::default())
+        .spawn((Transform::default(), Visibility::default()))
         .insert(Name::new("Cursor"))
         .insert(CursorTracker)
         .id();

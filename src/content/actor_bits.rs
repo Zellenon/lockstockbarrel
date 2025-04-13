@@ -22,11 +22,8 @@ pub fn basic_actor() -> ComponentTree {
 
 pub fn basic_head() -> ComponentTree {
     (
-        SpriteBundle {
-            sprite: Sprite {
-                custom_size: Vec2::new(40., 40.).into(),
-                ..Default::default()
-            },
+        Sprite {
+            custom_size: Vec2::new(40., 40.).into(),
             ..Default::default()
         },
         Tracking(None),
@@ -36,16 +33,13 @@ pub fn basic_head() -> ComponentTree {
 
 pub fn basic_legs() -> ComponentTree {
     (
-        SpriteBundle {
-            sprite: Sprite {
-                custom_size: Vec2::new(30., 35.).into(),
-                ..Default::default()
-            },
-            transform: Transform::from_xyz(0., 0., -1.),
+        Sprite {
+            custom_size: Vec2::new(30., 35.).into(),
             ..Default::default()
         },
+        Transform::from_xyz(0., 0., -1.),
         Tracking(None),
-        Legs::default(),
+        Legs::default()
     )
         .store()
 }
