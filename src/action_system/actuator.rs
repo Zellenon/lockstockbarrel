@@ -1,13 +1,9 @@
-use bevy_composable::app_impl::ComponentTreeable;
+use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree};
 use std::time::Duration;
 
 use bevy::{
-    app::{App, Update},
-    prelude::{Added, Changed, Commands, Component, Entity, Event, Query, Res, Trigger},
-    reflect::Reflect,
-    time::{Time, Timer},
+    app::{App, Update}, ecs::schedule::IntoSystemConfigs, prelude::{Added, Changed, Commands, Component, Entity, Event, Query, Res, Trigger}, reflect::Reflect, time::{Time, Timer}
 };
-use bevy_composable::tree::ComponentTree;
 
 use crate::util::add_observer_to_component;
 
