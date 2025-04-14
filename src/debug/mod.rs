@@ -1,9 +1,10 @@
 use bevy::{
-    app::{Plugin, Update}, input::keyboard::KeyCode,
+    app::{Plugin, Update}, color::palettes::css::{GREEN, RED}, ecs::{query::With, system::Query}, gizmos::gizmos::Gizmos, input::keyboard::KeyCode, math::{Isometry2d, Vec2, Vec3Swizzles}, transform::components::GlobalTransform
 };
-//use bevy_editor_pls::prelude::EditorPlugin;
-use bevy_egui::EguiContextSettings;
+use bevy_editor_pls::prelude::EditorPlugin;
 use grid::grid_system;
+
+use crate::action_system::{actuator::Actuator, triggers::{key_action::PlayerActionTrigger, propagation::ParentTrigger}};
 
 pub struct DebugPlugin;
 pub mod grid;
@@ -11,13 +12,19 @@ pub mod grid;
 impl Plugin for DebugPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         // #[cfg(feature = "editor")]
-        //app.add_plugins(EditorPlugin::new())
+        app.add_plugins(EditorPlugin::new());
         //    .insert_resource(default_editor_controls());
 
         #[cfg(feature = "physdebug")]
         app.add_plugin(RapierDebugRenderPlugin::default());
 
-        app.add_systems(Update, grid_system);
+        app.add_systems(Update, (test_display, grid_system));
+    }
+}
+
+fn test_display(weapons: Query<&GlobalTransform, (With<ParentTrigger>)>, mut gizmos: Gizmos) {
+    for transform in weapons.iter() {
+        gizmos.circle_2d(transform.compute_transform().translation.xy(), 10., RED);
     }
 }
 

@@ -1,13 +1,13 @@
-use bevy::{color::palettes::css::GREEN, math::Vec3, prelude::Gizmos};
+use bevy::{color::{palettes::css::GREEN, Gray, LinearRgba}, math::{Isometry2d, UVec2, Vec2}, prelude::Gizmos};
 
 pub(super) fn grid_system(mut gizmos: Gizmos) {
-    for x in -100..100 {
-        for y in -100..100 {
-            gizmos.line(
-                Vec3::new(x as f32, y as f32, 0.),
-                Vec3::new(x as f32, y as f32, 0.),
-                GREEN,
-            );
-        }
-    }
+    gizmos
+        .grid_2d(
+            Isometry2d::IDENTITY,
+            UVec2::new(100, 100),
+            Vec2::new(100., 100.),
+            // Dark gray
+            LinearRgba::gray(0.05),
+        )
+        .outer_edges();
 }

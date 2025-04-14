@@ -19,6 +19,7 @@ leafwing-input-manager = { version = "0.16", features = ["egui"] }
 
 bevy_composable = {git = "https://github.com/Zellenon/bevy_composable.git"}
 bevy_stats = {git = "https://github.com/Zellenon/bevy_stats.git"}
+bevy_editor_pls = {git = "https://github.com/ltsoveranakin/bevy_editor_pls"}
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]
