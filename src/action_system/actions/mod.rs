@@ -4,6 +4,7 @@ use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree};
 pub mod kill_self;
 pub mod oneshot;
 pub mod spawn;
+pub mod vel_spawn;
 
 #[derive(Component, Reflect, Debug, Clone, Copy)]
 pub struct TelegraphedAction;

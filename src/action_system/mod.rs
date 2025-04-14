@@ -1,7 +1,7 @@
-use actions::{oneshot::OneShotAction, spawn::SpawnAction};
+use actions::{oneshot::OneShotAction, spawn::SpawnAction, vel_spawn::VelSpawnAction};
 use actuator::Actuator;
 use bevy::app::Plugin;
-use triggers::{proximity::ProximityTrigger, timer::TimerTrigger};
+use triggers::{key_action::PlayerActionTrigger, propagation::ParentTrigger, proximity::ProximityTrigger, timer::TimerTrigger};
 
 pub mod actions;
 pub mod actuator;
@@ -16,8 +16,11 @@ impl Plugin for ActionSystemPlugin {
 
         TimerTrigger::setup(app);
         ProximityTrigger::setup(app);
+        PlayerActionTrigger::setup(app);
+        ParentTrigger::setup(app);
 
         SpawnAction::setup(app);
         OneShotAction::setup(app);
+        VelSpawnAction::setup(app);
     }
 }
