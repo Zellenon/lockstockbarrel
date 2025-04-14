@@ -34,12 +34,10 @@ pub fn sync_playeraction_triggers(
         for (e, (filter, has_activated)) in children {
             if has_activated.is_some() {
                 if !filter.activates_on.iter().any(|(action, used)| *used && actions.pressed(action)) {
-                    println!("a");
                     commands.get_entity(*e).unwrap().remove::<ActuatorCondition>();
                 }
             } else {
                 if filter.activates_on.iter().any(|(action, used)| *used && actions.pressed(action)) {
-                    println!("B3");
                     commands.get_entity(*e).unwrap().insert(ActuatorCondition);
                 }
             }
