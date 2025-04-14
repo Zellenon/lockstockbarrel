@@ -7,6 +7,8 @@ use bevy::{
 
 use crate::util::add_observer_to_component;
 
+use super::ActuatorLogicPhases;
+
 #[derive(Event, Reflect, Debug)]
 pub struct Actuate;
 #[derive(Event, Reflect, Debug)]
@@ -43,8 +45,13 @@ impl Actuator {
             (
                 tick_actuator_cooldown,
                 fire_actuator_on_condition_change,
+            ).in_set(ActuatorLogicPhases::PreActuate),
+        );
+        app.add_systems(
+            Update,
+            (
                 fire_actuator_on_cooldown_over,
-            ),
+            ).in_set(ActuatorLogicPhases::Actuate),
         );
         app.add_observer(add_observer_to_component::<Actuator, _, _, _, _>(
             actuator_cooldown_on_actuate,
