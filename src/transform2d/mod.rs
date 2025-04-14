@@ -1,8 +1,10 @@
-use bevy::{math::Affine2, prelude::*};
+use bevy::{math::{ops::atan2, Affine2}, prelude::*};
 use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree};
 use std::fmt::Debug;
 
 pub trait Transform2d: Component + Debug + PartialEq + Clone + Copy + Reflect {
+    fn get_angle_f32(&self) -> f32;
+
     fn from_rotation2d(rotation: f32) -> Self;
 
     fn with_translation2d(self, translation: Vec2) -> Self;
@@ -65,6 +67,10 @@ pub trait Transform2d: Component + Debug + PartialEq + Clone + Copy + Reflect {
 }
 
 impl Transform2d for Transform {
+    fn get_angle_f32(&self) -> f32 {
+        self.rotation.to_2d()
+    }
+
     #[inline]
     fn from_rotation2d(rotation: f32) -> Self {
         Transform {
@@ -254,8 +260,4 @@ mod tests {
         // assert_eq!(transform.local_y(), transform.rotation_matrix() * Vec2::Y);
         // assert_eq!(transform.local_x(), transform.rotation_matrix() * Vec2::X);
     }
-}
-
-pub fn pos(x: f32, y: f32) -> ComponentTree {
-    Transform::from_xyz(x, y, 0.).store()
 }

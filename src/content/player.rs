@@ -18,12 +18,11 @@ use bevy_stats::Stat;
 
 use super::{
     actor_bits::{basic_head, basic_legs},
-    util::tracking,
-    // weapons::peashooter,
+    util::tracking, weapons::peashooter,
 };
 
 pub fn spawn_player(mut commands: Commands, cursor: Res<Cursor>) {
-    let player_id = commands.compose(player_tree(cursor));
+    let player_id = commands.compose(player_tree(&cursor) << peashooter(&cursor));
     commands.get_entity(player_id).unwrap().insert(create_player_action_input_manager_bundle());
 }
 
@@ -34,7 +33,7 @@ fn player_tree_base() -> ComponentTree {
         + name("Player")
 }
 
-pub fn player_tree(cursor: Res<Cursor>) -> ComponentTree {
+pub fn player_tree(cursor: &Res<Cursor>) -> ComponentTree {
     player_tree_base()
         << (basic_head() + tracking(cursor.0) + image(ImageResources::player_head))
         << (basic_legs() + image(ImageResources::player_legs))

@@ -1,8 +1,20 @@
 use bevy::{app::App, reflect::Reflect};
 use bevy_stats::{RPGResource, RPGStat};
 
-#[derive(Reflect, Clone, Copy)]
+#[derive(Reflect, Clone, Copy, Debug, Hash)]
 pub struct Health;
+
+#[derive(Reflect, Clone, Copy, Debug, Hash)]
+pub struct MoveSpeed;
+
+#[derive(Reflect, Clone, Copy, Debug, Hash)]
+pub struct Knockback;
+
+#[derive(Reflect, Clone, Copy, Debug, Hash)]
+pub struct ProjectileSpeed;
+
+#[derive(Reflect, Clone, Copy, Debug, Hash)]
+pub struct Accuracy;
 
 impl RPGStat for Health {
     fn modstyle() -> bevy_stats::ModStyle {
@@ -23,13 +35,14 @@ impl RPGStat for MoveSpeed {}
 
 impl RPGStat for Knockback {}
 
+impl RPGStat for ProjectileSpeed {}
+
+impl RPGStat for Accuracy {}
+
 pub(super) fn stats_plugin(app: &mut App) {
     app.register_type::<Health>()
         .register_type::<MoveSpeed>()
+        .register_type::<ProjectileSpeed>()
+        .register_type::<Accuracy>()
         .register_type::<Knockback>();
 }
-
-#[derive(Reflect, Clone, Copy)]
-pub struct MoveSpeed;
-#[derive(Reflect, Clone, Copy)]
-pub struct Knockback;

@@ -3,8 +3,9 @@ use bevy::{
     ecs::system::Commands,
     prelude::{not, IntoSystemConfigs, Update},
 };
-use bevy_composable::app_impl::ComplexSpawnable;
-use stats::stats_plugin;
+use bevy_composable::app_impl::{ComplexSpawnable, ComponentTreeable};
+use bevy_stats::Stat;
+use stats::{stats_plugin, MoveSpeed};
 
 use crate::{
     action_system::{
@@ -13,8 +14,7 @@ use crate::{
     },
     arena::{spawn_arena_from_map, to_map, Arena},
     content::{enemies::stumbler, player::spawn_player},
-    transform2d::pos,
-    twin_stick::{actors::PLAYER_FACTION, player::player_exists},
+    twin_stick::{actors::PLAYER_FACTION, player::player_exists, utils::pos},
 };
 
 pub mod stats;
@@ -53,6 +53,16 @@ fn test_load_level(mut commands: Commands) {
                 1 << PLAYER_FACTION,
                 200.,
                 spawn_delay(1.0, stumbler()) + telegraphed(),
+            )
+            + telegraphed(),
+    );
+
+    commands.compose(
+        pos(-650., 450.)
+            + spawn_prox(
+                1 << PLAYER_FACTION,
+                200.,
+                spawn_delay(1.0, stumbler() + Stat::<MoveSpeed>::new(10.).store()) + telegraphed(),
             )
             + telegraphed(),
     );
