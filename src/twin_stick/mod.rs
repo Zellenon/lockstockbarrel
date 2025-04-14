@@ -6,6 +6,7 @@ use bevy::{math::Vec2, prelude::{App, Plugin}};
 use bevy_turborand::prelude::RngPlugin;
 use camera::CameraPlugin;
 use player::player_plugin;
+use projectile::projectile_plugin;
 
 pub mod actors;
 pub mod ai;
@@ -23,6 +24,7 @@ impl Plugin for TwinStickPlugin {
 
         actor_plugin(app);
         player_plugin(app);
+        projectile_plugin(app);
 
         app.add_plugins(AIPlugin);
 

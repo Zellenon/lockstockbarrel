@@ -1,13 +1,13 @@
 use avian2d::prelude::{Collider, CollisionStarted, ExternalImpulse, LinearVelocity, Mass, RigidBody, SweptCcd};
 use bevy::{
     color::{palettes::css::RED, Color}, math::Vec3Swizzles, prelude::{
-        in_state, App, Bundle, Commands, Component, DespawnRecursiveExt, Entity, Event,
-        EventReader, EventWriter, GlobalTransform, InheritedVisibility, IntoSystemConfigs, Plugin,
+        in_state, App, Commands, Component, DespawnRecursiveExt, Entity, Event,
+        EventReader, EventWriter, IntoSystemConfigs, Plugin,
         Query, Reflect, Res, Transform, Update, Vec2, Visibility,
     }, sprite::Sprite, time::{Time, Timer, TimerMode}, utils::default
 };
 use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree, wrappers::name};
-use std::{marker::PhantomData, time::Duration};
+use std::time::Duration;
 
 use crate::states::TimerState;
 
@@ -83,28 +83,23 @@ pub struct ProjectileImpactEvent {
 #[derive(Clone, Copy, PartialEq, Eq, Reflect, Debug, Event)]
 pub struct ProjectileClashEvent(pub Entity, pub Entity);
 
-#[derive(Clone, Copy, PartialEq, Eq, Reflect, Debug, Default)]
-pub struct ProjectilePlugin;
+pub fn projectile_plugin(app: &mut App) {
+    app.add_event::<KnockbackEvent>();
+    // .add_system(projectile_impact)
+    app.add_systems(
+        Update,
+        (
+            tick_lifetimes,
+            knockback_events,
+            projectile_event_dispatcher,
+            kill_projectiles_post_impact,
+            knockback_from_projectiles,
+        )
+            .run_if(in_state(TimerState::Playing)),
+    );
 
-impl Plugin for ProjectilePlugin {
-    fn build(&self, app: &mut App) {
-        app.add_event::<KnockbackEvent>();
-        // .add_system(projectile_impact)
-        app.add_systems(
-            Update,
-            (
-                tick_lifetimes,
-                knockback_events,
-                projectile_event_dispatcher,
-                kill_projectiles_post_impact,
-                knockback_from_projectiles,
-            )
-                .run_if(in_state(TimerState::Playing)),
-        );
-
-        app.add_event::<ProjectileImpactEvent>()
-            .add_event::<ProjectileClashEvent>();
-    }
+    app.add_event::<ProjectileImpactEvent>()
+        .add_event::<ProjectileClashEvent>();
 }
 
 fn tick_lifetimes(
