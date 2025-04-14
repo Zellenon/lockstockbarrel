@@ -1,7 +1,7 @@
 use bevy::{
     app::Plugin,
-    asset::Handle,
-    ecs::system::IntoObserverSystem,
+    asset::{Asset, Handle},
+    ecs::system::{IntoObserverSystem, Resource},
     prelude::{Bundle, Commands, Component, Event, Image, OnAdd, Query, Res, Trigger}, sprite::Sprite,
 };
 use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree};
@@ -26,18 +26,14 @@ where
     }
 }
 
-pub trait ImageFn: 'static + Sync + Send + Fn(&ImageResources) -> Handle<Image> {}
+pub trait GimmieFn<T, U>: 'static + Sync + Send + Fn(&ImageResources) -> Handle<T> where T: Asset, U: Resource{ }
 
-impl<
-        T: Fn(&ImageResources) -> bevy::prelude::Handle<bevy::prelude::Image> + Send + Sync + 'static,
-    > ImageFn for T
-{
-}
+impl< T: Fn(&ImageResources) -> Handle<Image> + Send + Sync + 'static,  > GimmieFn<Image, ImageResources> for T { }
 
 #[derive(Component, Clone)]
-pub struct GiveMeImage(pub Arc<dyn ImageFn>);
+pub struct GiveMeImage(pub Arc<dyn GimmieFn<Image, ImageResources>>);
 
-pub fn image(image: impl ImageFn) -> ComponentTree {
+pub fn image(image: impl GimmieFn<Image, ImageResources>) -> ComponentTree {
     GiveMeImage(Arc::new(image)).store()
 }
 
