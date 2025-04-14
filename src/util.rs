@@ -9,6 +9,7 @@ use std::sync::Arc;
 
 use crate::assets::images::ImageResources;
 
+/// Add the provided function to all entities with component T.
 pub fn add_observer_to_component<T, S, E, B, M>(
     observer_function: S,
 ) -> impl FnMut(Trigger<OnAdd, T>, Commands) -> ()
