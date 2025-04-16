@@ -1,7 +1,11 @@
-use bevy::input::mouse::MouseButton;
-use bevy::prelude::Reflect;
-use bevy::prelude::{Component, KeyCode, Query, With};
-use leafwing_input_manager::{prelude::{ActionState, InputMap, VirtualDPad}, Actionlike, InputControlKind, InputManagerBundle};
+use bevy::{
+    input::mouse::MouseButton,
+    prelude::{Component, KeyCode, Query, Reflect, With},
+};
+use leafwing_input_manager::{
+    prelude::{ActionState, InputMap, VirtualDPad},
+    Actionlike, InputControlKind, InputManagerBundle,
+};
 use strum_macros::EnumIter;
 
 use super::super::actors::Actor;
@@ -34,12 +38,12 @@ pub(crate) fn create_player_action_input_manager_bundle() -> InputManagerBundle<
             (PlayerAction::Shoot3, KeyCode::ShiftLeft),
             (PlayerAction::Shoot4, KeyCode::KeyF),
         ])
-            .with(PlayerAction::Shoot1, MouseButton::Left)
-            .with(PlayerAction::Shoot2, MouseButton::Right)
-            .with_dual_axis(
-                PlayerAction::Walk,
-                VirtualDPad::new(KeyCode::KeyW, KeyCode::KeyS, KeyCode::KeyA, KeyCode::KeyD)
-            )
+        .with(PlayerAction::Shoot1, MouseButton::Left)
+        .with(PlayerAction::Shoot2, MouseButton::Right)
+        .with_dual_axis(
+            PlayerAction::Walk,
+            VirtualDPad::new(KeyCode::KeyW, KeyCode::KeyS, KeyCode::KeyA, KeyCode::KeyD),
+        ),
     )
 }
 

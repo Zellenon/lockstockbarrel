@@ -1,9 +1,10 @@
-use bevy::prelude::Transform;
-use bevy::utils::default;
-
-use bevy::{math::Vec2, prelude::Color, sprite::Sprite};
-use bevy_composable::app_impl::ComponentTreeable;
-use bevy_composable::tree::ComponentTree;
+use bevy::{
+    math::Vec2,
+    prelude::{Color, Transform},
+    sprite::Sprite,
+    utils::default,
+};
+use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree};
 
 pub fn rect(x: f32, y: f32, h: f32, w: f32, color: Color) -> ComponentTree {
     (
@@ -14,5 +15,5 @@ pub fn rect(x: f32, y: f32, h: f32, w: f32, color: Color) -> ComponentTree {
         },
         Transform::from_xyz(x, y, 0.),
     )
-    .store()
+        .store()
 }

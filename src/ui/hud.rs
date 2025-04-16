@@ -1,5 +1,4 @@
-use bevy_egui::egui;
-use bevy_egui::EguiContexts;
+use bevy_egui::{egui, EguiContexts};
 
 pub(crate) fn hud_gui(mut root: EguiContexts) {
     egui::Window::new("HUD1")

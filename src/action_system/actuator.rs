@@ -1,13 +1,15 @@
+use bevy::{
+    app::{App, Update},
+    ecs::schedule::IntoSystemConfigs,
+    prelude::{Added, Changed, Commands, Component, Entity, Event, Query, Res, Trigger},
+    reflect::Reflect,
+    time::{Time, Timer},
+};
 use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree};
 use std::time::Duration;
 
-use bevy::{
-    app::{App, Update}, ecs::schedule::IntoSystemConfigs, prelude::{Added, Changed, Commands, Component, Entity, Event, Query, Res, Trigger}, reflect::Reflect, time::{Time, Timer}
-};
-
-use crate::util::add_observer_to_component;
-
 use super::ActuatorLogicPhases;
+use crate::util::add_observer_to_component;
 
 #[derive(Event, Reflect, Debug)]
 pub struct Actuate;
@@ -34,7 +36,8 @@ impl Actuator {
             fire_style,
             cooldown: Timer::new(
                 Duration::from_secs_f32(cooldown_secs),
-                bevy::time::TimerMode::Once)
+                bevy::time::TimerMode::Once,
+            ),
         }
     }
 
@@ -42,16 +45,12 @@ impl Actuator {
         app.register_type::<Actuator>();
         app.add_systems(
             Update,
-            (
-                tick_actuator_cooldown,
-                fire_actuator_on_condition_change,
-            ).in_set(ActuatorLogicPhases::PreActuate),
+            (tick_actuator_cooldown, fire_actuator_on_condition_change)
+                .in_set(ActuatorLogicPhases::PreActuate),
         );
         app.add_systems(
             Update,
-            (
-                fire_actuator_on_cooldown_over,
-            ).in_set(ActuatorLogicPhases::Actuate),
+            (fire_actuator_on_cooldown_over,).in_set(ActuatorLogicPhases::Actuate),
         );
         app.add_observer(add_observer_to_component::<Actuator, _, _, _, _>(
             actuator_cooldown_on_actuate,

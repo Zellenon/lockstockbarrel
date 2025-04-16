@@ -1,7 +1,6 @@
-use bevy::prelude::IntoSystemConfigs;
 use bevy::{
     app::{Plugin, Update},
-    prelude::in_state,
+    prelude::{in_state, IntoSystemConfigs},
 };
 use bevy_egui::EguiPlugin;
 use hud::hud_gui;

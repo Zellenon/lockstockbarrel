@@ -2,10 +2,9 @@
 
 use action_system::ActionSystemPlugin;
 use assets::AssetPlugin;
-use bevy::prelude::Color;
 use bevy::{
     app::App,
-    prelude::{default, ClearColor, PluginGroup},
+    prelude::{default, ClearColor, Color, PluginGroup},
     window::{Window, WindowPlugin},
     DefaultPlugins,
 };

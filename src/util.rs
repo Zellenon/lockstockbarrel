@@ -2,7 +2,8 @@ use bevy::{
     app::Plugin,
     asset::{Asset, Handle},
     ecs::system::{IntoObserverSystem, Resource},
-    prelude::{Bundle, Commands, Component, Event, Image, OnAdd, Query, Res, Trigger}, sprite::Sprite,
+    prelude::{Bundle, Commands, Component, Event, Image, OnAdd, Query, Res, Trigger},
+    sprite::Sprite,
 };
 use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree};
 use std::sync::Arc;
@@ -26,9 +27,17 @@ where
     }
 }
 
-pub trait GimmieFn<T, U>: 'static + Sync + Send + Fn(&ImageResources) -> Handle<T> where T: Asset, U: Resource{ }
+pub trait GimmieFn<T, U>: 'static + Sync + Send + Fn(&ImageResources) -> Handle<T>
+where
+    T: Asset,
+    U: Resource,
+{
+}
 
-impl< T: Fn(&ImageResources) -> Handle<Image> + Send + Sync + 'static,  > GimmieFn<Image, ImageResources> for T { }
+impl<T: Fn(&ImageResources) -> Handle<Image> + Send + Sync + 'static>
+    GimmieFn<Image, ImageResources> for T
+{
+}
 
 #[derive(Component, Clone)]
 pub struct GiveMeImage(pub Arc<dyn GimmieFn<Image, ImageResources>>);
@@ -55,6 +64,9 @@ pub fn give_images(
     commands
         .get_entity(entity)
         .unwrap()
-        .insert(Sprite{image:requests.get(entity).unwrap().0(&images), ..Default::default()})
+        .insert(Sprite {
+            image: requests.get(entity).unwrap().0(&images),
+            ..Default::default()
+        })
         .remove::<GiveMeImage>();
 }

@@ -1,17 +1,14 @@
-use bevy::prelude::{Reflect, Transform};
-
-use bevy::render::view::Visibility;
 use bevy::{
     prelude::{
         in_state, App, Camera2dBundle, Commands, Component, Entity, IntoSystemConfigs, Name, Query,
-        Res, Resource, Startup, Update, With,
+        Reflect, Res, Resource, Startup, Transform, Update, With,
     },
+    render::view::Visibility,
     window::Window,
 };
 
-use crate::{states::TimerState, transform2d::Transform2d};
-
 use super::utils::screen_to_world;
+use crate::{states::TimerState, transform2d::Transform2d};
 
 #[derive(Component, Resource, Clone, Copy, PartialEq, Eq, Reflect, Debug)]
 pub struct MainCamera(pub Entity);

@@ -1,7 +1,10 @@
 use actors::actor_plugin;
 use ai::AIPlugin;
 use avian2d::{prelude::Gravity, PhysicsPlugins};
-use bevy::{math::Vec2, prelude::{App, Plugin}};
+use bevy::{
+    math::Vec2,
+    prelude::{App, Plugin},
+};
 
 use bevy_turborand::prelude::RngPlugin;
 use camera::CameraPlugin;
@@ -12,8 +15,8 @@ pub mod actors;
 pub mod ai;
 pub mod camera;
 pub mod player;
-pub mod utils;
 pub mod projectile;
+pub mod utils;
 
 pub struct TwinStickPlugin;
 

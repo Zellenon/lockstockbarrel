@@ -23,7 +23,8 @@ pub struct AIPlugin;
 
 impl Plugin for AIPlugin {
     fn build(&self, app: &mut App) {
-        app.register_type::<PerlinWanderAI>().register_type::<PlayerAction>();
+        app.register_type::<PerlinWanderAI>()
+            .register_type::<PlayerAction>();
         app.add_plugins(InputManagerPlugin::<PlayerAction>::default());
         app.add_systems(
             Update,

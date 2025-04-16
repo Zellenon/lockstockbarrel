@@ -1,7 +1,14 @@
 use actions::{oneshot::OneShotAction, spawn::SpawnAction, vel_spawn::VelSpawnAction};
 use actuator::Actuator;
-use bevy::{app::{Plugin, Update}, ecs::schedule::{IntoSystemConfigs, IntoSystemSetConfigs, SystemSet}, reflect::Reflect};
-use triggers::{key_action::PlayerActionTrigger, propagation::ParentTrigger, proximity::ProximityTrigger, timer::TimerTrigger};
+use bevy::{
+    app::{Plugin, Update},
+    ecs::schedule::{IntoSystemConfigs, IntoSystemSetConfigs, SystemSet},
+    reflect::Reflect,
+};
+use triggers::{
+    key_action::PlayerActionTrigger, propagation::ParentTrigger, proximity::ProximityTrigger,
+    timer::TimerTrigger,
+};
 
 pub mod actions;
 pub mod actuator;
@@ -14,7 +21,7 @@ pub struct ActionSystemPlugin;
 pub enum ActuatorLogicPhases {
     PreActuate,
     Actuate,
-    PostActuate
+    PostActuate,
 }
 
 impl Plugin for ActionSystemPlugin {
@@ -30,10 +37,13 @@ impl Plugin for ActionSystemPlugin {
         OneShotAction::setup(app);
         VelSpawnAction::setup(app);
 
-        app.configure_sets(Update, (
-            ActuatorLogicPhases::PreActuate,
-            ActuatorLogicPhases::Actuate.after(ActuatorLogicPhases::PreActuate),
-            ActuatorLogicPhases::PostActuate.after(ActuatorLogicPhases::Actuate)
-        ));
+        app.configure_sets(
+            Update,
+            (
+                ActuatorLogicPhases::PreActuate,
+                ActuatorLogicPhases::Actuate.after(ActuatorLogicPhases::PreActuate),
+                ActuatorLogicPhases::PostActuate.after(ActuatorLogicPhases::Actuate),
+            ),
+        );
     }
 }

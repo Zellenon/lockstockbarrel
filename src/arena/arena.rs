@@ -19,13 +19,7 @@ pub fn to_map(map: Vec<Vec<u8>>) -> ArenaMap {
 
 pub fn spawn_arena_from_map(commands: &mut Commands, level: &Arena) {
     let y_len = (level.arena_map.len() as f32) * level.resolution;
-    let x_len = (level
-        .arena_map
-        .iter()
-        .map(|w| w.len())
-        .max()
-        .unwrap() as f32)
-        * level.resolution;
+    let x_len = (level.arena_map.iter().map(|w| w.len()).max().unwrap() as f32) * level.resolution;
     let mut i = 0.;
     for row in level.arena_map.iter() {
         let mut j = 0.;

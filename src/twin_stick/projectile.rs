@@ -1,15 +1,23 @@
-use avian2d::prelude::{Collider, CollisionStarted, ExternalImpulse, LinearVelocity, Mass, RigidBody, SweptCcd};
+use avian2d::prelude::{
+    Collider, CollisionStarted, ExternalImpulse, LinearVelocity, Mass, RigidBody, SweptCcd,
+};
 use bevy::{
-    color::{palettes::css::RED, Color}, math::Vec3Swizzles, prelude::{
-        in_state, App, Commands, Component, DespawnRecursiveExt, Entity, Event,
-        EventReader, EventWriter, IntoSystemConfigs, Plugin,
-        Query, Reflect, Res, Transform, Update, Vec2, Visibility,
-    }, sprite::Sprite, time::{Time, Timer, TimerMode}, utils::default
+    color::{palettes::css::RED, Color},
+    math::Vec3Swizzles,
+    prelude::{
+        in_state, App, Commands, Component, DespawnRecursiveExt, Entity, Event, EventReader,
+        EventWriter, IntoSystemConfigs, Plugin, Query, Reflect, Res, Transform, Update, Vec2,
+        Visibility,
+    },
+    sprite::Sprite,
+    time::{Time, Timer, TimerMode},
+    utils::default,
 };
 use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree, wrappers::name};
+use bevy_stats::Stat;
 use std::time::Duration;
 
-use crate::states::TimerState;
+use crate::{game::stats::Knockback, states::TimerState};
 
 #[derive(Component, Clone, PartialEq, Eq, Reflect, Debug)]
 pub struct Lifespan(Timer);
@@ -47,9 +55,6 @@ impl Default for Projectile {
     }
 }
 
-#[derive(Component, Clone, Copy, PartialEq, Reflect, Debug)]
-pub struct Knockback(pub f32);
-
 pub fn projectile(lifespan: f32, projectile: Projectile) -> ComponentTree {
     (
         projectile,
@@ -63,8 +68,10 @@ pub fn projectile(lifespan: f32, projectile: Projectile) -> ComponentTree {
             color: Color::Srgba(RED),
             custom_size: Some(Vec2::new(6., 6.)),
             ..default()
-        }
-    ).store() + name("Projectile")
+        },
+    )
+        .store()
+        + name("Projectile")
 }
 
 #[derive(Event, Clone, Copy, PartialEq, Reflect, Debug)]
@@ -85,7 +92,6 @@ pub struct ProjectileClashEvent(pub Entity, pub Entity);
 
 pub fn projectile_plugin(app: &mut App) {
     app.add_event::<KnockbackEvent>();
-    // .add_system(projectile_impact)
     app.add_systems(
         Update,
         (
@@ -142,14 +148,13 @@ pub fn projectile_event_dispatcher(
             }
             (Err(_), Err(_)) => continue,
         };
-
     }
 }
 
 fn knockback_from_projectiles(
     mut knockback_events: EventWriter<KnockbackEvent>,
     mut projectile_events: EventReader<ProjectileImpactEvent>,
-    projectiles: Query<(&Knockback, Option<&LinearVelocity>)>,
+    projectiles: Query<(&Stat<Knockback>, Option<&LinearVelocity>)>,
     positions: Query<&Transform>,
 ) {
     for ProjectileImpactEvent {
@@ -157,16 +162,16 @@ fn knockback_from_projectiles(
         impacted,
     } in projectile_events.read()
     {
-        if let Ok((Knockback(knockback), vel)) = projectiles.get(*projectile) {
+        if let Ok((knockback, vel)) = projectiles.get(*projectile) {
             let hit_angle = positions.get(*projectile).unwrap().translation
-            - positions.get(*impacted).unwrap().translation;
+                - positions.get(*impacted).unwrap().translation;
             knockback_events.send(KnockbackEvent {
                 entity: *impacted,
                 direction: match vel {
-                    Some(LinearVelocity (linvel )) => hit_angle.xy() + *linvel,
+                    Some(LinearVelocity(linvel)) => hit_angle.xy() + *linvel,
                     None => hit_angle.xy(),
                 },
-                force: *knockback,
+                force: knockback.current_value(),
             });
         }
     }

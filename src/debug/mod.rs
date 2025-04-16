@@ -1,10 +1,19 @@
 use bevy::{
-    app::{Plugin, Update}, color::palettes::css::{GREEN, RED}, ecs::{query::With, system::Query}, gizmos::gizmos::Gizmos, input::keyboard::KeyCode, math::{Isometry2d, Vec2, Vec3Swizzles}, transform::components::GlobalTransform
+    app::{Plugin, Update},
+    color::palettes::css::{GREEN, RED},
+    ecs::{query::With, system::Query},
+    gizmos::gizmos::Gizmos,
+    input::keyboard::KeyCode,
+    math::{Isometry2d, Vec2, Vec3Swizzles},
+    transform::components::GlobalTransform,
 };
 use bevy_editor_pls::prelude::EditorPlugin;
 use grid::grid_system;
 
-use crate::action_system::{actuator::Actuator, triggers::{key_action::PlayerActionTrigger, propagation::ParentTrigger}};
+use crate::action_system::{
+    actuator::Actuator,
+    triggers::{key_action::PlayerActionTrigger, propagation::ParentTrigger},
+};
 
 pub struct DebugPlugin;
 pub mod grid;

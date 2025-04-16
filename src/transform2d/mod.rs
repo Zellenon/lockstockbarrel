@@ -1,4 +1,7 @@
-use bevy::{math::{ops::atan2, Affine2}, prelude::*};
+use bevy::{
+    math::{ops::atan2, Affine2},
+    prelude::*,
+};
 use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree};
 use std::fmt::Debug;
 

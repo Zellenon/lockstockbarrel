@@ -1,4 +1,8 @@
-use bevy::{color::{palettes::css::GREEN, Gray, LinearRgba}, math::{Isometry2d, UVec2, Vec2}, prelude::Gizmos};
+use bevy::{
+    color::{palettes::css::GREEN, Gray, LinearRgba},
+    math::{Isometry2d, UVec2, Vec2},
+    prelude::Gizmos,
+};
 
 pub(super) fn grid_system(mut gizmos: Gizmos) {
     gizmos

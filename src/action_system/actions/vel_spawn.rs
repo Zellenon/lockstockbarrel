@@ -1,16 +1,24 @@
-use std::f32;
-
 use avian2d::prelude::ExternalImpulse;
 use bevy::{
-    app::App, math::{Quat, Vec2}, prelude::{Commands, Component, Query, Transform, Trigger}, reflect::Reflect, transform::components::GlobalTransform
+    app::App,
+    math::{Quat, Vec2},
+    prelude::{Commands, Component, Query, Transform, Trigger},
+    reflect::Reflect,
+    transform::components::GlobalTransform,
 };
 use bevy_composable::{
     app_impl::{ComplexSpawnable, ComponentTreeable},
     tree::ComponentTree,
 };
 use bevy_stats::Stat;
+use std::f32;
 
-use crate::{action_system::actuator::Actuate, game::stats::{Accuracy, ProjectileSpeed}, transform2d::To2D, util::add_observer_to_component};
+use crate::{
+    action_system::actuator::Actuate,
+    game::stats::{Accuracy, ProjectileSpeed},
+    transform2d::To2D,
+    util::add_observer_to_component,
+};
 
 #[derive(Clone, Copy, Debug, Reflect, PartialEq)]
 pub struct AngleOffset(pub Vec2);
@@ -51,13 +59,20 @@ pub fn vel_spawn<T: Into<AngleOffset>>(tree: ComponentTree, angle: T) -> Compone
     VelSpawnAction::spawn(tree, angle).store()
 }
 
-pub fn vel_spawns<A: Into<AngleOffset>, T: Iterator<Item = (ComponentTree, A)>>(trees: T) -> ComponentTree {
+pub fn vel_spawns<A: Into<AngleOffset>, T: Iterator<Item = (ComponentTree, A)>>(
+    trees: T,
+) -> ComponentTree {
     VelSpawnAction::spawns(trees).store()
 }
 
 pub fn do_vel_spawn_action(
     trigger: Trigger<Actuate>,
-    spawners: Query<(&VelSpawnAction, &GlobalTransform, Option<&Stat<ProjectileSpeed>>, Option<&Stat<Accuracy>>)>,
+    spawners: Query<(
+        &VelSpawnAction,
+        &GlobalTransform,
+        Option<&Stat<ProjectileSpeed>>,
+        Option<&Stat<Accuracy>>,
+    )>,
     mut commands: Commands,
 ) {
     if let Ok((spawn_action, transform, speed, accuracy)) = spawners.get(trigger.entity()) {
@@ -66,17 +81,22 @@ pub fn do_vel_spawn_action(
             let spawned_transform = Transform {
                 translation,
                 rotation: rotation * Quat::from_2d(angle_offset.0.to_angle()),
-                scale
+                scale,
             };
 
             commands.compose(
-                payload.clone() + (
-                    spawned_transform,
-                    ExternalImpulse::new(
-                        Vec2::from_angle(rotation.to_2d() + angle_offset.0.to_angle() + f32::consts::FRAC_PI_2)
-                        * speed.map(|w| w.current_value()).unwrap_or(10.0)
+                payload.clone()
+                    + (
+                        spawned_transform,
+                        ExternalImpulse::new(
+                            Vec2::from_angle(
+                                rotation.to_2d()
+                                    + angle_offset.0.to_angle()
+                                    + f32::consts::FRAC_PI_2,
+                            ) * speed.map(|w| w.current_value()).unwrap_or(10.0),
+                        ),
                     )
-                ).store()
+                        .store(),
             );
         }
     }
