@@ -1,0 +1,3 @@
+- [https://docs.rs/avian2d/latest/avian2d/index.html#why-does-movement-look-choppy]{Smooth physics}
+- [https://docs.rs/avian2d/latest/avian2d/index.html#why-does-movement-look-choppy](Replace Transform with Pos/Rot when possible)(Replace Transform with Pos/Rot when possible)
+    - Fix weird projectile knockback directions
