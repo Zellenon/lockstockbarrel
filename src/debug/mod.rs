@@ -1,3 +1,4 @@
+use arrows::{display_arrows, Arrows};
 use bevy::{
     app::{Plugin, Update},
     color::palettes::css::{GREEN, RED},
@@ -16,18 +17,20 @@ use crate::action_system::{
 };
 
 pub struct DebugPlugin;
+pub mod arrows;
 pub mod grid;
 
 impl Plugin for DebugPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         // #[cfg(feature = "editor")]
         app.add_plugins(EditorPlugin::new());
+        app.init_resource::<Arrows>();
         //    .insert_resource(default_editor_controls());
 
         #[cfg(feature = "physdebug")]
         app.add_plugin(RapierDebugRenderPlugin::default());
 
-        app.add_systems(Update, (test_display, grid_system));
+        app.add_systems(Update, (test_display, grid_system, display_arrows));
     }
 }
 

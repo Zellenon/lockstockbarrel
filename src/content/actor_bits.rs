@@ -1,12 +1,17 @@
 use crate::{
     assets::images::ImageResources,
     game::stats::{Health, MoveSpeed},
-    twin_stick::actors::{ActorBundle, Legs, Tracking},
+    twin_stick::{
+        actors::{Actor, Legs, Tracking},
+        physics::GamePhysicsLayer as GPL,
+    },
     util::{image, GimmieFn},
 };
+use avian2d::prelude::{Collider, CollisionLayers, LinearDamping, LockedAxes, Mass, RigidBody};
 use bevy::{
     image::Image,
     prelude::{Transform, Vec2},
+    render::view::{InheritedVisibility, Visibility},
     sprite::Sprite,
 };
 use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree, wrappers::name};
@@ -14,9 +19,21 @@ use bevy_stats::{Resource, Stat};
 
 pub fn basic_actor() -> ComponentTree {
     (
-        ActorBundle::default(),
+        Actor::default(),
+        Visibility::Visible,
+        Transform::default(),
+        RigidBody::Dynamic,
+        Mass(100.0),
+        LinearDamping(13.),
+        Collider::circle(15.),
+        LockedAxes::ROTATION_LOCKED,
+        InheritedVisibility::default(),
         Stat::<MoveSpeed>::new(70.),
-        Resource::<Health>::new(50.),
+        Resource::<Health>::new(5.),
+        CollisionLayers::new(
+            GPL::Enemy,
+            [GPL::Enemy, GPL::Player, GPL::MapSolid, GPL::MapDynamic],
+        ),
     )
         .store()
         + name("actor")

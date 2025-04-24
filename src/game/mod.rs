@@ -62,7 +62,7 @@ fn test_load_level(mut commands: Commands) {
             + spawn_prox(
                 1 << PLAYER_FACTION,
                 200.,
-                spawn_delay(1.0, stumbler() + Stat::<MoveSpeed>::new(10.).store()) + telegraphed(),
+                spawn_delay(1.0, stumbler() + Stat::<MoveSpeed>::new(0.1).store()) + telegraphed(),
             )
             + telegraphed(),
     );
