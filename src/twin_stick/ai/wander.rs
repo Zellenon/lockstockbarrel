@@ -46,7 +46,7 @@ impl Default for PerlinWanderAI {
         PerlinWanderAI {
             angle_delta: 0.,
             strength_delta: 0.,
-            angle_speed: 1.,
+            angle_speed: 1.2,
             strength_speed: 1.,
             min_strength: 0.,
             max_strength: 1.,
