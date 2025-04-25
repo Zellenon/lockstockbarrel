@@ -2,7 +2,10 @@ use std::time::Duration;
 
 use bevy::{
     app::{App, FixedUpdate, Plugin},
-    color::palettes::css::{GREEN, YELLOW},
+    color::{
+        palettes::css::{GREEN, LIME, YELLOW},
+        Alpha,
+    },
     ecs::{
         component::Component,
         entity::Entity,
@@ -225,20 +228,6 @@ pub fn magic_tracking(
         });
 }
 
-pub fn display_tracks(
-    player: Query<(Entity, &Tracking), With<Player>>,
-    mut gizmos: Gizmos,
-    vis_obj: Query<&Transform, VisionObjects>,
-) {
-    if let Ok((e, Tracking(tracking))) = player.get_single() {
-        for tracked in tracking.iter().filter(|w| **w != e) {
-            if let Ok(pos) = vis_obj.get(*tracked) {
-                gizmos.rect_2d(pos.translation.xy(), Vec2::new(30., 30.), GREEN);
-            }
-        }
-    }
-}
-
 pub fn identify_los(mut seers: Query<(&LOS, &mut Identifying)>, time: Res<Time>) {
     for (los, mut identifying) in seers.iter_mut() {
         for target in los.0.iter() {
@@ -279,7 +268,25 @@ pub fn display_los(
     if let Ok((e, LOS(los))) = player.get_single() {
         for seen in los.iter().filter(|w| **w != e) {
             if let Ok(pos) = vis_obj.get(*seen) {
-                gizmos.cross_2d(pos.translation.xy(), 20., YELLOW);
+                gizmos.rect_2d(pos.translation.xy(), Vec2::splat(20.), YELLOW);
+            }
+        }
+    }
+}
+
+pub fn display_tracks(
+    player: Query<(Entity, &Tracking), With<Player>>,
+    mut gizmos: Gizmos,
+    vis_obj: Query<&Transform, VisionObjects>,
+) {
+    if let Ok((e, Tracking(tracking))) = player.get_single() {
+        for tracked in tracking.iter().filter(|w| **w != e) {
+            if let Ok(pos) = vis_obj.get(*tracked) {
+                gizmos.rect_2d(
+                    pos.translation.xy(),
+                    Vec2::new(30., 30.),
+                    LIME.with_alpha(0.5),
+                );
             }
         }
     }
