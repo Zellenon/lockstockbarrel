@@ -2,7 +2,7 @@ use crate::{
     assets::images::ImageResources,
     game::stats::MoveSpeed,
     twin_stick::{
-        actors::{Faction, PLAYER_FACTION},
+        actors::{basic_actor, Faction, PLAYER_FACTION},
         ai::keyboard::{create_player_action_input_manager_bundle, KeyboardAI},
         physics::GamePhysicsLayer as GPL,
         player::{Cursor, Player},
@@ -19,7 +19,7 @@ use bevy_composable::{
 use bevy_stats::Stat;
 
 use super::{
-    actor_bits::{basic_actor, basic_head, basic_legs},
+    actor_bits::{basic_head, basic_legs},
     util::tracking,
     weapons::peashooter,
 };

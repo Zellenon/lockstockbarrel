@@ -1,25 +1,26 @@
-use crate::transform2d::To2D;
 use avian2d::prelude::{
-    Collider, ExternalForce, ExternalImpulse, LinearDamping, LinearVelocity, LockedAxes, Mass,
-    RigidBody,
+    Collider, CollisionLayers, ExternalForce, ExternalImpulse, LinearDamping, LinearVelocity,
+    LockedAxes, Mass, RigidBody,
 };
 use bevy::{
     math::{Quat, Vec3, Vec3Swizzles},
     prelude::{
-        in_state, App, Bundle, Changed, Commands, Component, DespawnRecursiveExt, Entity,
-        GlobalTransform, InheritedVisibility, IntoSystemConfigs, Parent, Query, Transform, Update,
-        Vec2, Visibility, With, Without,
+        in_state, App, Changed, Commands, Component, DespawnRecursiveExt, Entity, GlobalTransform,
+        InheritedVisibility, IntoSystemConfigs, Parent, Query, Transform, Update, Vec2, Visibility,
+        With, Without,
     },
     reflect::Reflect,
 };
+use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree, wrappers::name};
 use bevy_stats::{Resource, Stat};
 
+use super::{physics::GamePhysicsLayer as GPL, player::Player};
 use crate::{
     game::stats::{Health, MoveSpeed},
     states::TimerState,
+    transform2d::To2D,
+    vision::{self, Identifying, Spotting},
 };
-
-use super::player::Player;
 
 #[derive(Clone, Copy, PartialEq, Reflect, Debug, Component)]
 pub struct Actor {
@@ -30,10 +31,10 @@ pub struct Actor {
 #[derive(Clone, Copy, PartialEq, Eq, Reflect, Debug, Component)]
 pub struct Faction(pub usize);
 
+pub const UNIVERSAL_NEUTRAL_FACTION: usize = 0;
 pub const PLAYER_FACTION: usize = 1;
 pub const MISC_ENEMY_FACTION: usize = 2;
 // Should universal neutral just be no faction component?
-// pub const UNIVERSAL_NEUTRAL_FACTION: u16 = 0;
 
 impl Default for Actor {
     fn default() -> Self {
@@ -42,6 +43,31 @@ impl Default for Actor {
             desired_target: None,
         }
     }
+}
+
+pub fn basic_actor() -> ComponentTree {
+    (
+        Actor::default(),
+        Visibility::Hidden,
+        InheritedVisibility::default(),
+        vision::Tracking::default(),
+        Spotting::default(),
+        Identifying::default(),
+        Transform::default(),
+        RigidBody::Dynamic,
+        Mass(10.0),
+        LinearDamping(3.),
+        Collider::circle(15.),
+        LockedAxes::ROTATION_LOCKED,
+        Stat::<MoveSpeed>::new(50.),
+        Resource::<Health>::new(5.),
+        CollisionLayers::new(
+            GPL::Enemy,
+            [GPL::Enemy, GPL::Player, GPL::MapSolid, GPL::MapDynamic],
+        ),
+    )
+        .store()
+        + name("actor")
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Reflect, Debug, Component)]
@@ -141,9 +167,8 @@ fn animate_legs(
 pub fn actor_movement(mut enemies: Query<(&mut ExternalForce, &Actor, &Stat<MoveSpeed>)>) {
     for (mut force, actor, speed) in enemies.iter_mut() {
         (force.x, force.y) = {
-            let vec = Vec2::clamp_length_max(actor.desired_direction, 1.)
-                * speed.current_value()
-                * 12500.;
+            let vec =
+                Vec2::clamp_length_max(actor.desired_direction, 1.) * speed.current_value() * 600.;
             (vec.x, vec.y)
         };
     }

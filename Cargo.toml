@@ -12,10 +12,11 @@ bevy_egui = { version = "0.33", features = ["immutable_ctx"]}
 avian2d = "0.2"
 # avian2d = {git = "https://github.com/Jondolf/avian"}
 serde = "1.0"
-strum = "0.26"
-strum_macros = "0.26"
+strum = "0.27"
+strum_macros = "0.27"
 bevy_asset_loader = "0.22"
 leafwing-input-manager = { version = "0.16", features = ["egui"] }
+itertools = "0.14"
 
 bevy_composable = {git = "https://github.com/Zellenon/bevy_composable.git"}
 bevy_stats = {git = "https://github.com/Zellenon/bevy_stats.git"}

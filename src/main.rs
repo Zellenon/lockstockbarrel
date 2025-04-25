@@ -13,6 +13,7 @@ use game::GamePlugin;
 use states::StatePlugin;
 use twin_stick::TwinStickPlugin;
 use util::UtilPlugin;
+use vision::VisionPlugin;
 
 mod action_system;
 mod arena;
@@ -26,6 +27,7 @@ mod transform2d;
 mod twin_stick;
 mod ui;
 mod util;
+mod vision;
 
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut app = App::new();
@@ -55,6 +57,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     app.add_plugins(GamePlugin);
     app.add_plugins(DebugPlugin);
     app.add_plugins(UtilPlugin);
+    app.add_plugins(VisionPlugin);
 
     app.insert_resource(ClearColor(Color::srgb(0.7, 0.7, 0.7)));
     app.run();
