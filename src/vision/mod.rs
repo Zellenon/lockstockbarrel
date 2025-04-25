@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use bevy::{
     app::{App, FixedUpdate, Plugin},
-    color::palettes::css::GREEN,
+    color::palettes::css::{GREEN, YELLOW},
     ecs::{
         component::Component,
         entity::Entity,
@@ -17,7 +17,7 @@ use bevy::{
     render::view::Visibility,
     time::{Time, Timer, TimerMode},
     transform::components::{GlobalTransform, Transform},
-    utils::{Entry, HashMap, HashSet},
+    utils::{hashbrown::hash_set, Entry, HashMap, HashSet},
 };
 use itertools::Itertools;
 
@@ -26,6 +26,9 @@ use crate::twin_stick::{
     map::Prop,
     player::Player,
 };
+
+#[derive(Component, Default, Reflect, Clone, Debug)]
+pub struct LOS(pub HashSet<Entity>);
 
 #[derive(Component, Default, Reflect, Clone, Debug)]
 pub struct Identifying(pub HashMap<Entity, f32>);
@@ -65,11 +68,13 @@ impl Plugin for VisionPlugin {
             ),
         );
 
+        app.add_systems(FixedUpdate, (update_los).in_set(VisionSystems::LoS));
+
         app.add_systems(
             FixedUpdate,
             (
                 always_track_allies,
-                magic_spotting,
+                do_los_spotting,
                 magic_tracking,
                 (tick_spotting, remove_expired_spots).chain(),
             )
@@ -81,7 +86,7 @@ impl Plugin for VisionPlugin {
             (
                 reveal_player_awareness,
                 sync_revealed_objects_visible,
-                display_tracks,
+                (display_tracks, display_los),
             )
                 .in_set(VisionSystems::RevealLogic),
         );
@@ -162,34 +167,17 @@ pub fn remove_expired_spots(mut query: Query<&mut Spotting>) {
     }
 }
 
-pub fn magic_spotting(
-    mut query: Query<&mut Spotting>,
-    positions: Query<(Entity, &Transform), VisionObjects>,
-) {
-    positions
-        .iter()
-        .map(|(e, transform)| (e, transform.translation))
-        .permutations(2)
-        .map(|w| w.into_iter().collect_tuple().unwrap())
-        .filter(|((e1, t1), (e2, t2))| t1.distance(*t2) < 300.)
-        .for_each(|((e1, t1), (e2, t2))| {
-            if let Ok(mut spot) = query.get_mut(e1) {
-                match spot.0.entry(e2) {
-                    Entry::Occupied(occupied_entry) => occupied_entry.into_mut().reset(),
-                    Entry::Vacant(vacant_entry) => {
-                        vacant_entry.insert(Timer::new(Duration::from_secs(3), TimerMode::Once));
-                    }
-                };
-            }
-            if let Ok(mut spot) = query.get_mut(e2) {
-                match spot.0.entry(e1) {
-                    Entry::Occupied(occupied_entry) => occupied_entry.into_mut().reset(),
-                    Entry::Vacant(vacant_entry) => {
-                        vacant_entry.insert(Timer::new(Duration::from_secs(3), TimerMode::Once));
-                    }
-                };
-            }
-        });
+pub fn do_los_spotting(mut spotters: Query<(&mut Spotting, &LOS)>) {
+    for (mut spotter, LOS(los)) in spotters.iter_mut() {
+        for seen_obj in los.iter() {
+            match spotter.0.entry(*seen_obj) {
+                Entry::Occupied(occupied_entry) => occupied_entry.into_mut().reset(),
+                Entry::Vacant(vacant_entry) => {
+                    vacant_entry.insert(Timer::new(Duration::from_secs(3), TimerMode::Once));
+                }
+            };
+        }
+    }
 }
 
 pub fn magic_tracking(
@@ -224,7 +212,36 @@ pub fn display_tracks(
     if let Ok((e, Tracking(tracking))) = player.get_single() {
         for tracked in tracking.iter().filter(|w| **w != e) {
             if let Ok(pos) = vis_obj.get(*tracked) {
-                gizmos.rect_2d(pos.translation.xy(), Vec2::new(20., 20.), GREEN);
+                gizmos.rect_2d(pos.translation.xy(), Vec2::new(30., 30.), GREEN);
+            }
+        }
+    }
+}
+
+pub fn update_los(
+    mut seers: Query<(Entity, &mut LOS)>,
+    positions: Query<(Entity, &Transform), VisionObjects>,
+) {
+    for (e1, mut seer) in seers.iter_mut() {
+        let t1 = positions.get(e1).unwrap().1.translation;
+        seer.0 = positions
+            .iter()
+            .map(|(e, transform)| (e, transform.translation))
+            .filter(|(_e2, t2)| t1.distance(*t2) < 300.)
+            .map(|(e2, _t2)| e2)
+            .collect()
+    }
+}
+
+pub fn display_los(
+    player: Query<(Entity, &LOS), With<Player>>,
+    mut gizmos: Gizmos,
+    vis_obj: Query<&Transform, VisionObjects>,
+) {
+    if let Ok((e, LOS(los))) = player.get_single() {
+        for seen in los.iter().filter(|w| **w != e) {
+            if let Ok(pos) = vis_obj.get(*seen) {
+                gizmos.cross_2d(pos.translation.xy(), 20., YELLOW);
             }
         }
     }

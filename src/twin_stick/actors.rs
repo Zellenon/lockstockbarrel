@@ -19,7 +19,7 @@ use crate::{
     game::stats::{Health, MoveSpeed},
     states::TimerState,
     transform2d::To2D,
-    vision::{self, Identifying, Spotting},
+    vision::{self, Identifying, Spotting, LOS},
 };
 
 #[derive(Clone, Copy, PartialEq, Reflect, Debug, Component)]
@@ -67,6 +67,7 @@ pub fn basic_actor() -> ComponentTree {
         ),
     )
         .store()
+        + (LOS::default()).store()
         + name("actor")
 }
 
