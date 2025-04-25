@@ -11,7 +11,7 @@ use bevy::{
         entity::Entity,
         query::{Or, With, Without},
         schedule::{IntoSystemConfigs, SystemSet},
-        system::{Commands, Query, Res},
+        system::{Commands, Query, Res, ResMut},
     },
     gizmos::gizmos::Gizmos,
     math::{Vec2, Vec3Swizzles},
@@ -22,6 +22,7 @@ use bevy::{
     transform::components::{GlobalTransform, Transform},
     utils::{hashbrown::hash_set, Entry, HashMap, HashSet},
 };
+use bevy_turborand::{DelegatedRng, GlobalRng};
 use itertools::Itertools;
 
 use crate::twin_stick::{
@@ -264,11 +265,19 @@ pub fn display_los(
     player: Query<(Entity, &LOS), With<Player>>,
     mut gizmos: Gizmos,
     vis_obj: Query<&Transform, VisionObjects>,
+    mut rng: ResMut<GlobalRng>,
 ) {
+    let pos_offset = Vec2::new(rng.f32_normalized(), rng.f32_normalized()) * 0.5;
+    let size_offset = rng.f32_normalized() * 0.5;
+    let alpha = rng.f32() * 0.7 + 0.3;
     if let Ok((e, LOS(los))) = player.get_single() {
         for seen in los.iter().filter(|w| **w != e) {
             if let Ok(pos) = vis_obj.get(*seen) {
-                gizmos.rect_2d(pos.translation.xy(), Vec2::splat(20.), YELLOW);
+                gizmos.rect_2d(
+                    pos.translation.xy() + pos_offset,
+                    Vec2::splat(20. + size_offset),
+                    YELLOW.with_alpha(alpha),
+                );
             }
         }
     }
@@ -282,11 +291,7 @@ pub fn display_tracks(
     if let Ok((e, Tracking(tracking))) = player.get_single() {
         for tracked in tracking.iter().filter(|w| **w != e) {
             if let Ok(pos) = vis_obj.get(*tracked) {
-                gizmos.rect_2d(
-                    pos.translation.xy(),
-                    Vec2::new(30., 30.),
-                    LIME.with_alpha(0.5),
-                );
+                gizmos.rect_2d(pos.translation.xy(), Vec2::splat(30.), LIME.with_alpha(0.5));
             }
         }
     }
