@@ -74,7 +74,9 @@ impl Plugin for VisionPlugin {
             FixedUpdate,
             (
                 always_track_allies,
+                always_identify_tracked,
                 do_los_spotting,
+                identify_los,
                 magic_tracking,
                 (tick_spotting, remove_expired_spots).chain(),
             )
@@ -111,12 +113,14 @@ pub fn sync_revealed_objects_visible(
 
 pub fn reveal_player_awareness(
     mut commands: Commands,
-    player: Query<(&Tracking, &Spotting), With<Player>>,
+    player: Query<(&Tracking, &Spotting, &Identifying), With<Player>>,
     objects: Query<(Entity, Option<&Revealed>), VisionObjects>,
 ) {
-    if let Ok((player_tracking, player_spotting)) = player.get_single() {
-        let should_be_revealed =
-            |e: &Entity| player_tracking.0.contains(e) || player_spotting.0.contains_key(e);
+    if let Ok((tracking, spotting, identify)) = player.get_single() {
+        let should_be_revealed = |e: &Entity| {
+            (tracking.0.contains(e) || spotting.0.contains_key(e))
+                && *identify.0.get(e).unwrap_or(&0.) >= 100.
+        };
         let (revealed, unrevealed): (Vec<_>, Vec<_>) =
             objects.iter().partition(|(_, w)| w.is_some());
         for (e, _) in revealed {
@@ -143,6 +147,23 @@ pub fn always_track_allies(
         {
             if !tracking.0.contains(&entity) {
                 tracking.0.insert(entity);
+            }
+        }
+    }
+}
+
+pub fn always_identify_tracked(mut trackers: Query<(&Tracking, &mut Identifying)>) {
+    for (tracking, mut ident) in trackers.iter_mut() {
+        for entity in tracking.0.iter() {
+            match ident.0.entry(*entity) {
+                Entry::Occupied(mut occupied_entry) => {
+                    if *occupied_entry.get() < 100. {
+                        occupied_entry.insert(100.);
+                    }
+                }
+                Entry::Vacant(vacant_entry) => {
+                    vacant_entry.insert(100.);
+                }
             }
         }
     }
@@ -213,6 +234,23 @@ pub fn display_tracks(
         for tracked in tracking.iter().filter(|w| **w != e) {
             if let Ok(pos) = vis_obj.get(*tracked) {
                 gizmos.rect_2d(pos.translation.xy(), Vec2::new(30., 30.), GREEN);
+            }
+        }
+    }
+}
+
+pub fn identify_los(mut seers: Query<(&LOS, &mut Identifying)>, time: Res<Time>) {
+    for (los, mut identifying) in seers.iter_mut() {
+        for target in los.0.iter() {
+            match identifying.0.entry(*target) {
+                Entry::Occupied(mut occupied_entry) => {
+                    occupied_entry.insert(
+                        (occupied_entry.get() + time.delta().as_secs_f32() * 10.).min(100.),
+                    );
+                }
+                Entry::Vacant(vacant_entry) => {
+                    vacant_entry.insert(0.);
+                }
             }
         }
     }
