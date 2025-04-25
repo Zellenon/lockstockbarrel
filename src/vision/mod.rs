@@ -21,7 +21,11 @@ use bevy::{
 };
 use itertools::Itertools;
 
-use crate::twin_stick::{actors::Actor, map::Prop, player::Player};
+use crate::twin_stick::{
+    actors::{Actor, Faction, PLAYER_FACTION},
+    map::Prop,
+    player::Player,
+};
 
 #[derive(Component, Default, Reflect, Clone, Debug)]
 pub struct Identifying(pub HashMap<Entity, f32>);
@@ -64,7 +68,7 @@ impl Plugin for VisionPlugin {
         app.add_systems(
             FixedUpdate,
             (
-                always_track_self,
+                always_track_allies,
                 magic_spotting,
                 magic_tracking,
                 (tick_spotting, remove_expired_spots).chain(),
@@ -123,10 +127,18 @@ pub fn reveal_player_awareness(
     }
 }
 
-pub fn always_track_self(mut query: Query<(Entity, &mut Tracking)>) {
-    for (entity, mut tracking) in query.iter_mut() {
-        if !tracking.0.contains(&entity) {
-            tracking.0.insert(entity);
+pub fn always_track_allies(
+    mut player: Query<&mut Tracking, With<Player>>,
+    allies: Query<(Entity, &Faction)>,
+) {
+    if let Ok(mut tracking) = player.get_single_mut() {
+        for (entity, _) in allies
+            .iter()
+            .filter(|(e, faction)| faction.0 == PLAYER_FACTION)
+        {
+            if !tracking.0.contains(&entity) {
+                tracking.0.insert(entity);
+            }
         }
     }
 }
