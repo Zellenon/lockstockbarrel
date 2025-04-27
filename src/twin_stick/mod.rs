@@ -1,12 +1,15 @@
-use actors::actor_plugin;
-use ai::AIPlugin;
-use avian2d::{prelude::Gravity, PhysicsPlugins};
+use avian2d::{
+    prelude::{Gravity, PhysicsInterpolationPlugin},
+    PhysicsPlugins,
+};
 use bevy::{
     math::Vec2,
-    prelude::{App, Plugin},
+    prelude::{App, Plugin, PluginGroup},
 };
-
 use bevy_turborand::prelude::RngPlugin;
+
+use actors::actor_plugin;
+use ai::AIPlugin;
 use camera::CameraPlugin;
 use player::player_plugin;
 use projectile::projectile_plugin;
@@ -27,7 +30,10 @@ pub struct TwinStickPlugin;
 
 impl Plugin for TwinStickPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins((RngPlugin::default(), PhysicsPlugins::default()));
+        app.add_plugins((
+            RngPlugin::default(),
+            PhysicsPlugins::default().set(PhysicsInterpolationPlugin::interpolate_all()),
+        ));
         app.insert_resource(Gravity(Vec2::ZERO));
 
         actor_plugin(app);

@@ -16,14 +16,13 @@ use bevy_stats::{
     ResourceChangeEvent, Stat,
 };
 
-use crate::{
-    game::stats::{Damage, Health, Knockback},
-    states::TimerState,
-};
-
 use super::{
     actors::Actor,
     events::{AttackEvent, DamageEvent, KnockbackEvent},
+};
+use crate::{
+    game::stats::{Damage, Health, Knockback},
+    states::TimerState,
 };
 
 #[derive(Component, Reflect, Debug, Clone, Copy, PartialEq, PartialOrd, Ord, Eq, Hash)]

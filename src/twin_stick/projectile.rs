@@ -2,7 +2,7 @@ use avian2d::prelude::{Collider, CollisionStarted, LinearVelocity, Mass, RigidBo
 use bevy::{
     color::{palettes::css::RED, Color},
     ecs::{schedule::SystemSet, system::ResMut},
-    hierarchy::Parent,
+    hierarchy::{HierarchyQueryExt, Parent},
     math::{Vec2Swizzles, Vec3Swizzles},
     prelude::{
         in_state, App, Commands, Component, DespawnRecursiveExt, Entity, Event, EventReader,
@@ -15,12 +15,8 @@ use bevy::{
 use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree, wrappers::name};
 use std::time::Duration;
 
-use super::events::AttackEvent;
-use crate::{
-    action_system::actions::spawn::SpawnedBy,
-    debug::arrows::{Arrow, Arrows},
-    states::TimerState,
-};
+use super::{actors::Actor, events::AttackEvent, weapons::Weapon};
+use crate::{action_system::actions::spawn::SpawnedBy, states::TimerState};
 
 #[derive(Debug, SystemSet, Reflect, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct ProjectileSystems;
@@ -157,13 +153,15 @@ pub fn projectile_collision_event_dispatcher(
     }
 }
 
+//TODO: Attack directions are still incorrect
 fn projectile_hits_trigger_attacks(
     mut projectile_events: EventReader<ProjectileImpactEvent>,
     mut attack_events: EventWriter<AttackEvent>,
     transforms: Query<&Transform>,
     bullets: Query<(&SpawnedBy, Option<&LinearVelocity>)>,
-    gun_owners: Query<&Parent>,
-    mut arrows: ResMut<Arrows>,
+    parents: Query<&Parent>,
+    weapons: Query<&Weapon>,
+    actors: Query<&Actor>,
 ) {
     for ProjectileImpactEvent {
         projectile,
@@ -176,26 +174,29 @@ fn projectile_hits_trigger_attacks(
         );
         let location = projectile_pos.translation.xy();
         if let Ok((SpawnedBy(spawner), velocity)) = bullets.get(*projectile) {
-            let (weapon, attacker): (&Entity, &Entity) = match gun_owners.get(*spawner) {
-                Ok(owner) => (spawner, &*owner),
-                Err(_) => (spawner, spawner),
-            };
+            let weapon = std::iter::once(*spawner)
+                .chain(parents.iter_ancestors(*spawner))
+                .filter(|w| weapons.get(*w).is_ok())
+                .next();
+            let attacker = std::iter::once(*spawner)
+                .chain(parents.iter_ancestors(*spawner))
+                .filter(|w| actors.get(*w).is_ok())
+                .next();
             let direction = match velocity {
                 Some(vel) => vel.yx(),
                 None => (target_pos.translation.xy() - location).normalize(),
             };
-            arrows.0.push(Arrow {
-                position: location,
-                direction,
-                duration: Timer::default(),
-            });
-            attack_events.send(AttackEvent {
-                attacker: *attacker,
-                weapon: *weapon,
-                defender: *impacted,
-                location,
-                direction,
-            });
+            if let (Some(attacker), Some(weapon)) = (attacker, weapon) {
+                attack_events.send(AttackEvent {
+                    attacker,
+                    weapon,
+                    defender: *impacted,
+                    location,
+                    direction,
+                });
+            } else {
+                println!("ATTACK EVENT NOT SENT. {:?}, {:?}", attacker, weapon);
+            }
         }
     }
 }

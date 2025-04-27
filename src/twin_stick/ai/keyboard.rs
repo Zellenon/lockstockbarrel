@@ -35,8 +35,8 @@ impl Actionlike for PlayerAction {
 pub(crate) fn create_player_action_input_manager_bundle() -> InputManagerBundle<PlayerAction> {
     InputManagerBundle::with_map(
         InputMap::new([
-            (PlayerAction::Shoot3, KeyCode::ShiftLeft),
-            (PlayerAction::Shoot4, KeyCode::KeyF),
+            (PlayerAction::Shoot3, KeyCode::Space),
+            (PlayerAction::Shoot4, KeyCode::ShiftLeft),
         ])
         .with(PlayerAction::Shoot1, MouseButton::Left)
         .with(PlayerAction::Shoot2, MouseButton::Right)

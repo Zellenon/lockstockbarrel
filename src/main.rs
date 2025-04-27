@@ -5,6 +5,7 @@ use assets::AssetPlugin;
 use bevy::{
     app::App,
     prelude::{default, ClearColor, Color, PluginGroup},
+    time::{Fixed, Time},
     window::{Window, WindowPlugin},
     DefaultPlugins,
 };
@@ -59,7 +60,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     app.add_plugins(UtilPlugin);
     app.add_plugins(VisionPlugin);
 
-    app.insert_resource(ClearColor(Color::srgb(0.7, 0.7, 0.7)));
+    app.insert_resource(ClearColor(Color::srgb(0.0, 0.0, 0.0)));
     app.run();
 
     Ok(())

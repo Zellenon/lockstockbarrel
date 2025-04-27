@@ -1,14 +1,45 @@
 use bevy::{
-    ecs::{entity::Entity, query::With, system::Query},
-    transform::components::Transform,
+    app::{App, FixedUpdate},
+    ecs::{
+        component::Component,
+        entity::Entity,
+        event::{EventReader, EventWriter},
+        query::With,
+        schedule::IntoSystemConfigs,
+        system::Query,
+    },
+    reflect::Reflect,
+    utils::HashSet,
 };
-use itertools::Itertools;
 
-use super::{Tracking, VisionObjects};
+use super::{
+    events::{NewTrackEvent, TrackEvent},
+    VisionObjects, VisionSystems,
+};
 use crate::twin_stick::{
     actors::{Faction, PLAYER_FACTION},
+    events::AttackEvent,
     player::Player,
 };
+
+#[derive(Component, Default, Reflect, Clone, Debug)]
+pub struct Tracking(pub HashSet<Entity>);
+
+#[derive(Component, Reflect, Clone, Copy, PartialEq, Debug)]
+pub struct TrackAttack;
+
+pub fn track_plugin(app: &mut App) {
+    app.register_type::<Tracking>();
+
+    app.add_systems(
+        FixedUpdate,
+        (
+            always_track_allies,
+            (do_track_attacks, receive_track_events).chain(),
+        )
+            .in_set(VisionSystems::SpotTrack),
+    );
+}
 
 pub fn always_track_allies(
     mut player: Query<&mut Tracking, With<Player>>,
@@ -26,26 +57,57 @@ pub fn always_track_allies(
     }
 }
 
-pub fn magic_tracking(
-    mut query: Query<&mut Tracking>,
-    positions: Query<(Entity, &Transform), VisionObjects>,
+pub fn do_track_attacks(
+    mut attack_events: EventReader<AttackEvent>,
+    mut track_events: EventWriter<TrackEvent>,
+    trackers: Query<Entity, With<Tracking>>,
+    track_attacks: Query<Entity, With<TrackAttack>>,
+    vision_objects: Query<Entity, VisionObjects>,
 ) {
-    positions
-        .iter()
-        .map(|(e, transform)| (e, transform.translation))
-        .permutations(2)
-        .map(|w| w.into_iter().collect_tuple().unwrap())
-        .filter(|((_e1, t1), (_e2, t2))| t1.distance(*t2) < 150.)
-        .for_each(|((e1, _t1), (e2, _t2))| {
-            if let Ok(mut track) = query.get_mut(e1) {
-                if !track.0.contains(&e2) {
-                    track.0.insert(e2);
+    for AttackEvent {
+        attacker,
+        weapon,
+        defender,
+        location,
+        direction,
+    } in attack_events.read()
+    {
+        println!("A");
+        if let Ok(_) = track_attacks.get(*weapon) {
+            println!("B");
+            if let Ok(_) = vision_objects.get(*defender) {
+                println!("C");
+                println!("{:?}", attacker);
+                if let Ok(_) = trackers.get(*attacker) {
+                    println!("D");
+                    track_events.send(TrackEvent {
+                        tracker: *attacker,
+                        target: *defender,
+                    });
                 }
             }
-            if let Ok(mut track) = query.get_mut(e2) {
-                if !track.0.contains(&e1) {
-                    track.0.insert(e1);
-                }
+        }
+    }
+}
+
+pub fn receive_track_events(
+    mut track_events: EventReader<TrackEvent>,
+    mut new_events: EventWriter<NewTrackEvent>,
+    mut trackers: Query<&mut Tracking>,
+) {
+    for TrackEvent {
+        tracker: tracker_e,
+        target,
+    } in track_events.read()
+    {
+        if let Ok(mut tracker) = trackers.get_mut(*tracker_e) {
+            if !tracker.0.contains(target) {
+                tracker.0.insert(*target);
+                new_events.send(NewTrackEvent {
+                    tracker: *tracker_e,
+                    target: *target,
+                });
             }
-        });
+        }
+    }
 }

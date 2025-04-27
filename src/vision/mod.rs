@@ -14,16 +14,21 @@ use bevy::{
     utils::{HashMap, HashSet},
 };
 use display::{display_los, display_tracks};
+use events::event_plugin;
 use identify::{always_identify_tracked, identify_los};
 use los::update_los;
 use spotting::{do_los_spotting, remove_expired_spots, tick_spotting};
-use tracking::{always_track_allies, magic_tracking};
+use tracking::{always_track_allies, do_track_attacks, receive_track_events, track_plugin};
+
+pub use tracking::Tracking;
 
 use crate::twin_stick::{actors::Actor, map::Prop, player::Player};
 
 pub mod display;
+pub mod events;
 pub mod identify;
 pub mod los;
+pub mod sonar;
 pub mod spotting;
 pub mod tracking;
 
@@ -35,9 +40,6 @@ pub struct Identifying(pub HashMap<Entity, f32>);
 
 #[derive(Component, Default, Reflect, Clone, Debug)]
 pub struct Spotting(pub HashMap<Entity, Timer>);
-
-#[derive(Component, Default, Reflect, Clone, Debug)]
-pub struct Tracking(pub HashSet<Entity>);
 
 #[derive(Component, Reflect, Clone, Copy, Debug)]
 pub struct Revealed;
@@ -57,8 +59,10 @@ impl Plugin for VisionPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Revealed>()
             .register_type::<Identifying>()
-            .register_type::<Spotting>()
-            .register_type::<Tracking>();
+            .register_type::<Spotting>();
+
+        event_plugin(app);
+        track_plugin(app);
 
         app.configure_sets(
             FixedUpdate,
@@ -74,10 +78,10 @@ impl Plugin for VisionPlugin {
             FixedUpdate,
             (
                 always_track_allies,
+                (do_track_attacks, receive_track_events).chain(),
                 always_identify_tracked,
                 do_los_spotting,
                 identify_los,
-                magic_tracking,
                 (tick_spotting, remove_expired_spots).chain(),
             )
                 .in_set(VisionSystems::SpotTrack),

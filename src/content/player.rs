@@ -21,11 +21,12 @@ use bevy_stats::Stat;
 use super::{
     actor_bits::{basic_head, basic_legs},
     util::tracking,
-    weapons::peashooter,
+    weapons::{peashooter, sonar_launcher},
 };
 
 pub fn spawn_player(mut commands: Commands, cursor: Res<Cursor>) {
-    let player_id = commands.compose(player_tree(&cursor) << peashooter(&cursor));
+    let player_id =
+        commands.compose((player_tree(&cursor) << peashooter(&cursor)) << sonar_launcher(&cursor));
     commands
         .get_entity(player_id)
         .unwrap()
