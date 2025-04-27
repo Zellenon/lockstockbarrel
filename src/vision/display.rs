@@ -1,4 +1,5 @@
 use bevy::{
+    app::{App, Update},
     color::{
         palettes::css::{LIME, YELLOW},
         Alpha,
@@ -14,9 +15,12 @@ use bevy::{
 };
 use bevy_turborand::{DelegatedRng, GlobalRng};
 
+use super::{Tracking, VisionObjects, LOS};
 use crate::twin_stick::player::Player;
 
-use super::{Tracking, VisionObjects, LOS};
+pub fn display_plugin(app: &mut App) {
+    app.add_systems(Update, (display_los, display_tracks));
+}
 
 pub fn display_los(
     player: Query<(Entity, &LOS), With<Player>>,

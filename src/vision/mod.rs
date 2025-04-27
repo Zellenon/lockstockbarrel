@@ -10,16 +10,16 @@ use bevy::{
     prelude::IntoSystemSetConfigs,
     reflect::Reflect,
     render::view::Visibility,
-    time::Timer,
     utils::{HashMap, HashSet},
 };
-use display::{display_los, display_tracks};
+use display::display_plugin;
 use events::event_plugin;
 use identify::{always_identify_tracked, identify_los};
 use los::update_los;
-use spotting::{do_los_spotting, remove_expired_spots, tick_spotting};
-use tracking::{always_track_allies, do_track_attacks, receive_track_events, track_plugin};
+use spotting::{do_los_spotting, remove_expired_spots, spotting_plugin, tick_spotting};
+use tracking::track_plugin;
 
+pub use spotting::Spotting;
 pub use tracking::Tracking;
 
 use crate::twin_stick::{actors::Actor, map::Prop, player::Player};
@@ -38,9 +38,6 @@ pub struct LOS(pub HashSet<Entity>);
 #[derive(Component, Default, Reflect, Clone, Debug)]
 pub struct Identifying(pub HashMap<Entity, f32>);
 
-#[derive(Component, Default, Reflect, Clone, Debug)]
-pub struct Spotting(pub HashMap<Entity, Timer>);
-
 #[derive(Component, Reflect, Clone, Copy, Debug)]
 pub struct Revealed;
 
@@ -58,10 +55,11 @@ pub struct VisionPlugin;
 impl Plugin for VisionPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Revealed>()
-            .register_type::<Identifying>()
-            .register_type::<Spotting>();
+            .register_type::<Identifying>();
 
+        display_plugin(app);
         event_plugin(app);
+        spotting_plugin(app);
         track_plugin(app);
 
         app.configure_sets(
@@ -77,8 +75,6 @@ impl Plugin for VisionPlugin {
         app.add_systems(
             FixedUpdate,
             (
-                always_track_allies,
-                (do_track_attacks, receive_track_events).chain(),
                 always_identify_tracked,
                 do_los_spotting,
                 identify_los,
@@ -89,11 +85,7 @@ impl Plugin for VisionPlugin {
 
         app.add_systems(
             FixedUpdate,
-            (
-                reveal_player_awareness,
-                sync_revealed_objects_visible,
-                (display_tracks, display_los),
-            )
+            (reveal_player_awareness, sync_revealed_objects_visible)
                 .in_set(VisionSystems::RevealLogic),
         );
     }

@@ -1,6 +1,6 @@
 use crate::{
     assets::images::ImageResources,
-    game::stats::MoveSpeed,
+    game::stats::{IdentifyPower, MoveSpeed, SpotTime},
     twin_stick::{
         actors::{basic_actor, Faction, PLAYER_FACTION},
         ai::keyboard::{create_player_action_input_manager_bundle, KeyboardAI},
@@ -36,6 +36,8 @@ pub fn spawn_player(mut commands: Commands, cursor: Res<Cursor>) {
 fn player_tree_base() -> ComponentTree {
     (Player, KeyboardAI).store()
         + Stat::<MoveSpeed>::new(80.).store()
+        + Stat::<SpotTime>::new(3.).store()
+        + Stat::<IdentifyPower>::new(33.).store()
         + Faction(PLAYER_FACTION).store()
         + CollisionLayers::new(
             GPL::Player,

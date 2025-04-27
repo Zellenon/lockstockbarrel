@@ -6,9 +6,9 @@ use bevy::{
 
 #[derive(Event, Clone, Copy, PartialEq, Reflect, Debug)]
 pub struct StartSpottingEvent {
-    pub tracker: Entity,
+    pub spotter: Entity,
     pub target: Entity,
-    pub trackpower: f32,
+    pub spot_time: f32,
 }
 
 #[derive(Event, Clone, Copy, PartialEq, Reflect, Debug)]
