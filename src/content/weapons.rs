@@ -51,7 +51,6 @@ pub fn sonar_launcher(cursor: &Res<Cursor>) -> ComponentTree {
             Stat::<ProjectileSpeed>::new(80.),
             Stat::<IdentifyPower>::new(27.0),
             Stat::<SpotTime>::new(5.0),
-            TrackAttack,
             Transform::default(),
             ParentTrigger,
             Weapon,

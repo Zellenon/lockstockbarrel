@@ -10,22 +10,21 @@ use bevy::{
     prelude::IntoSystemSetConfigs,
     reflect::Reflect,
     render::view::Visibility,
-    utils::{HashMap, HashSet},
+    utils::HashSet,
 };
 use display::display_plugin;
-use events::event_plugin;
-use identify::{always_identify_tracked, identify_los};
+use identify::{always_identify_tracked, identify_los, identify_plugin};
 use los::update_los;
 use spotting::{do_los_spotting, remove_expired_spots, spotting_plugin, tick_spotting};
 use tracking::track_plugin;
 
+pub use identify::Identifying;
 pub use spotting::Spotting;
 pub use tracking::Tracking;
 
 use crate::twin_stick::{actors::Actor, map::Prop, player::Player};
 
 pub mod display;
-pub mod events;
 pub mod identify;
 pub mod los;
 pub mod sonar;
@@ -34,9 +33,6 @@ pub mod tracking;
 
 #[derive(Component, Default, Reflect, Clone, Debug)]
 pub struct LOS(pub HashSet<Entity>);
-
-#[derive(Component, Default, Reflect, Clone, Debug)]
-pub struct Identifying(pub HashMap<Entity, f32>);
 
 #[derive(Component, Reflect, Clone, Copy, Debug)]
 pub struct Revealed;
@@ -54,11 +50,10 @@ pub struct VisionPlugin;
 
 impl Plugin for VisionPlugin {
     fn build(&self, app: &mut App) {
-        app.register_type::<Revealed>()
-            .register_type::<Identifying>();
+        app.register_type::<Revealed>();
 
+        identify_plugin(app);
         display_plugin(app);
-        event_plugin(app);
         spotting_plugin(app);
         track_plugin(app);
 
@@ -74,13 +69,7 @@ impl Plugin for VisionPlugin {
 
         app.add_systems(
             FixedUpdate,
-            (
-                always_identify_tracked,
-                do_los_spotting,
-                identify_los,
-                (tick_spotting, remove_expired_spots).chain(),
-            )
-                .in_set(VisionSystems::SpotTrack),
+            (always_identify_tracked, identify_los).in_set(VisionSystems::SpotTrack),
         );
 
         app.add_systems(

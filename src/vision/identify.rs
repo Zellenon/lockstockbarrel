@@ -1,39 +1,105 @@
 use bevy::{
-    ecs::system::{Query, Res},
+    app::{App, FixedUpdate},
+    ecs::{
+        component::Component,
+        entity::Entity,
+        event::{Event, EventReader, EventWriter},
+        query::{Changed, With},
+        schedule::IntoSystemConfigs,
+        system::{Query, Res},
+    },
+    reflect::Reflect,
     time::Time,
-    utils::Entry,
+    utils::{Entry, HashMap},
 };
+use bevy_stats::Stat;
 
-use super::{Identifying, Tracking, LOS};
+use crate::game::stats::IdentifyPower;
 
-pub fn always_identify_tracked(mut trackers: Query<(&Tracking, &mut Identifying)>) {
-    for (tracking, mut ident) in trackers.iter_mut() {
-        for entity in tracking.0.iter() {
-            match ident.0.entry(*entity) {
-                Entry::Occupied(mut occupied_entry) => {
-                    if *occupied_entry.get() < 100. {
-                        occupied_entry.insert(100.);
-                    }
-                }
-                Entry::Vacant(vacant_entry) => {
-                    vacant_entry.insert(100.);
-                }
+use super::{tracking::process_track_events, Tracking, VisionSystems, LOS};
+
+#[derive(Component, Default, Reflect, Clone, Debug)]
+pub struct Identifying(pub HashMap<Entity, f32>);
+
+#[derive(Event, Clone, Copy, PartialEq, Reflect, Debug)]
+pub struct IdentifyEvent {
+    pub identifier: Entity,
+    pub target: Entity,
+    pub power: f32,
+}
+
+pub fn identify_plugin(app: &mut App) {
+    app.register_type::<IdentifyEvent>()
+        .register_type::<Identifying>();
+    app.add_event::<IdentifyEvent>();
+
+    app.add_systems(
+        FixedUpdate,
+        (
+            (
+                always_identify_tracked.after(process_track_events),
+                identify_los,
+            ),
+            (receive_identify_events).chain(),
+        )
+            .in_set(VisionSystems::SpotTrack),
+    );
+}
+
+pub fn always_identify_tracked(
+    trackers: Query<(Entity, &Tracking), (Changed<Tracking>, With<Identifying>)>,
+    mut events: EventWriter<IdentifyEvent>,
+) {
+    for (identifier, tracking) in trackers.iter() {
+        for target in tracking.0.iter() {
+            events.send(IdentifyEvent {
+                identifier,
+                target: *target,
+                power: 100.,
+            });
+        }
+    }
+}
+
+pub fn identify_los(
+    seers: Query<(Entity, &LOS, &Identifying, &Stat<IdentifyPower>)>,
+    mut events: EventWriter<IdentifyEvent>,
+    time: Res<Time>,
+) {
+    let delta = time.delta_secs();
+    for (e, los, identifying, stat) in seers.iter() {
+        for target in los.0.iter() {
+            if identifying.0.get(target).unwrap_or(&0.) < &100. {
+                events.send(IdentifyEvent {
+                    identifier: e,
+                    target: *target,
+                    power: delta * stat.current_value(),
+                });
             }
         }
     }
 }
 
-pub fn identify_los(mut seers: Query<(&LOS, &mut Identifying)>, time: Res<Time>) {
-    for (los, mut identifying) in seers.iter_mut() {
-        for target in los.0.iter() {
-            match identifying.0.entry(*target) {
+pub fn receive_identify_events(
+    mut ident_events: EventReader<IdentifyEvent>,
+    mut identifiers: Query<&mut Identifying>,
+) {
+    for IdentifyEvent {
+        identifier,
+        target,
+        power,
+    } in ident_events.read()
+    {
+        if let Ok(mut identifier) = identifiers.get_mut(*identifier) {
+            match identifier.0.entry(*target) {
                 Entry::Occupied(mut occupied_entry) => {
-                    occupied_entry.insert(
-                        (occupied_entry.get() + time.delta().as_secs_f32() * 10.).min(100.),
-                    );
+                    let entry = occupied_entry.get();
+                    if *entry < 100. {
+                        *occupied_entry.get_mut() = entry + power;
+                    }
                 }
                 Entry::Vacant(vacant_entry) => {
-                    vacant_entry.insert(0.);
+                    vacant_entry.insert(*power);
                 }
             }
         }

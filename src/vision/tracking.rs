@@ -3,7 +3,7 @@ use bevy::{
     ecs::{
         component::Component,
         entity::Entity,
-        event::{EventReader, EventWriter},
+        event::{Event, EventReader, EventWriter},
         query::With,
         schedule::IntoSystemConfigs,
         system::Query,
@@ -12,10 +12,7 @@ use bevy::{
     utils::HashSet,
 };
 
-use super::{
-    events::{NewTrackEvent, TrackEvent},
-    VisionObjects, VisionSystems,
-};
+use super::{VisionObjects, VisionSystems};
 use crate::twin_stick::{
     actors::{Faction, PLAYER_FACTION},
     events::AttackEvent,
@@ -25,17 +22,33 @@ use crate::twin_stick::{
 #[derive(Component, Default, Reflect, Clone, Debug)]
 pub struct Tracking(pub HashSet<Entity>);
 
+#[derive(Event, Clone, Copy, PartialEq, Reflect, Debug)]
+pub struct TrackEvent {
+    pub tracker: Entity,
+    pub target: Entity,
+}
+
+#[derive(Event, Clone, Copy, PartialEq, Reflect, Debug)]
+pub struct NewTrackEvent {
+    pub tracker: Entity,
+    pub target: Entity,
+}
+
 #[derive(Component, Reflect, Clone, Copy, PartialEq, Debug)]
 pub struct TrackAttack;
 
 pub fn track_plugin(app: &mut App) {
-    app.register_type::<Tracking>();
+    app.register_type::<Tracking>()
+        .register_type::<TrackEvent>()
+        .register_type::<NewTrackEvent>()
+        .add_event::<TrackEvent>()
+        .add_event::<NewTrackEvent>();
 
     app.add_systems(
         FixedUpdate,
         (
             always_track_allies,
-            (do_track_attacks, receive_track_events).chain(),
+            (do_track_attacks, process_track_events).chain(),
         )
             .in_set(VisionSystems::SpotTrack),
     );
@@ -85,7 +98,7 @@ pub fn do_track_attacks(
     }
 }
 
-pub fn receive_track_events(
+pub fn process_track_events(
     mut track_events: EventReader<TrackEvent>,
     mut new_events: EventWriter<NewTrackEvent>,
     mut trackers: Query<&mut Tracking>,

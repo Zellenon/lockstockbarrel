@@ -5,7 +5,7 @@ use bevy::{
     ecs::{
         component::Component,
         entity::Entity,
-        event::{EventReader, EventWriter},
+        event::{Event, EventReader, EventWriter},
         query::Changed,
         schedule::IntoSystemConfigs,
         system::{Query, Res},
@@ -18,13 +18,22 @@ use bevy_stats::Stat;
 
 use crate::game::stats::SpotTime;
 
-use super::{events::StartSpottingEvent, VisionSystems, LOS};
+use super::{VisionSystems, LOS};
 
 #[derive(Component, Default, Reflect, Clone, Debug)]
 pub struct Spotting(pub HashMap<Entity, Timer>);
 
+#[derive(Event, Clone, Copy, PartialEq, Reflect, Debug)]
+pub struct StartSpottingEvent {
+    pub spotter: Entity,
+    pub target: Entity,
+    pub spot_time: f32,
+}
+
 pub fn spotting_plugin(app: &mut App) {
-    app.register_type::<Spotting>();
+    app.register_type::<Spotting>()
+        .register_type::<StartSpottingEvent>();
+    app.add_event::<StartSpottingEvent>();
 
     app.add_systems(
         FixedUpdate,
@@ -67,9 +76,9 @@ pub fn remove_expired_spots(mut query: Query<&mut Spotting>) {
     }
 }
 
-pub fn tick_spotting(mut query: Query<&mut Spotting>, time: Res<Time>) {
-    for mut spots in query.iter_mut() {
-        for (_, timer) in spots.0.iter_mut() {
+pub fn tick_spotting(mut query: Query<(&mut Spotting, &LOS)>, time: Res<Time>) {
+    for (mut spots, los) in query.iter_mut() {
+        for (_, timer) in spots.0.iter_mut().filter(|w| !los.0.contains(w.0)) {
             timer.tick(time.delta());
         }
     }
