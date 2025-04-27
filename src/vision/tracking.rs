@@ -47,9 +47,10 @@ pub fn track_plugin(app: &mut App) {
     app.add_systems(
         FixedUpdate,
         (
-            always_track_allies,
-            (do_track_attacks, process_track_events).chain(),
+            (always_track_allies, do_track_attacks),
+            process_track_events,
         )
+            .chain()
             .in_set(VisionSystems::SpotTrack),
     );
 }

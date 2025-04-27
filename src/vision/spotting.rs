@@ -6,7 +6,7 @@ use bevy::{
         component::Component,
         entity::Entity,
         event::{Event, EventReader, EventWriter},
-        query::Changed,
+        query::{Changed, With},
         schedule::IntoSystemConfigs,
         system::{Query, Res},
     },
@@ -16,9 +16,9 @@ use bevy::{
 };
 use bevy_stats::Stat;
 
-use crate::game::stats::SpotTime;
+use crate::{game::stats::SpotTime, twin_stick::events::AttackEvent};
 
-use super::{VisionSystems, LOS};
+use super::{VisionObjects, VisionSystems, LOS};
 
 #[derive(Component, Default, Reflect, Clone, Debug)]
 pub struct Spotting(pub HashMap<Entity, Timer>);
@@ -41,6 +41,7 @@ pub fn spotting_plugin(app: &mut App) {
             (
                 do_los_spotting,
                 (tick_spotting, remove_expired_spots).chain(),
+                do_spot_attacks,
             ),
             process_spot_events,
         )
@@ -99,6 +100,35 @@ pub fn process_spot_events(
                 }
                 Entry::Vacant(vacant_entry) => {
                     vacant_entry.insert(Timer::from_seconds(event.spot_time, TimerMode::Once));
+                }
+            }
+        }
+    }
+}
+
+pub fn do_spot_attacks(
+    mut attack_events: EventReader<AttackEvent>,
+    mut spot_events: EventWriter<StartSpottingEvent>,
+    spotters: Query<Entity, With<Spotting>>,
+    spot_attacks: Query<(Entity, &Stat<SpotTime>)>,
+    vision_objects: Query<Entity, VisionObjects>,
+) {
+    for AttackEvent {
+        attacker,
+        weapon,
+        defender,
+        location,
+        direction,
+    } in attack_events.read()
+    {
+        if let Ok((attack, attack_stat)) = spot_attacks.get(*weapon) {
+            if let Ok(_) = vision_objects.get(*defender) {
+                if let Ok(_) = spotters.get(*attacker) {
+                    spot_events.send(StartSpottingEvent {
+                        spotter: *attacker,
+                        target: *defender,
+                        spot_time: attack_stat.current_value(),
+                    });
                 }
             }
         }

@@ -14,9 +14,12 @@ use bevy::{
 };
 use bevy_stats::Stat;
 
-use crate::game::stats::IdentifyPower;
+use crate::{game::stats::IdentifyPower, twin_stick::events::AttackEvent};
 
-use super::{tracking::process_track_events, Tracking, VisionSystems, LOS};
+use super::{
+    tracking::{do_track_attacks, process_track_events},
+    Tracking, VisionObjects, VisionSystems, LOS,
+};
 
 #[derive(Component, Default, Reflect, Clone, Debug)]
 pub struct Identifying(pub HashMap<Entity, f32>);
@@ -39,6 +42,7 @@ pub fn identify_plugin(app: &mut App) {
             (
                 always_identify_tracked.after(process_track_events),
                 identify_los,
+                do_identify_attacks,
             ),
             (receive_identify_events).chain(),
         )
@@ -100,6 +104,35 @@ pub fn receive_identify_events(
                 }
                 Entry::Vacant(vacant_entry) => {
                     vacant_entry.insert(*power);
+                }
+            }
+        }
+    }
+}
+
+pub fn do_identify_attacks(
+    mut attack_events: EventReader<AttackEvent>,
+    mut spot_events: EventWriter<IdentifyEvent>,
+    identifiers: Query<Entity, With<Identifying>>,
+    identify_attacks: Query<(Entity, &Stat<IdentifyPower>)>,
+    vision_objects: Query<Entity, VisionObjects>,
+) {
+    for AttackEvent {
+        attacker,
+        weapon,
+        defender,
+        location,
+        direction,
+    } in attack_events.read()
+    {
+        if let Ok((attack, attack_stat)) = identify_attacks.get(*weapon) {
+            if let Ok(_) = vision_objects.get(*defender) {
+                if let Ok(_) = identifiers.get(*attacker) {
+                    spot_events.send(IdentifyEvent {
+                        identifier: *attacker,
+                        target: *defender,
+                        power: attack_stat.current_value(),
+                    });
                 }
             }
         }
