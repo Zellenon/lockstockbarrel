@@ -72,14 +72,9 @@ pub fn do_track_attacks(
         direction,
     } in attack_events.read()
     {
-        println!("A");
         if let Ok(_) = track_attacks.get(*weapon) {
-            println!("B");
             if let Ok(_) = vision_objects.get(*defender) {
-                println!("C");
-                println!("{:?}", attacker);
                 if let Ok(_) = trackers.get(*attacker) {
-                    println!("D");
                     track_events.send(TrackEvent {
                         tracker: *attacker,
                         target: *defender,
