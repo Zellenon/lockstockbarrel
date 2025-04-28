@@ -25,6 +25,9 @@ pub struct IdentifyPower;
 #[derive(Reflect, Clone, Copy, Debug, Hash)]
 pub struct SpotTime;
 
+#[derive(Reflect, Clone, Copy, Debug, Hash)]
+pub struct ShotCount;
+
 impl RPGStat for Health {
     fn modstyle() -> bevy_stats::ModStyle {
         bevy_stats::ModStyle::MulAdd
@@ -54,10 +57,13 @@ impl RPGStat for SpotTime {}
 
 impl RPGStat for IdentifyPower {}
 
+impl RPGStat for ShotCount {}
+
 pub(super) fn stats_plugin(app: &mut App) {
     app.register_stat::<MoveSpeed>()
         .register_stat::<Damage>()
         .register_stat::<Knockback>()
+        .register_stat::<ShotCount>()
         .register_stat::<SpotTime>()
         .register_stat::<IdentifyPower>()
         .register_stat::<Accuracy>()

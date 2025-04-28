@@ -25,7 +25,16 @@ use crate::{
     states::TimerState,
 };
 
-#[derive(Component, Reflect, Debug, Clone, Copy, PartialEq, PartialOrd, Ord, Eq, Hash)]
+#[derive(Default, Component, Clone, Copy, Reflect, PartialEq, Eq, Hash, Debug)]
+pub enum SpreadType {
+    Spaced,
+    NormalDistribution,
+    Jittered,
+    #[default]
+    TrueRandom,
+}
+
+#[derive(Component, Reflect, Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct Weapon;
 
 pub fn weapon_plugin(app: &mut App) {
