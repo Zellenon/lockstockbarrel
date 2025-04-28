@@ -74,7 +74,7 @@ pub fn sonar_launcher(cursor: &Res<Cursor>) -> ComponentTree {
             Stat::<IdentifyPower>::new(27.0),
             Stat::<SpotTime>::new(5.0),
             Stat::<ShotCount>::new(5.),
-            Stat::<Accuracy>::new(40.),
+            Stat::<Accuracy>::new(50.),
             SpreadType::Spaced,
             Transform::default(),
             ParentTrigger,
@@ -85,10 +85,10 @@ pub fn sonar_launcher(cursor: &Res<Cursor>) -> ComponentTree {
                 projectile(5., Projectile::default())
                     + standard_player_bullet_collision()
                     + (
-                        Collider::circle(10.),
+                        Collider::circle(20.),
                         Sprite {
                             color: Color::Srgba(RED),
-                            custom_size: Some(Vec2::new(20., 20.)),
+                            custom_size: Some(Vec2::new(40., 40.)),
                             ..default()
                         },
                     )
