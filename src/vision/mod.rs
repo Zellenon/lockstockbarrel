@@ -27,7 +27,6 @@ use crate::twin_stick::{actors::Actor, map::Prop, player::Player};
 pub mod display;
 pub mod identify;
 pub mod los;
-pub mod sonar;
 pub mod spotting;
 pub mod tracking;
 
