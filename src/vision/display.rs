@@ -86,16 +86,16 @@ pub fn display_tracks(
 }
 
 pub fn display_identification(
-    player: Query<(Entity, &Identifying), With<Player>>,
+    player: Query<(Entity, &Spotting, &Identifying), With<Player>>,
     mut gizmos: Gizmos,
-    vis_obj: Query<(&Transform, Option<&Revealed>), VisionObjects>,
+    vis_obj: Query<&Transform, VisionObjects>,
 ) {
-    if let Ok((e, Identifying(identities))) = player.get_single() {
+    if let Ok((e, Spotting(spotting), Identifying(identities))) = player.get_single() {
         for (id, progress) in identities
             .iter()
-            .filter(|(id, progress)| **id != e && **progress < 100.)
+            .filter(|(id, progress)| **id != e && **progress < 100. && spotting.contains_key(*id))
         {
-            if let Ok((pos, None)) = vis_obj.get(*id) {
+            if let Ok(pos) = vis_obj.get(*id) {
                 gizmos.arc_2d(
                     pos.translation.xy(),
                     f32::consts::PI * 2. * (progress / 100.),
