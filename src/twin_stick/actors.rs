@@ -47,26 +47,30 @@ impl Default for Actor {
 
 pub fn basic_actor() -> ComponentTree {
     (
-        Actor::default(),
         Visibility::Hidden,
         InheritedVisibility::default(),
         vision::Tracking::default(),
         Spotting::default(),
         Identifying::default(),
         Transform::default(),
-        RigidBody::Dynamic,
-        Mass(10.0),
-        LinearDamping(3.),
-        Collider::circle(15.),
-        LockedAxes::ROTATION_LOCKED,
-        Stat::<MoveSpeed>::new(50.),
-        Resource::<Health>::new(5.),
-        CollisionLayers::new(
-            GPL::Enemy,
-            [GPL::Enemy, GPL::Player, GPL::MapSolid, GPL::MapDynamic],
-        ),
     )
         .store()
+        + (
+            Actor::default(),
+            RigidBody::Dynamic,
+            Mass(10.0),
+            LinearDamping(3.),
+            Collider::circle(15.),
+            LockedAxes::ROTATION_LOCKED,
+            AngularVelocity::default(),
+            Stat::<MoveSpeed>::new(50.),
+            Resource::<Health>::new(5.),
+            CollisionLayers::new(
+                GPL::Enemy,
+                [GPL::Enemy, GPL::Player, GPL::MapSolid, GPL::MapDynamic],
+            ),
+        )
+            .store()
         + (LOS::default()).store()
         + name("actor")
 }
