@@ -39,9 +39,10 @@
               pkg-config
               eza
               fd
+              pre-commit
               rust-bin.nightly.latest.default
               rustfmt
-              pre-commit
+              systemd
               udev
               vulkan-loader
               xorg.libX11
@@ -49,7 +50,7 @@
               xorg.libXrandr
               xorg.libXcursor
               xorg.libXi
-              systemd
+              wayland
             ];
 
             shellHook = ''
@@ -61,6 +62,7 @@
                   alsa-lib
                   vulkan-loader
                   libxkbcommon
+                  wayland
                 ]
               }"'';
             RUST_SRC_PATH = rustPlatform.rustLibSrc;
