@@ -1,18 +1,31 @@
 use bevy::{
     app::App,
+    ecs::{
+        entity::Entity,
+        query::{Or, With},
+    },
+    hierarchy::{HierarchyQueryExt, Parent},
     prelude::{Commands, Component, Query, Transform, Trigger},
+    transform::components::GlobalTransform,
 };
 use bevy_composable::{
     app_impl::{ComplexSpawnable, ComponentTreeable},
     tree::ComponentTree,
 };
 
-use crate::{action_system::actuator::Actuate, util::add_observer_to_component};
+use crate::{
+    action_system::actuator::Actuate,
+    twin_stick::{actors::Actor, weapons::Weapon},
+    util::add_observer_to_component,
+};
 
 #[derive(Component, Clone)]
 pub struct SpawnAction {
     pub payload: Vec<ComponentTree>,
 }
+
+#[derive(Component, Clone, PartialEq, Hash, Debug)]
+pub struct SpawnedBy(pub Entity);
 
 impl SpawnAction {
     pub fn spawn(tree: ComponentTree) -> Self {
@@ -45,14 +58,31 @@ pub fn spawns<T: Iterator<Item = ComponentTree>>(trees: T) -> ComponentTree {
 
 pub fn do_spawn_action(
     trigger: Trigger<Actuate>,
-    spawners: Query<(&SpawnAction, &Transform)>,
+    spawners: Query<(Entity, &SpawnAction, &GlobalTransform)>,
+    attackers: Query<Entity, Or<(With<Actor>, With<Weapon>)>>,
+    parents: Query<&Parent>,
     mut commands: Commands,
 ) {
-    if let Ok((spawn_action, transform)) = spawners.get(trigger.entity()) {
+    if let Ok((e, spawn_action, transform)) = spawners.get(trigger.entity()) {
         for payload in spawn_action.payload.iter() {
-            commands.compose(
-                payload.clone() + Transform::from_translation(transform.translation).store(),
-            );
+            let (scale, rotation, translation) = transform.to_scale_rotation_translation();
+            let spawned_transform = Transform {
+                translation,
+                rotation,
+                scale,
+            };
+
+            if let Some(attacker) = std::iter::once(e)
+                .chain(parents.iter_ancestors(e))
+                .filter(|w| attackers.get(*w).is_ok())
+                .next()
+            // If there's a first ancestor with Weapon/Actor
+            {
+                commands
+                    .compose(payload.clone() + (spawned_transform, SpawnedBy(attacker)).store());
+            } else {
+                commands.compose(payload.clone() + spawned_transform.store());
+            }
         }
     }
 }

@@ -44,43 +44,6 @@ impl Default for Actor {
     }
 }
 
-#[derive(Clone, Debug, Bundle, Reflect)]
-pub struct ActorBundle {
-    pub actor: Actor,
-    pub visibility: Visibility,
-    pub computer_visibility: InheritedVisibility,
-    pub transform: Transform,
-    pub global_transform: GlobalTransform,
-    pub rigidbody: RigidBody,
-    pub mass_properties: Mass,
-    pub damping: LinearDamping,
-    pub velocity: LinearVelocity,
-    pub external_force: ExternalForce,
-    pub external_impulse: ExternalImpulse,
-    pub collider: Collider,
-    pub axes: LockedAxes,
-}
-
-impl Default for ActorBundle {
-    fn default() -> Self {
-        Self {
-            actor: Default::default(),
-            visibility: Visibility::Visible,
-            transform: Default::default(),
-            global_transform: Default::default(),
-            rigidbody: RigidBody::Dynamic,
-            mass_properties: Mass(300.0),
-            damping: LinearDamping(13.),
-            velocity: Default::default(),
-            external_force: Default::default(),
-            external_impulse: Default::default(),
-            collider: Collider::circle(15.),
-            axes: LockedAxes::ROTATION_LOCKED,
-            computer_visibility: Default::default(),
-        }
-    }
-}
-
 #[derive(Clone, Copy, PartialEq, Eq, Reflect, Debug, Component)]
 pub struct Tracking(pub Option<Entity>);
 
@@ -175,11 +138,12 @@ fn animate_legs(
     }
 }
 
-pub fn actor_movement(mut enemies: Query<(&mut ExternalImpulse, &Actor, &Stat<MoveSpeed>)>) {
+pub fn actor_movement(mut enemies: Query<(&mut ExternalForce, &Actor, &Stat<MoveSpeed>)>) {
     for (mut force, actor, speed) in enemies.iter_mut() {
         (force.x, force.y) = {
-            let vec =
-                Vec2::clamp_length_max(actor.desired_direction, 1.) * speed.current_value() * 750.;
+            let vec = Vec2::clamp_length_max(actor.desired_direction, 1.)
+                * speed.current_value()
+                * 12500.;
             (vec.x, vec.y)
         };
     }

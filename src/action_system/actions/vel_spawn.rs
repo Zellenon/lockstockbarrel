@@ -1,6 +1,11 @@
 use avian2d::prelude::ExternalImpulse;
 use bevy::{
     app::App,
+    ecs::{
+        entity::Entity,
+        query::{Or, With},
+    },
+    hierarchy::{HierarchyQueryExt, Parent},
     math::{Quat, Vec2},
     prelude::{Commands, Component, Query, Transform, Trigger},
     reflect::Reflect,
@@ -17,8 +22,11 @@ use crate::{
     action_system::actuator::Actuate,
     game::stats::{Accuracy, ProjectileSpeed},
     transform2d::To2D,
+    twin_stick::{actors::Actor, weapons::Weapon},
     util::add_observer_to_component,
 };
+
+use super::spawn::SpawnedBy;
 
 #[derive(Clone, Copy, Debug, Reflect, PartialEq)]
 pub struct AngleOffset(pub Vec2);
@@ -68,14 +76,17 @@ pub fn vel_spawns<A: Into<AngleOffset>, T: Iterator<Item = (ComponentTree, A)>>(
 pub fn do_vel_spawn_action(
     trigger: Trigger<Actuate>,
     spawners: Query<(
+        Entity,
         &VelSpawnAction,
         &GlobalTransform,
         Option<&Stat<ProjectileSpeed>>,
         Option<&Stat<Accuracy>>,
     )>,
+    attackers: Query<Entity, Or<(With<Actor>, With<Weapon>)>>,
+    parents: Query<&Parent>,
     mut commands: Commands,
 ) {
-    if let Ok((spawn_action, transform, speed, accuracy)) = spawners.get(trigger.entity()) {
+    if let Ok((e, spawn_action, transform, speed, accuracy)) = spawners.get(trigger.entity()) {
         for (payload, angle_offset) in spawn_action.payload.iter() {
             let (scale, rotation, translation) = transform.to_scale_rotation_translation();
             let spawned_transform = Transform {
@@ -84,20 +95,43 @@ pub fn do_vel_spawn_action(
                 scale,
             };
 
-            commands.compose(
-                payload.clone()
-                    + (
-                        spawned_transform,
-                        ExternalImpulse::new(
-                            Vec2::from_angle(
-                                rotation.to_2d()
-                                    + angle_offset.0.to_angle()
-                                    + f32::consts::FRAC_PI_2,
-                            ) * speed.map(|w| w.current_value()).unwrap_or(10.0),
-                        ),
-                    )
-                        .store(),
-            );
+            if let Some(attacker) = std::iter::once(e)
+                .chain(parents.iter_ancestors(e))
+                .filter(|w| attackers.get(*w).is_ok())
+                .next()
+            // If there's a first ancestor with Weapon/Actor
+            {
+                commands.compose(
+                    payload.clone()
+                        + (
+                            spawned_transform,
+                            ExternalImpulse::new(
+                                Vec2::from_angle(
+                                    rotation.to_2d()
+                                        + angle_offset.0.to_angle()
+                                        + f32::consts::FRAC_PI_2,
+                                ) * speed.map(|w| w.current_value()).unwrap_or(10.0),
+                            ),
+                            SpawnedBy(attacker),
+                        )
+                            .store(),
+                );
+            } else {
+                commands.compose(
+                    payload.clone()
+                        + (
+                            spawned_transform,
+                            ExternalImpulse::new(
+                                Vec2::from_angle(
+                                    rotation.to_2d()
+                                        + angle_offset.0.to_angle()
+                                        + f32::consts::FRAC_PI_2,
+                                ) * speed.map(|w| w.current_value()).unwrap_or(10.0),
+                            ),
+                        )
+                            .store(),
+                );
+            }
         }
     }
 }

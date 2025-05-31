@@ -22,6 +22,7 @@ pub enum ActuatorFireStyle {
     RisingEdge,
     StoreConstantly(bool),
     StoreRisingEdge(bool),
+    SemiAuto(bool),
 }
 
 #[derive(Component, Reflect, Clone, Debug)]
@@ -116,6 +117,14 @@ pub fn fire_actuator_on_condition_change(
                     act.fire_style = ActuatorFireStyle::StoreRisingEdge(true);
                 }
             }
+            ActuatorFireStyle::SemiAuto(_) => {
+                if act.cooldown.finished() {
+                    commands.trigger_targets(Actuate, e);
+                    act.fire_style = ActuatorFireStyle::SemiAuto(false);
+                } else {
+                    act.fire_style = ActuatorFireStyle::SemiAuto(true);
+                }
+            }
         }
     }
 }
@@ -148,6 +157,16 @@ pub fn fire_actuator_on_cooldown_over(
                 if cond {
                     commands.trigger_targets(Actuate, e);
                     act.fire_style = ActuatorFireStyle::StoreRisingEdge(false);
+                }
+            }
+            ActuatorFireStyle::SemiAuto(cond) => {
+                if cond {
+                    if condition.is_none() {
+                        commands.trigger_targets(Actuate, e);
+                        act.fire_style = ActuatorFireStyle::SemiAuto(false);
+                    }
+                } else {
+                    act.fire_style = ActuatorFireStyle::SemiAuto(false)
                 }
             }
         }

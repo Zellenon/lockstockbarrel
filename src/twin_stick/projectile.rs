@@ -1,37 +1,37 @@
-use avian2d::prelude::{
-    Collider, CollisionStarted, ExternalImpulse, LinearVelocity, Mass, RigidBody, SweptCcd,
-};
+use avian2d::prelude::{Collider, CollisionStarted, LinearVelocity, Mass, RigidBody, SweptCcd};
 use bevy::{
     color::{palettes::css::RED, Color},
-    math::Vec3Swizzles,
+    ecs::{schedule::SystemSet, system::ResMut},
+    hierarchy::Parent,
+    math::{Vec2Swizzles, Vec3Swizzles},
     prelude::{
         in_state, App, Commands, Component, DespawnRecursiveExt, Entity, Event, EventReader,
-        EventWriter, IntoSystemConfigs, Plugin, Query, Reflect, Res, Transform, Update, Vec2,
-        Visibility,
+        EventWriter, IntoSystemConfigs, Query, Reflect, Res, Transform, Update, Vec2, Visibility,
     },
     sprite::Sprite,
     time::{Time, Timer, TimerMode},
     utils::default,
 };
 use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree, wrappers::name};
-use bevy_stats::Stat;
 use std::time::Duration;
 
-use crate::{game::stats::Knockback, states::TimerState};
+use super::events::AttackEvent;
+use crate::{
+    action_system::actions::spawn::SpawnedBy,
+    debug::arrows::{Arrow, Arrows},
+    states::TimerState,
+};
+
+#[derive(Debug, SystemSet, Reflect, Clone, Copy, Hash, PartialEq, Eq)]
+pub struct ProjectileSystems;
 
 #[derive(Component, Clone, PartialEq, Eq, Reflect, Debug)]
 pub struct Lifespan(Timer);
 
-impl Lifespan {
-    pub fn new(secs: f32) -> Self {
-        Self(Timer::new(Duration::from_secs_f32(secs), TimerMode::Once))
-    }
-}
-
-impl Default for Lifespan {
-    fn default() -> Self {
-        Self(Timer::new(Duration::from_secs_f32(0.8), TimerMode::Once))
-    }
+#[derive(Component, Clone, Copy, PartialEq, Eq, Reflect, Debug)]
+pub struct Projectile {
+    pub on_prop: ProjectileImpactBehavior,
+    pub on_actor: ProjectileImpactBehavior,
 }
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Reflect, Debug)]
@@ -40,19 +40,38 @@ pub enum ProjectileImpactBehavior {
     Bounce,
 }
 
-#[derive(Component, Clone, Copy, PartialEq, Eq, Reflect, Debug)]
-pub struct Projectile {
-    pub on_prop: ProjectileImpactBehavior,
-    pub on_actor: ProjectileImpactBehavior,
+#[derive(Event, Clone, Copy, PartialEq, Eq, Reflect, Debug)]
+pub struct ProjectileImpactEvent {
+    pub projectile: Entity,
+    pub impacted: Entity,
 }
 
-impl Default for Projectile {
-    fn default() -> Self {
-        Self {
-            on_prop: ProjectileImpactBehavior::Die,
-            on_actor: ProjectileImpactBehavior::Die,
-        }
-    }
+#[derive(Clone, Copy, PartialEq, Eq, Reflect, Debug, Event)]
+pub struct ProjectileClashEvent(pub Entity, pub Entity);
+
+#[derive(Clone, PartialEq, Eq, Reflect, Debug, Event)]
+pub struct ContactDamage(pub Option<Timer>);
+
+pub fn projectile_plugin(app: &mut App) {
+    app.add_systems(
+        Update,
+        (
+            tick_lifetimes,
+            (
+                projectile_collision_event_dispatcher,
+                (
+                    kill_projectiles_post_impact,
+                    projectile_hits_trigger_attacks,
+                ),
+            )
+                .chain(),
+        )
+            .run_if(in_state(TimerState::Playing))
+            .in_set(ProjectileSystems),
+    );
+
+    app.add_event::<ProjectileImpactEvent>()
+        .add_event::<ProjectileClashEvent>();
 }
 
 pub fn projectile(lifespan: f32, projectile: Projectile) -> ComponentTree {
@@ -74,38 +93,25 @@ pub fn projectile(lifespan: f32, projectile: Projectile) -> ComponentTree {
         + name("Projectile")
 }
 
-#[derive(Event, Clone, Copy, PartialEq, Reflect, Debug)]
-pub struct KnockbackEvent {
-    entity: Entity,
-    direction: Vec2,
-    force: f32,
+impl Lifespan {
+    pub fn new(secs: f32) -> Self {
+        Self(Timer::new(Duration::from_secs_f32(secs), TimerMode::Once))
+    }
 }
 
-#[derive(Event, Clone, Copy, PartialEq, Eq, Reflect, Debug)]
-pub struct ProjectileImpactEvent {
-    pub projectile: Entity,
-    pub impacted: Entity,
+impl Default for Lifespan {
+    fn default() -> Self {
+        Self(Timer::new(Duration::from_secs_f32(0.8), TimerMode::Once))
+    }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Reflect, Debug, Event)]
-pub struct ProjectileClashEvent(pub Entity, pub Entity);
-
-pub fn projectile_plugin(app: &mut App) {
-    app.add_event::<KnockbackEvent>();
-    app.add_systems(
-        Update,
-        (
-            tick_lifetimes,
-            knockback_events,
-            projectile_event_dispatcher,
-            kill_projectiles_post_impact,
-            knockback_from_projectiles,
-        )
-            .run_if(in_state(TimerState::Playing)),
-    );
-
-    app.add_event::<ProjectileImpactEvent>()
-        .add_event::<ProjectileClashEvent>();
+impl Default for Projectile {
+    fn default() -> Self {
+        Self {
+            on_prop: ProjectileImpactBehavior::Die,
+            on_actor: ProjectileImpactBehavior::Die,
+        }
+    }
 }
 
 fn tick_lifetimes(
@@ -122,7 +128,7 @@ fn tick_lifetimes(
     }
 }
 
-pub fn projectile_event_dispatcher(
+pub fn projectile_collision_event_dispatcher(
     mut collision_events: EventReader<CollisionStarted>,
     projectile_query: Query<&Projectile>,
     mut projectile_events: EventWriter<ProjectileImpactEvent>,
@@ -151,27 +157,44 @@ pub fn projectile_event_dispatcher(
     }
 }
 
-fn knockback_from_projectiles(
-    mut knockback_events: EventWriter<KnockbackEvent>,
+fn projectile_hits_trigger_attacks(
     mut projectile_events: EventReader<ProjectileImpactEvent>,
-    projectiles: Query<(&Stat<Knockback>, Option<&LinearVelocity>)>,
-    positions: Query<&Transform>,
+    mut attack_events: EventWriter<AttackEvent>,
+    transforms: Query<&Transform>,
+    bullets: Query<(&SpawnedBy, Option<&LinearVelocity>)>,
+    gun_owners: Query<&Parent>,
+    mut arrows: ResMut<Arrows>,
 ) {
     for ProjectileImpactEvent {
         projectile,
         impacted,
     } in projectile_events.read()
     {
-        if let Ok((knockback, vel)) = projectiles.get(*projectile) {
-            let hit_angle = positions.get(*projectile).unwrap().translation
-                - positions.get(*impacted).unwrap().translation;
-            knockback_events.send(KnockbackEvent {
-                entity: *impacted,
-                direction: match vel {
-                    Some(LinearVelocity(linvel)) => hit_angle.xy() + *linvel,
-                    None => hit_angle.xy(),
-                },
-                force: knockback.current_value(),
+        let (target_pos, projectile_pos) = (
+            transforms.get(*projectile).unwrap(),
+            transforms.get(*impacted).unwrap(),
+        );
+        let location = projectile_pos.translation.xy();
+        if let Ok((SpawnedBy(spawner), velocity)) = bullets.get(*projectile) {
+            let (weapon, attacker): (&Entity, &Entity) = match gun_owners.get(*spawner) {
+                Ok(owner) => (spawner, &*owner),
+                Err(_) => (spawner, spawner),
+            };
+            let direction = match velocity {
+                Some(vel) => vel.yx(),
+                None => (target_pos.translation.xy() - location).normalize(),
+            };
+            arrows.0.push(Arrow {
+                position: location,
+                direction,
+                duration: Timer::default(),
+            });
+            attack_events.send(AttackEvent {
+                attacker: *attacker,
+                weapon: *weapon,
+                defender: *impacted,
+                location,
+                direction,
             });
         }
     }
@@ -195,23 +218,6 @@ fn kill_projectiles_post_impact(
                 }
             }
             Err(_) => (),
-        }
-    }
-}
-
-fn knockback_events(
-    mut knockback_events: EventReader<KnockbackEvent>,
-    mut target_query: Query<&mut ExternalImpulse>,
-) {
-    for KnockbackEvent {
-        entity,
-        direction,
-        force,
-    } in knockback_events.read()
-    {
-        let impulse_vector = Vec2::normalize(*direction) * *force;
-        if let Ok(mut impulse) = target_query.get_mut(*entity) {
-            impulse.apply_impulse(impulse_vector);
         }
     }
 }
