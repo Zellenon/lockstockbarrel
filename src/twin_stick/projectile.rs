@@ -1,4 +1,6 @@
-use avian2d::prelude::{Collider, CollisionStarted, LinearVelocity, Mass, RigidBody, SweptCcd};
+use avian2d::prelude::{
+    Collider, CollisionStarted, LinearVelocity, Mass, RigidBody, Sensor, SweptCcd,
+};
 use bevy::{
     color::{palettes::css::RED, Color},
     ecs::{schedule::SystemSet, system::ResMut},
@@ -77,6 +79,7 @@ pub fn projectile(lifespan: f32, projectile: Projectile) -> ComponentTree {
         RigidBody::Dynamic,
         Lifespan::new(lifespan),
         Collider::circle(3.),
+        Sensor,
         SweptCcd::default(),
         Mass(0.1),
         Sprite {

@@ -62,7 +62,6 @@ pub fn basic_actor() -> ComponentTree {
             LinearDamping(3.),
             Collider::circle(15.),
             LockedAxes::ROTATION_LOCKED,
-            AngularVelocity::default(),
             Stat::<MoveSpeed>::new(50.),
             Resource::<Health>::new(5.),
             CollisionLayers::new(

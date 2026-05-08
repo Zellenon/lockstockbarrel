@@ -13,6 +13,7 @@ use bevy::{
     utils::HashSet,
 };
 use display::display_plugin;
+use eyes::eye_plugin;
 use identify::{always_identify_tracked, identify_los, identify_plugin};
 use los::update_los;
 use spotting::{do_los_spotting, remove_expired_spots, spotting_plugin, tick_spotting};
@@ -25,6 +26,7 @@ pub use tracking::Tracking;
 use crate::twin_stick::{actors::Actor, map::Prop, player::Player};
 
 pub mod display;
+pub mod eyes;
 pub mod identify;
 pub mod los;
 pub mod spotting;
@@ -51,6 +53,7 @@ impl Plugin for VisionPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Revealed>();
 
+        eye_plugin(app);
         identify_plugin(app);
         display_plugin(app);
         spotting_plugin(app);

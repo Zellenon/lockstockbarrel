@@ -50,7 +50,7 @@ pub(crate) fn create_player_action_input_manager_bundle() -> InputManagerBundle<
 pub(crate) fn keyboard_input_handler(
     mut ais: Query<(&mut Actor, &ActionState<PlayerAction>), With<KeyboardAI>>,
 ) {
-    for mut actor in ais.iter_mut() {
-        actor.0.desired_direction = actor.1.axis_pair(&PlayerAction::Walk);
+    for (mut actor, action_state) in ais.iter_mut() {
+        actor.desired_direction = action_state.axis_pair(&PlayerAction::Walk);
     }
 }

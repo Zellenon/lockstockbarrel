@@ -1,21 +1,12 @@
 use bevy::{
-    ecs::{entity::Entity, system::Query},
+    ecs::{entity::Entity, query::Changed, system::Query},
     transform::components::Transform,
 };
 
-use super::{VisionObjects, LOS};
+use super::{eyes::Eye, VisionObjects, LOS};
 
-pub fn update_los(
-    mut seers: Query<(Entity, &mut LOS)>,
-    positions: Query<(Entity, &Transform), VisionObjects>,
-) {
-    for (e1, mut seer) in seers.iter_mut() {
-        let t1 = positions.get(e1).unwrap().1.translation;
-        seer.0 = positions
-            .iter()
-            .map(|(e, transform)| (e, transform.translation))
-            .filter(|(_e2, t2)| t1.distance(*t2) < 300.)
-            .map(|(e2, _t2)| e2)
-            .collect()
+pub fn update_los(mut seers: Query<(&mut LOS, &Eye), Changed<Eye>>) {
+    for (mut seer, eye) in seers.iter_mut() {
+        seer.0 = eye.los.clone().into_iter().collect();
     }
 }

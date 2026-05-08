@@ -1,15 +1,4 @@
-use crate::{
-    assets::images::ImageResources,
-    game::stats::{IdentifyPower, MoveSpeed, SpotTime},
-    twin_stick::{
-        actors::{basic_actor, Faction, PLAYER_FACTION},
-        ai::keyboard::{create_player_action_input_manager_bundle, KeyboardAI},
-        physics::GamePhysicsLayer as GPL,
-        player::{Cursor, Player},
-    },
-    util::image,
-};
-use avian2d::prelude::CollisionLayers;
+use avian2d::prelude::{CollisionLayers, RigidBody};
 use bevy::ecs::system::{Commands, Res};
 use bevy_composable::{
     app_impl::{ComplexSpawnable, ComponentTreeable},
@@ -23,6 +12,18 @@ use super::{
     util::tracking,
     weapons::{peashooter, sonar_launcher},
 };
+use crate::{
+    assets::images::ImageResources,
+    game::stats::{IdentifyPower, MoveSpeed, SpotTime},
+    twin_stick::{
+        actors::{basic_actor, Faction, PLAYER_FACTION},
+        ai::keyboard::{create_player_action_input_manager_bundle, KeyboardAI},
+        physics::GamePhysicsLayer as GPL,
+        player::{Cursor, Player},
+    },
+    util::image,
+    vision::eyes::{Eye, EyeDistance, EyeFOV},
+};
 
 pub fn spawn_player(mut commands: Commands, cursor: Res<Cursor>) {
     let player_id =
@@ -33,7 +34,7 @@ pub fn spawn_player(mut commands: Commands, cursor: Res<Cursor>) {
         .insert(create_player_action_input_manager_bundle());
 }
 
-fn player_tree_base() -> ComponentTree {
+fn player_tree_base(cursor: &Res<Cursor>) -> ComponentTree {
     (Player, KeyboardAI).store()
         + Stat::<MoveSpeed>::new(80.).store()
         + Stat::<SpotTime>::new(3.).store()
@@ -55,8 +56,17 @@ fn player_tree_base() -> ComponentTree {
 }
 
 pub fn player_tree(cursor: &Res<Cursor>) -> ComponentTree {
-    player_tree_base()
-        << (basic_head() + tracking(cursor.0) + image(ImageResources::player_head))
+    player_tree_base(cursor)
+        << (basic_head()
+            + tracking(cursor.0)
+            + image(ImageResources::player_head)
+            + (
+                //RigidBody::Kinematic,
+                Stat::<EyeDistance>::new(200.),
+                Stat::<EyeFOV>::new(2.),
+                Eye::default(),
+            )
+                .store())
         << (basic_legs() + image(ImageResources::player_legs))
     // << wallgun()
 }

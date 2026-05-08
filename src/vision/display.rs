@@ -1,9 +1,11 @@
-use core::f32;
-
+use avian2d::{
+    math::AsF32,
+    prelude::{RayCaster, RayHits},
+};
 use bevy::{
     app::{App, Update},
     color::{
-        palettes::css::{GREY, LIME, WHITE, YELLOW},
+        palettes::css::{GREEN, GREY, LIME, ORANGE_RED, WHITE, YELLOW},
         Alpha,
     },
     ecs::{
@@ -13,11 +15,12 @@ use bevy::{
     },
     gizmos::gizmos::Gizmos,
     math::{Vec2, Vec3Swizzles},
-    transform::components::Transform,
+    transform::components::{GlobalTransform, Transform},
 };
 use bevy_turborand::{DelegatedRng, GlobalRng};
+use core::f32;
 
-use super::{Identifying, Revealed, Spotting, Tracking, VisionObjects, LOS};
+use super::{eyes::EyeRay, Identifying, Revealed, Spotting, Tracking, VisionObjects, LOS};
 use crate::twin_stick::player::Player;
 
 pub fn display_plugin(app: &mut App) {
@@ -28,6 +31,8 @@ pub fn display_plugin(app: &mut App) {
             display_tracks,
             display_spotting,
             display_identification,
+            display_eye_rays,
+            //render_rays,
         ),
     );
 }
@@ -103,6 +108,21 @@ pub fn display_identification(
                     GREY.with_alpha(0.5),
                 );
             }
+        }
+    }
+}
+
+pub fn display_eye_rays(
+    eye_rays: Query<(&RayCaster, Option<&RayHits>), With<EyeRay>>,
+    mut gizmos: Gizmos,
+) {
+    for (ray, hits) in eye_rays.iter() {
+        let origin = ray.global_origin().f32();
+        let direction = ray.global_direction().f32();
+        if let Some(Some(hit)) = hits.map(|w| w.iter().next()) {
+            gizmos.line_2d(origin, origin + direction * hit.distance, WHITE);
+        } else {
+            gizmos.line_2d(origin, origin + direction * ray.max_distance, YELLOW);
         }
     }
 }
