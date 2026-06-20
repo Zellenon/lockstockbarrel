@@ -35,18 +35,18 @@
               buildPackages.mold
             ];
             buildInputs = [
-              openssl
-              pkg-config
               eza
               fd
+              openssl
+              pkg-config
               pre-commit
               rust-bin.nightly.latest.default
               rustfmt
-              systemd
               udev
               vulkan-loader
-              xorg.libX11
-              x11basic
+              wayland
+              #xorg.libX11
+              #x11basic
               xorg.libXrandr
               xorg.libXcursor
               xorg.libXi
@@ -58,11 +58,11 @@
               alias find=fd
               export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${
                 pkgs.lib.makeLibraryPath [
-                  udev
                   alsa-lib
-                  vulkan-loader
                   libxkbcommon
                   wayland
+                  udev
+                  vulkan-loader
                 ]
               }"'';
             RUST_SRC_PATH = rustPlatform.rustLibSrc;
