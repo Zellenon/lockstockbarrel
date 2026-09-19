@@ -1,8 +1,8 @@
 use bevy::{
     color::palettes::css::GREY,
-    ecs::system::{Res, ResMut, Resource},
     gizmos::gizmos::Gizmos,
     math::Vec2,
+    prelude::{Res, ResMut, Resource},
     reflect::Reflect,
     time::Timer,
 };

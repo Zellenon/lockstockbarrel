@@ -3,29 +3,29 @@ use bevy::{
     ecs::{
         component::Component,
         entity::Entity,
+        hierarchy::Children,
         query::{Added, With, Without},
-        removal_detection::RemovedComponents,
         system::{Commands, Query},
     },
-    hierarchy::Children,
+    prelude::RemovedComponents,
     reflect::Reflect,
 };
 
 use crate::action_system::actuator::ActuatorCondition;
 
 #[derive(Component, Reflect, Clone, Debug)]
-pub struct ParentTrigger;
+pub struct ChildOfTrigger;
 
-impl ParentTrigger {
+impl ChildOfTrigger {
     pub fn setup(app: &mut App) {
-        app.register_type::<ParentTrigger>();
+        app.register_type::<ChildOfTrigger>();
         app.add_systems(Update, (trigger_with_parent, untrigger_with_parent));
     }
 }
 
 pub fn trigger_with_parent(
     parents: Query<&Children, Added<ActuatorCondition>>,
-    triggers: Query<Entity, (With<ParentTrigger>, Without<ActuatorCondition>)>,
+    triggers: Query<Entity, (With<ChildOfTrigger>, Without<ActuatorCondition>)>,
     mut commands: Commands,
 ) {
     for children in parents.iter() {
@@ -42,7 +42,7 @@ pub fn trigger_with_parent(
 pub fn untrigger_with_parent(
     mut removed: RemovedComponents<ActuatorCondition>,
     parents: Query<&Children, Without<ActuatorCondition>>,
-    triggers: Query<Entity, (With<ParentTrigger>, With<ActuatorCondition>)>,
+    triggers: Query<Entity, (With<ChildOfTrigger>, With<ActuatorCondition>)>,
     mut commands: Commands,
 ) {
     for children in removed.read().filter_map(|w| parents.get(w).ok()) {

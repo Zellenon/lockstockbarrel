@@ -17,8 +17,8 @@ use bevy::{
     math::{Vec2, Vec3Swizzles},
     transform::components::{GlobalTransform, Transform},
 };
-use bevy_turborand::{DelegatedRng, GlobalRng};
 use core::f32;
+use rand::RngExt;
 
 use super::{eyes::EyeRay, Identifying, Revealed, Spotting, Tracking, VisionObjects, LOS};
 use crate::twin_stick::player::Player;
@@ -55,11 +55,11 @@ pub fn display_spotting(
     player: Query<(Entity, &Spotting, &Identifying), With<Player>>,
     mut gizmos: Gizmos,
     vis_obj: Query<&Transform, VisionObjects>,
-    mut rng: ResMut<GlobalRng>,
 ) {
+    let mut rng = rand::rng();
     let pos_offset = Vec2::new(rng.f32_normalized(), rng.f32_normalized()) * 0.5;
-    let size_offset = rng.f32_normalized() * 0.5;
-    let alpha = rng.f32() * 0.7 + 0.3;
+    let size_offset = rng.sample::<f32>(rand::distr::StandardUniform) * 0.5 - 0.25;
+    let alpha = rng.sample::<f32>(rand::distr::StandardUniform) * 0.7 + 0.3;
     if let Ok((e, Spotting(spots), Identifying(identities))) = player.get_single() {
         for seen in spots
             .iter()

@@ -1,14 +1,12 @@
 use bevy::{
     app::{App, Update},
     color::palettes::css::RED,
+    ecs::{bundle::Bundle, event::Trigger, observer::On},
     math::Vec3Swizzles,
-    prelude::{
-        Changed, Commands, Component, Entity, Gizmos, Query, Res, Transform, Trigger, With, Without,
-    },
+    prelude::{Changed, Commands, Component, Entity, Gizmos, Query, Res, Transform, With, Without},
     reflect::Reflect,
     time::{Time, Timer},
 };
-use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree};
 use std::time::Duration;
 
 use crate::{
@@ -60,8 +58,8 @@ impl TimerTrigger {
     }
 }
 
-pub fn timer(duration: f32) -> ComponentTree {
-    TimerTrigger::new(duration).store()
+pub fn timer(duration: f32) -> impl Bundle {
+    TimerTrigger::new(duration)
 }
 
 pub fn tick_timer_triggers(mut query: Query<&mut TimerTrigger>, time: Res<Time>) {
@@ -103,7 +101,7 @@ pub fn reset_immediate_timers(mut timers: Query<&mut TimerTrigger>) {
 }
 
 pub fn reset_actuator_timers(
-    trigger: Trigger<ActuatorCooldownFinished>,
+    trigger: On<ActuatorCooldownFinished>,
     mut timers: Query<&mut TimerTrigger>,
 ) {
     timers.get_mut(trigger.entity()).unwrap().timer.reset()

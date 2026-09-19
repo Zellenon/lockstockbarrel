@@ -1,11 +1,11 @@
 use bevy::{
     app::{App, Update},
     color::palettes::css::BLUE,
+    ecs::bundle::Bundle,
     math::Vec3Swizzles,
     prelude::{Commands, Component, Entity, Gizmos, Query, Transform, With, Without},
     reflect::Reflect,
 };
-use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree};
 use core::f32;
 
 use crate::{
@@ -22,8 +22,8 @@ pub struct ProximityTrigger {
     pub radius: f32,
 }
 
-pub fn proximity(factions: u16, radius: f32) -> ComponentTree {
-    ProximityTrigger::new(factions, radius).store()
+pub fn proximity(factions: u16, radius: f32) -> impl Bundle {
+    ProximityTrigger::new(factions, radius)
 }
 
 impl ProximityTrigger {

@@ -3,13 +3,13 @@ use crate::twin_stick::{
     projectile::{projectile, Projectile},
 };
 use avian2d::prelude::CollisionLayers;
-use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree};
+use bevy::ecs::bundle::Bundle;
 
-pub fn basic_bullet() -> ComponentTree {
+pub fn basic_bullet() -> impl Bundle {
     projectile(1., Projectile::default())
 }
 
-pub fn standard_player_bullet_collision() -> ComponentTree {
+pub fn standard_player_bullet_collision() -> impl Bundle {
     CollisionLayers::new(
         GamePhysicsLayer::Bullet,
         [
@@ -18,5 +18,4 @@ pub fn standard_player_bullet_collision() -> ComponentTree {
             GamePhysicsLayer::MapDynamic,
         ],
     )
-    .store()
 }

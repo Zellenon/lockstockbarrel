@@ -4,12 +4,11 @@ use bevy::{
     ecs::{
         component::Component,
         entity::Entity,
+        hierarchy::Children,
         query::{Changed, Or, With},
         system::{Commands, Query},
     },
-    hierarchy::{BuildChildren, Children},
     math::{Dir2, Vec2},
-    prelude::{ChildBuild, IntoSystemConfigs},
     reflect::Reflect,
     transform::components::Transform,
 };
@@ -86,7 +85,7 @@ pub fn update_eye_children(
                             GPL::MapSolid,
                             GPL::MapDynamic,
                         ]))
-                        .with_max_hits(2),
+                        .with_max_hits(3),
                     Transform::default(),
                     //RigidBody::Static,
                 ));

@@ -1,17 +1,15 @@
 use avian2d::prelude::{
-    Collider, CollisionLayers, ExternalForce, ExternalImpulse, LinearDamping, LinearVelocity,
-    LockedAxes, Mass, RigidBody,
+    Collider, CollisionLayers, Forces, LinearDamping, LinearVelocity, LockedAxes, Mass, RigidBody,
 };
 use bevy::{
+    ecs::{bundle::Bundle, hierarchy::ChildOf, name::Name},
     math::{Quat, Vec3, Vec3Swizzles},
     prelude::{
-        in_state, App, Changed, Commands, Component, DespawnRecursiveExt, Entity, GlobalTransform,
-        InheritedVisibility, IntoSystemConfigs, Parent, Query, Transform, Update, Vec2, Visibility,
-        With, Without,
+        in_state, App, Changed, Commands, Component, Entity, GlobalTransform, InheritedVisibility,
+        Query, Transform, Update, Vec2, Visibility, With, Without,
     },
     reflect::Reflect,
 };
-use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree, wrappers::name};
 use bevy_stats::{Resource, Stat};
 
 use super::{physics::GamePhysicsLayer as GPL, player::Player};
@@ -45,17 +43,17 @@ impl Default for Actor {
     }
 }
 
-pub fn basic_actor() -> ComponentTree {
+pub fn basic_actor() -> impl Bundle {
     (
-        Visibility::Hidden,
-        InheritedVisibility::default(),
-        vision::Tracking::default(),
-        Spotting::default(),
-        Identifying::default(),
-        Transform::default(),
-    )
-        .store()
-        + (
+        (
+            Visibility::Hidden,
+            InheritedVisibility::default(),
+            vision::Tracking::default(),
+            Spotting::default(),
+            Identifying::default(),
+            Transform::default(),
+        ),
+        (
             Actor::default(),
             RigidBody::Dynamic,
             Mass(10.0),
@@ -68,10 +66,10 @@ pub fn basic_actor() -> ComponentTree {
                 GPL::Enemy,
                 [GPL::Enemy, GPL::Player, GPL::MapSolid, GPL::MapDynamic],
             ),
-        )
-            .store()
-        + (LOS::default()).store()
-        + name("actor")
+        ),
+        (LOS::default()),
+        Name::new("actor"),
+    )
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Reflect, Debug, Component)]
@@ -111,13 +109,13 @@ pub(super) fn actor_plugin(app: &mut App) {
 }
 
 pub fn facing_update_system(
-    todo_entities: Query<Entity, (With<Tracking>, With<Transform>, With<Parent>)>,
+    todo_entities: Query<Entity, (With<Tracking>, With<Transform>, With<ChildOf>)>,
     mut transforms: Query<(
         &GlobalTransform,
         Option<&Tracking>,
         Option<&LinearVelocity>,
         &mut Transform,
-        Option<&Parent>,
+        Option<&ChildOf>,
     )>,
     parents: Query<&LinearVelocity>,
 ) {
@@ -143,7 +141,7 @@ pub fn facing_update_system(
 }
 
 fn animate_legs(
-    mut legs: Query<(&mut Transform, &mut Legs, &Parent)>,
+    mut legs: Query<(&mut Transform, &mut Legs, &ChildOf)>,
     parents: Query<&LinearVelocity>,
 ) {
     for (mut transform, mut legs, parent) in legs.iter_mut() {
@@ -168,13 +166,17 @@ fn animate_legs(
     }
 }
 
-pub fn actor_movement(mut enemies: Query<(&mut ExternalForce, &Actor, &Stat<MoveSpeed>)>) {
-    for (mut force, actor, speed) in enemies.iter_mut() {
-        (force.x, force.y) = {
+pub fn actor_movement(
+    mut enemies: Query<(Entity, &Actor, &Stat<MoveSpeed>)>,
+    mut forces: Query<Forces>,
+) {
+    for (entity, actor, speed) in enemies.iter_mut() {
+        let force = forces.get_mut(entity).unwrap();
+        force.apply_force({
             let vec =
                 Vec2::clamp_length_max(actor.desired_direction, 1.) * speed.current_value() * 600.;
             (vec.x, vec.y)
-        };
+        });
     }
 }
 

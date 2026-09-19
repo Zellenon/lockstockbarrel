@@ -2,11 +2,11 @@ use actions::{oneshot::OneShotAction, spawn::SpawnAction, vel_spawn::VelSpawnAct
 use actuator::Actuator;
 use bevy::{
     app::{Plugin, Update},
-    ecs::schedule::{IntoSystemConfigs, IntoSystemSetConfigs, SystemSet},
+    ecs::schedule::SystemSet,
     reflect::Reflect,
 };
 use triggers::{
-    key_action::PlayerActionTrigger, propagation::ParentTrigger, proximity::ProximityTrigger,
+    key_action::PlayerActionTrigger, propagation::ChildOfTrigger, proximity::ProximityTrigger,
     timer::TimerTrigger,
 };
 
@@ -31,7 +31,7 @@ impl Plugin for ActionSystemPlugin {
         TimerTrigger::setup(app);
         ProximityTrigger::setup(app);
         PlayerActionTrigger::setup(app);
-        ParentTrigger::setup(app);
+        ChildOfTrigger::setup(app);
 
         SpawnAction::setup(app);
         OneShotAction::setup(app);

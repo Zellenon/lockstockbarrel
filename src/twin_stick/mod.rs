@@ -6,7 +6,6 @@ use bevy::{
     math::Vec2,
     prelude::{App, Plugin, PluginGroup},
 };
-use bevy_turborand::prelude::RngPlugin;
 
 use actors::actor_plugin;
 use ai::AIPlugin;
@@ -31,7 +30,6 @@ pub struct TwinStickPlugin;
 impl Plugin for TwinStickPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((
-            RngPlugin::default(),
             PhysicsPlugins::default().set(PhysicsInterpolationPlugin::interpolate_all()),
         ));
         app.insert_resource(Gravity(Vec2::ZERO));

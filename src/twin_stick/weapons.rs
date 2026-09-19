@@ -1,24 +1,23 @@
-use avian2d::prelude::ExternalImpulse;
+use avian2d::prelude::Forces;
 use bevy::{
     app::{App, Update},
     ecs::{
         component::Component,
-        event::{EventReader, EventWriter},
         query::{Or, With},
-        schedule::IntoSystemConfigs,
         system::Query,
     },
+    prelude::{MessageReader, MessageWriter},
     reflect::Reflect,
     state::condition::in_state,
 };
 use bevy_stats::{
     statmod::{ModType, StatValueChange},
-    ResourceChangeEvent, Stat,
+    ResourceChangeMessage, Stat,
 };
 
 use super::{
     actors::Actor,
-    events::{AttackEvent, DamageEvent, KnockbackEvent},
+    events::{AttackMessage, DamageMessage, KnockbackMessage},
 };
 use crate::{
     game::stats::{Damage, Health, Knockback},
@@ -38,13 +37,13 @@ pub enum SpreadType {
 pub struct Weapon;
 
 pub fn weapon_plugin(app: &mut App) {
-    app.add_event::<KnockbackEvent>()
-        .add_event::<DamageEvent>()
-        .add_event::<AttackEvent>();
+    app.add_message::<KnockbackMessage>()
+        .add_message::<DamageMessage>()
+        .add_message::<AttackMessage>();
 
-    app.register_type::<KnockbackEvent>()
-        .register_type::<DamageEvent>()
-        .register_type::<AttackEvent>()
+    app.register_type::<KnockbackMessage>()
+        .register_type::<DamageMessage>()
+        .register_type::<AttackMessage>()
         .register_type::<Weapon>();
 
     app.add_systems(
@@ -58,20 +57,20 @@ pub fn weapon_plugin(app: &mut App) {
 }
 
 pub(crate) fn knockback_from_attacks(
-    mut projectile_events: EventReader<AttackEvent>,
-    mut knockback_events: EventWriter<KnockbackEvent>,
+    mut projectile_messages: MessageReader<AttackMessage>,
+    mut knockback_messages: MessageWriter<KnockbackMessage>,
     weapons: Query<&Stat<Knockback>, Or<(With<Weapon>, With<Actor>)>>,
 ) {
-    for AttackEvent {
+    for AttackMessage {
         attacker,
         weapon,
         defender,
         location: _,
         direction,
-    } in projectile_events.read()
+    } in projectile_messages.read()
     {
         if let Ok(knockback) = weapons.get(*weapon) {
-            knockback_events.send(KnockbackEvent {
+            knockback_messages.send(KnockbackMessage {
                 entity: *defender,
                 direction: *direction,
                 force: knockback.current_value(),
@@ -81,20 +80,20 @@ pub(crate) fn knockback_from_attacks(
 }
 
 pub(crate) fn damage_from_attacks(
-    mut damage_events: EventWriter<DamageEvent>,
-    mut projectile_events: EventReader<AttackEvent>,
+    mut damage_messages: MessageWriter<DamageMessage>,
+    mut projectile_messages: MessageReader<AttackMessage>,
     damagers: Query<&Stat<Damage>, Or<(With<Weapon>, With<Actor>)>>,
 ) {
-    for AttackEvent {
+    for AttackMessage {
         attacker,
         weapon,
         defender,
         location: _,
         direction: _,
-    } in projectile_events.read()
+    } in projectile_messages.read()
     {
         if let Ok(damage) = damagers.get(*weapon) {
-            damage_events.send(DamageEvent {
+            damage_messages.send(DamageMessage {
                 target: *defender,
                 source: *attacker,
                 amount: damage.current_value(),
@@ -104,33 +103,33 @@ pub(crate) fn damage_from_attacks(
 }
 
 fn impart_knockback(
-    mut knockback_events: EventReader<KnockbackEvent>,
-    mut target_query: Query<&mut ExternalImpulse>,
+    mut knockback_messages: MessageReader<KnockbackMessage>,
+    mut target_query: Query<Forces>,
 ) {
-    for KnockbackEvent {
+    for KnockbackMessage {
         entity,
         direction,
         force,
-    } in knockback_events.read()
+    } in knockback_messages.read()
     {
         let impulse_vector = direction.normalize() * *force * 3000.;
         if let Ok(mut impulse) = target_query.get_mut(*entity) {
-            impulse.apply_impulse(impulse_vector);
+            impulse.apply_force(impulse_vector);
         }
     }
 }
 
 fn impart_damage(
-    mut damage_events: EventReader<DamageEvent>,
-    mut resource_changes: EventWriter<ResourceChangeEvent<Health>>,
+    mut damage_messages: MessageReader<DamageMessage>,
+    mut resource_changes: MessageWriter<ResourceChangeMessage<Health>>,
 ) {
-    for DamageEvent {
+    for DamageMessage {
         target,
         source: _,
         amount,
-    } in damage_events.read()
+    } in damage_messages.read()
     {
-        resource_changes.send(ResourceChangeEvent {
+        resource_changes.send(ResourceChangeMessage {
             change: StatValueChange::new(amount * -1., ModType::Offset),
             target: *target,
         });

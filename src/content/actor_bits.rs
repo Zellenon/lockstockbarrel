@@ -1,16 +1,16 @@
 use crate::{
     assets::images::ImageResources,
     twin_stick::actors::{basic_actor, Legs, Tracking},
-    util::{image, GimmieFn},
+    util::gimmie::{image, GimmieFn},
 };
 use bevy::{
+    ecs::children,
     image::Image,
-    prelude::{Transform, Vec2},
+    prelude::{Bundle, Transform, Vec2},
     sprite::Sprite,
 };
-use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree};
 
-pub fn basic_head() -> ComponentTree {
+pub fn basic_head() -> impl Bundle {
     (
         Sprite {
             custom_size: Vec2::new(40., 40.).into(),
@@ -18,10 +18,9 @@ pub fn basic_head() -> ComponentTree {
         },
         Tracking(None),
     )
-        .store()
 }
 
-pub fn basic_legs() -> ComponentTree {
+pub fn basic_legs() -> impl Bundle {
     (
         Sprite {
             custom_size: Vec2::new(30., 35.).into(),
@@ -31,12 +30,17 @@ pub fn basic_legs() -> ComponentTree {
         Tracking(None),
         Legs::default(),
     )
-        .store()
 }
 
 pub fn basic_walker(
     head_tex: impl GimmieFn<Image, ImageResources>,
     leg_tex: impl GimmieFn<Image, ImageResources>,
-) -> ComponentTree {
-    basic_actor() << (basic_legs() + image(leg_tex)) << (basic_head() + image(head_tex))
+) -> impl Bundle {
+    (
+        basic_actor(),
+        children![
+            (basic_legs(), image(leg_tex)),
+            (basic_head() + image(head_tex))
+        ],
+    )
 }

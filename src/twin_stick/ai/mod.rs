@@ -1,5 +1,5 @@
 use bevy::prelude::Reflect;
-use bevy::prelude::{App, IntoSystemConfigs, Plugin, Query, Update};
+use bevy::prelude::{App, Plugin, Query, Update};
 use keyboard::PlayerAction;
 use leafwing_input_manager::plugin::InputManagerPlugin;
 

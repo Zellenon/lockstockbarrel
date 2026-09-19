@@ -1,30 +1,27 @@
-use std::time::Duration;
-
 use bevy::{
     app::{App, FixedUpdate},
     ecs::{
         component::Component,
         entity::Entity,
-        event::{Event, EventReader, EventWriter},
+        prelude::{Message, MessageReader, MessageWriter},
         query::{Changed, With},
-        schedule::IntoSystemConfigs,
         system::{Query, Res},
     },
+    platform::collections::{hash_map::Entry, HashMap},
     reflect::Reflect,
     time::{Time, Timer, TimerMode},
-    utils::{Entry, HashMap},
 };
 use bevy_stats::Stat;
 
-use crate::{game::stats::SpotTime, twin_stick::events::AttackEvent};
+use crate::{game::stats::SpotTime, twin_stick::events::AttackMessage};
 
 use super::{VisionObjects, VisionSystems, LOS};
 
 #[derive(Component, Default, Reflect, Clone, Debug)]
 pub struct Spotting(pub HashMap<Entity, Timer>);
 
-#[derive(Event, Clone, Copy, PartialEq, Reflect, Debug)]
-pub struct StartSpottingEvent {
+#[derive(Message, Clone, Copy, PartialEq, Reflect, Debug)]
+pub struct StartSpottingMessage {
     pub spotter: Entity,
     pub target: Entity,
     pub spot_time: f32,
@@ -32,8 +29,8 @@ pub struct StartSpottingEvent {
 
 pub fn spotting_plugin(app: &mut App) {
     app.register_type::<Spotting>()
-        .register_type::<StartSpottingEvent>();
-    app.add_event::<StartSpottingEvent>();
+        .register_type::<StartSpottingMessage>();
+    app.add_message::<StartSpottingMessage>();
 
     app.add_systems(
         FixedUpdate,
@@ -43,7 +40,7 @@ pub fn spotting_plugin(app: &mut App) {
                 (tick_spotting, remove_expired_spots).chain(),
                 do_spot_attacks,
             ),
-            process_spot_events,
+            process_spot_messages,
         )
             .chain()
             .in_set(VisionSystems::SpotTrack),
@@ -53,11 +50,11 @@ pub fn spotting_plugin(app: &mut App) {
 //TODO: There has to be a more efficient way to do this
 pub fn do_los_spotting(
     spotters: Query<(Entity, &Stat<SpotTime>, &LOS), Changed<LOS>>,
-    mut events: EventWriter<StartSpottingEvent>,
+    mut events: MessageWriter<StartSpottingMessage>,
 ) {
     for (e, stat, LOS(los)) in spotters.iter() {
         for seen_obj in los.iter() {
-            events.send(StartSpottingEvent {
+            events.send(StartSpottingMessage {
                 spotter: e,
                 target: *seen_obj,
                 spot_time: stat.current_value(),
@@ -85,8 +82,8 @@ pub fn tick_spotting(mut query: Query<(&mut Spotting, &LOS)>, time: Res<Time>) {
     }
 }
 
-pub fn process_spot_events(
-    mut events: EventReader<StartSpottingEvent>,
+pub fn process_spot_messages(
+    mut events: MessageReader<StartSpottingMessage>,
     mut spotters: Query<&mut Spotting>,
 ) {
     for event in events.read() {
@@ -107,24 +104,24 @@ pub fn process_spot_events(
 }
 
 pub fn do_spot_attacks(
-    mut attack_events: EventReader<AttackEvent>,
-    mut spot_events: EventWriter<StartSpottingEvent>,
+    mut attack_messages: MessageReader<AttackMessage>,
+    mut spot_messages: MessageWriter<StartSpottingMessage>,
     spotters: Query<Entity, With<Spotting>>,
     spot_attacks: Query<(Entity, &Stat<SpotTime>)>,
     vision_objects: Query<Entity, VisionObjects>,
 ) {
-    for AttackEvent {
+    for AttackMessage {
         attacker,
         weapon,
         defender,
         location,
         direction,
-    } in attack_events.read()
+    } in attack_messages.read()
     {
         if let Ok((attack, attack_stat)) = spot_attacks.get(*weapon) {
             if let Ok(_) = vision_objects.get(*defender) {
                 if let Ok(_) = spotters.get(*attacker) {
-                    spot_events.send(StartSpottingEvent {
+                    spot_messages.send(StartSpottingMessage {
                         spotter: *attacker,
                         target: *defender,
                         spot_time: attack_stat.current_value(),

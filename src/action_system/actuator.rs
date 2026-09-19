@@ -1,19 +1,22 @@
 use bevy::{
     app::{App, Update},
-    ecs::schedule::IntoSystemConfigs,
-    prelude::{Added, Changed, Commands, Component, Entity, Event, Query, Res, Trigger},
+    ecs::{
+        bundle::Bundle,
+        event::{Event, Trigger},
+        observer::On,
+    },
+    prelude::{Added, Changed, Commands, Component, Entity, Message, Query, Res},
     reflect::Reflect,
     time::{Time, Timer},
 };
-use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree};
 use std::time::Duration;
 
 use super::ActuatorLogicPhases;
 use crate::util::add_observer_to_component;
 
-#[derive(Event, Reflect, Debug)]
+#[derive(Event, Message, Reflect, Debug)]
 pub struct Actuate;
-#[derive(Event, Reflect, Debug)]
+#[derive(Event, Message, Reflect, Debug)]
 pub struct ActuatorCooldownFinished;
 
 #[derive(Reflect, Clone, Debug, PartialEq, PartialOrd, Ord, Eq)]
@@ -59,7 +62,7 @@ impl Actuator {
     }
 }
 
-pub fn actuator(trigger: ActuatorFireStyle, cooldown: f32) -> ComponentTree {
+pub fn actuator(trigger: ActuatorFireStyle, cooldown: f32) -> impl Bundle {
     Actuator {
         fire_style: trigger,
         cooldown: {
@@ -71,7 +74,6 @@ pub fn actuator(trigger: ActuatorFireStyle, cooldown: f32) -> ComponentTree {
             a
         },
     }
-    .store()
 }
 
 #[derive(Component, Reflect, Clone, Debug)]
@@ -173,10 +175,7 @@ pub fn fire_actuator_on_cooldown_over(
     }
 }
 
-pub fn actuator_cooldown_on_actuate(
-    trigger: Trigger<Actuate>,
-    mut actuators: Query<&mut Actuator>,
-) {
+pub fn actuator_cooldown_on_actuate(trigger: On<Actuate>, mut actuators: Query<&mut Actuator>) {
     actuators
         .get_mut(trigger.entity())
         .unwrap()

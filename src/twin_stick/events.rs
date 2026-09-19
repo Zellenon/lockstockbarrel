@@ -1,11 +1,7 @@
-use bevy::{
-    ecs::{entity::Entity, event::Event},
-    math::Vec2,
-    reflect::Reflect,
-};
+use bevy::{ecs::{entity::Entity, message::Message}, math::Vec2, reflect::Reflect};
 
-#[derive(Event, Clone, Copy, PartialEq, Reflect, Debug)]
-pub struct AttackEvent {
+#[derive(Message, Clone, Copy, PartialEq, Reflect, Debug)]
+pub struct AttackMessage {
     pub attacker: Entity,
     pub weapon: Entity,
     pub defender: Entity,
@@ -13,15 +9,15 @@ pub struct AttackEvent {
     pub direction: Vec2,
 }
 
-#[derive(Event, Clone, Copy, PartialEq, Reflect, Debug)]
-pub struct KnockbackEvent {
+#[derive(Message, Clone, Copy, PartialEq, Reflect, Debug)]
+pub struct KnockbackMessage {
     pub entity: Entity,
     pub direction: Vec2,
     pub force: f32,
 }
 
-#[derive(Event, Clone, Copy, PartialEq, Reflect, Debug)]
-pub struct DamageEvent {
+#[derive(Message, Clone, Copy, PartialEq, Reflect, Debug)]
+pub struct DamageMessage {
     pub target: Entity,
     pub source: Entity,
     pub amount: f32,

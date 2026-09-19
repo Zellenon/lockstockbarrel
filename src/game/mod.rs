@@ -1,15 +1,14 @@
 use bevy::{
     app::{App, Plugin, Startup},
     ecs::system::Commands,
-    prelude::{not, IntoSystemConfigs, Update},
+    prelude::{not, Update},
 };
-use bevy_composable::app_impl::{ComplexSpawnable, ComponentTreeable};
 use bevy_stats::Stat;
 use stats::{stats_plugin, MoveSpeed};
 
 use crate::{
     action_system::{
-        actions::telegraphed,
+        actions::TelegraphedAction,
         prefabs::{spawn_delay, spawn_prox},
     },
     arena::{spawn_arena_from_map, to_map, Arena},
@@ -47,23 +46,23 @@ fn test_load_level(mut commands: Commands) {
     };
     spawn_arena_from_map(&mut commands, &level);
 
-    commands.compose(
-        pos(450., 450.)
-            + spawn_prox(
-                1 << PLAYER_FACTION,
-                200.,
-                spawn_delay(1.0, stumbler()) + telegraphed(),
-            )
-            + telegraphed(),
-    );
+    commands.spawn((
+        pos(450., 450.),
+        spawn_prox(
+            1 << PLAYER_FACTION,
+            200.,
+            spawn_delay(1.0, stumbler()) + TelegraphedAction,
+        ),
+        TelegraphedAction,
+    ));
 
-    commands.compose(
-        pos(-650., 450.)
-            + spawn_prox(
-                1 << PLAYER_FACTION,
-                200.,
-                spawn_delay(1.0, stumbler() + Stat::<MoveSpeed>::new(0.1).store()) + telegraphed(),
-            )
-            + telegraphed(),
-    );
+    commands.spawn((
+        pos(-650., 450.),
+        spawn_prox(
+            1 << PLAYER_FACTION,
+            200.,
+            spawn_delay(1.0, stumbler() + Stat::<MoveSpeed>::new(0.1).store()) + telegraphed(),
+        ),
+        telegraphed(),
+    ));
 }

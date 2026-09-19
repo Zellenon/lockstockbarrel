@@ -5,7 +5,7 @@ use bevy::{
     reflect::Reflect,
     time::Time,
 };
-use bevy_turborand::{DelegatedRng, GlobalRng};
+use rand::{self, RngExt};
 
 use super::super::actors::Actor;
 
@@ -56,12 +56,10 @@ impl Default for PerlinWanderAI {
     }
 }
 
-pub(crate) fn ai_wander(
-    mut actors: Query<(&mut Actor, &mut PerlinWanderAI)>,
-    mut rand: ResMut<GlobalRng>,
-    time: Res<Time>,
-) {
-    let temp = repeat_with(|| rand.f32_normalized())
+pub(crate) fn ai_wander(mut actors: Query<(&mut Actor, &mut PerlinWanderAI)>, time: Res<Time>) {
+    let temp = rand::rng()
+        .sample::<f32>(rand::distr::StandardUniform)
+        .map(|w| w * 2. - 1.)
         .take(actors.iter().count() * 2)
         .collect::<Vec<f32>>();
     let mut nums = temp.iter();

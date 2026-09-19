@@ -8,12 +8,11 @@ use bevy::{
     math::{Isometry2d, Vec2, Vec3Swizzles},
     transform::components::GlobalTransform,
 };
-use bevy_editor_pls::prelude::EditorPlugin;
 use grid::grid_system;
 
 use crate::action_system::{
     actuator::Actuator,
-    triggers::{key_action::PlayerActionTrigger, propagation::ParentTrigger},
+    triggers::{key_action::PlayerActionTrigger, propagation::ChildOfTrigger},
 };
 
 pub struct DebugPlugin;
@@ -23,7 +22,6 @@ pub mod grid;
 impl Plugin for DebugPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         // #[cfg(feature = "editor")]
-        app.add_plugins(EditorPlugin::new());
         app.init_resource::<Arrows>();
         //    .insert_resource(default_editor_controls());
 
@@ -34,22 +32,9 @@ impl Plugin for DebugPlugin {
     }
 }
 
-fn test_display(weapons: Query<&GlobalTransform, (With<ParentTrigger>)>, mut gizmos: Gizmos) {
+fn test_display(weapons: Query<&GlobalTransform, (With<ChildOfTrigger>)>, mut gizmos: Gizmos) {
     for transform in weapons.iter() {
         gizmos.circle_2d(transform.compute_transform().translation.xy(), 10., RED);
     }
 }
 
-//fn default_editor_controls() -> bevy_editor_pls::controls::EditorControls {
-//    use bevy_editor_pls::controls::*;
-//    let mut editor_controls = EditorControls::default_bindings();
-//    editor_controls.unbind(Action::PlayPauseEditor);
-//    editor_controls.insert(
-//        Action::PlayPauseEditor,
-//        Binding {
-//            input: UserInput::Single(Button::Keyboard(KeyCode::KeyQ)),
-//            conditions: vec![BindingCondition::ListeningForText(false)],
-//        },
-//    );
-//    editor_controls
-//}

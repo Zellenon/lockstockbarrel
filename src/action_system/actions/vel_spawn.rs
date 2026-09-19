@@ -1,24 +1,22 @@
-use avian2d::prelude::ExternalImpulse;
 use bevy::{
     app::App,
     ecs::{
+        bundle::Bundle,
         entity::Entity,
+        event::Trigger,
+        hierarchy::ChildOf,
+        observer::On,
         query::{Or, With},
         system::{Res, ResMut},
     },
-    hierarchy::{HierarchyQueryExt, Parent},
     math::{Quat, Vec2},
-    prelude::{Commands, Component, Query, Transform, Trigger},
+    prelude::{Commands, Component, Query, Transform},
     reflect::Reflect,
     transform::components::GlobalTransform,
 };
-use bevy_composable::{
-    app_impl::{ComplexSpawnable, ComponentTreeable},
-    tree::ComponentTree,
-};
 use bevy_stats::Stat;
-use bevy_turborand::{DelegatedRng, GlobalRng};
-use std::f32;
+use rand;
+use std::{f32, sync::Arc};
 
 use crate::{
     action_system::actuator::Actuate,
@@ -28,7 +26,10 @@ use crate::{
         actors::Actor,
         weapons::{SpreadType, Weapon},
     },
-    util::add_observer_to_component,
+    util::{
+        add_observer_to_component,
+        spawning::{store, StoredCommand},
+    },
 };
 
 use super::spawn::SpawnedBy;
@@ -44,21 +45,21 @@ impl AngleOffset {
 
 #[derive(Component, Clone)]
 pub struct VelSpawnAction {
-    pub payload: Vec<(ComponentTree, AngleOffset, bool)>,
+    pub payload: Vec<(Arc<StoredCommand>, AngleOffset, bool)>,
 }
 
 impl VelSpawnAction {
-    pub fn spawn<T: Into<AngleOffset>>(tree: ComponentTree, angle: T, uses_count: bool) -> Self {
+    pub fn new<T: Into<AngleOffset>>(bundle: impl Bundle, angle: T, uses_count: bool) -> Self {
         Self {
-            payload: vec![(tree, angle.into(), uses_count)],
+            payload: vec![(store(bundle), angle.into(), uses_count)],
         }
     }
 
-    pub fn spawns<A: Into<AngleOffset>, T: Iterator<Item = (ComponentTree, A, bool)>>(
+    pub fn spawns<A: Into<AngleOffset>, T: Iterator<Item = (impl Bundle, A, bool)>>(
         trees: T,
     ) -> Self {
         Self {
-            payload: trees.map(|w| (w.0, w.1.into(), w.2)).collect(),
+            payload: trees.map(|w| (store(w.0), w.1.into(), w.2)).collect(),
         }
     }
 
@@ -71,21 +72,21 @@ impl VelSpawnAction {
 }
 
 pub fn vel_spawn<T: Into<AngleOffset>>(
-    tree: ComponentTree,
+    bundle: impl Bundle,
     angle: T,
     uses_count: bool,
-) -> ComponentTree {
-    VelSpawnAction::spawn(tree, angle, uses_count).store()
+) -> impl Bundle {
+    VelSpawnAction::spawn(store(bundle), angle, uses_count)
 }
 
-pub fn vel_spawns<A: Into<AngleOffset>, T: Iterator<Item = (ComponentTree, A, bool)>>(
-    trees: T,
-) -> ComponentTree {
-    VelSpawnAction::spawns(trees).store()
+pub fn vel_spawns<A: Into<AngleOffset>, T: Iterator<Item = (impl Bundle, A, bool)>>(
+    bundles: T,
+) -> impl Bundle {
+    VelSpawnAction::spawns(bundles)
 }
 
 pub fn do_vel_spawn_action(
-    trigger: Trigger<Actuate>,
+    trigger: On<Actuate>,
     spawners: Query<(
         Entity,
         &VelSpawnAction,
@@ -96,9 +97,8 @@ pub fn do_vel_spawn_action(
         Option<&Stat<ShotCount>>,
     )>,
     attackers: Query<Entity, Or<(With<Actor>, With<Weapon>)>>,
-    parents: Query<&Parent>,
+    parents: Query<&ChildOf>,
     mut commands: Commands,
-    mut rng: ResMut<GlobalRng>,
 ) {
     if let Ok((e, spawn_action, transform, speed, accuracy, spread, shot_count)) =
         spawners.get(trigger.entity())
@@ -115,7 +115,7 @@ pub fn do_vel_spawn_action(
             SpreadType::NormalDistribution => todo!(),
             SpreadType::Jittered => todo!(),
             SpreadType::TrueRandom => (0..shot_count)
-                .map(|_| rng.f32_normalized() * (fire_cone / 2.))
+                .map(|_| rand::rng().sample::<f32>(rand::distr::StandardUniform) * (fire_cone / 2.))
                 .collect(),
         };
         print!("{:?}", spawn_angles);

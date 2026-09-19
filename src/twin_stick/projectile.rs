@@ -1,23 +1,21 @@
 use avian2d::prelude::{
-    Collider, CollisionStarted, LinearVelocity, Mass, RigidBody, Sensor, SweptCcd,
+    Collider, CollisionStart, LinearVelocity, Mass, RigidBody, Sensor, SweptCcd,
 };
 use bevy::{
     color::{palettes::css::RED, Color},
-    ecs::{schedule::SystemSet, system::ResMut},
-    hierarchy::{HierarchyQueryExt, Parent},
+    ecs::{bundle::Bundle, hierarchy::ChildOf, name::Name, schedule::SystemSet, system::ResMut},
     math::{Vec2Swizzles, Vec3Swizzles},
     prelude::{
-        in_state, App, Commands, Component, DespawnRecursiveExt, Entity, Event, EventReader,
-        EventWriter, IntoSystemConfigs, Query, Reflect, Res, Transform, Update, Vec2, Visibility,
+        in_state, App, Commands, Component, Entity, Message, MessageReader, MessageWriter, Query,
+        Reflect, Res, Transform, Update, Vec2, Visibility,
     },
     sprite::Sprite,
     time::{Time, Timer, TimerMode},
     utils::default,
 };
-use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree, wrappers::name};
 use std::time::Duration;
 
-use super::{actors::Actor, events::AttackEvent, weapons::Weapon};
+use super::{actors::Actor, events::AttackMessage, weapons::Weapon};
 use crate::{action_system::actions::spawn::SpawnedBy, states::TimerState};
 
 #[derive(Debug, SystemSet, Reflect, Clone, Copy, Hash, PartialEq, Eq)]
@@ -38,16 +36,16 @@ pub enum ProjectileImpactBehavior {
     Bounce,
 }
 
-#[derive(Event, Clone, Copy, PartialEq, Eq, Reflect, Debug)]
-pub struct ProjectileImpactEvent {
+#[derive(Message, Clone, Copy, PartialEq, Eq, Reflect, Debug)]
+pub struct ProjectileImpactMessage {
     pub projectile: Entity,
     pub impacted: Entity,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Reflect, Debug, Event)]
-pub struct ProjectileClashEvent(pub Entity, pub Entity);
+#[derive(Clone, Copy, PartialEq, Eq, Reflect, Debug, Message)]
+pub struct ProjectileClashMessage(pub Entity, pub Entity);
 
-#[derive(Clone, PartialEq, Eq, Reflect, Debug, Event)]
+#[derive(Clone, PartialEq, Eq, Reflect, Debug, Message)]
 pub struct ContactDamage(pub Option<Timer>);
 
 pub fn projectile_plugin(app: &mut App) {
@@ -56,7 +54,7 @@ pub fn projectile_plugin(app: &mut App) {
         (
             tick_lifetimes,
             (
-                projectile_collision_event_dispatcher,
+                projectile_collision_message_dispatcher,
                 (
                     kill_projectiles_post_impact,
                     projectile_hits_trigger_attacks,
@@ -68,11 +66,11 @@ pub fn projectile_plugin(app: &mut App) {
             .in_set(ProjectileSystems),
     );
 
-    app.add_event::<ProjectileImpactEvent>()
-        .add_event::<ProjectileClashEvent>();
+    app.add_message::<ProjectileImpactMessage>()
+        .add_message::<ProjectileClashMessage>();
 }
 
-pub fn projectile(lifespan: f32, projectile: Projectile) -> ComponentTree {
+pub fn projectile(lifespan: f32, projectile: Projectile) -> impl Bundle {
     (
         projectile,
         Visibility::Visible,
@@ -87,9 +85,8 @@ pub fn projectile(lifespan: f32, projectile: Projectile) -> ComponentTree {
             custom_size: Some(Vec2::new(6., 6.)),
             ..default()
         },
+        Name::new("Projectile"),
     )
-        .store()
-        + name("Projectile")
 }
 
 impl Lifespan {
@@ -127,26 +124,31 @@ fn tick_lifetimes(
     }
 }
 
-pub fn projectile_collision_event_dispatcher(
-    mut collision_events: EventReader<CollisionStarted>,
+pub fn projectile_collision_message_dispatcher(
+    mut collision_messages: MessageReader<CollisionStart>,
     projectile_query: Query<&Projectile>,
-    mut projectile_events: EventWriter<ProjectileImpactEvent>,
-    mut clash_events: EventWriter<ProjectileClashEvent>,
+    mut projectile_messages: MessageWriter<ProjectileImpactMessage>,
+    mut clash_messages: MessageWriter<ProjectileClashMessage>,
 ) {
-    for collision_event in collision_events.read() {
-        let CollisionStarted(e1, e2) = collision_event;
+    for collision_message in collision_messages.read() {
+        let CollisionStart {
+            collider1: e1,
+            collider2: e2,
+            body1,
+            body2,
+        } = collision_message;
         match (projectile_query.get(*e1), projectile_query.get(*e2)) {
             (Ok(_), Ok(_)) => {
-                clash_events.send(ProjectileClashEvent(*e1, *e2));
+                clash_messages.send(ProjectileClashMessage(*e1, *e2));
             }
             (Ok(_), _) => {
-                projectile_events.send(ProjectileImpactEvent {
+                projectile_messages.send(ProjectileImpactMessage {
                     projectile: *e1,
                     impacted: *e2,
                 });
             }
             (Err(_), Ok(_)) => {
-                projectile_events.send(ProjectileImpactEvent {
+                projectile_messages.send(ProjectileImpactMessage {
                     impacted: *e1,
                     projectile: *e2,
                 });
@@ -158,18 +160,18 @@ pub fn projectile_collision_event_dispatcher(
 
 //TODO: Attack directions are still incorrect
 fn projectile_hits_trigger_attacks(
-    mut projectile_events: EventReader<ProjectileImpactEvent>,
-    mut attack_events: EventWriter<AttackEvent>,
+    mut projectile_messages: MessageReader<ProjectileImpactMessage>,
+    mut attack_messages: MessageWriter<AttackMessage>,
     transforms: Query<&Transform>,
     bullets: Query<(&SpawnedBy, Option<&LinearVelocity>)>,
-    parents: Query<&Parent>,
+    parents: Query<&ChildOf>,
     weapons: Query<&Weapon>,
     actors: Query<&Actor>,
 ) {
-    for ProjectileImpactEvent {
+    for ProjectileImpactMessage {
         projectile,
         impacted,
-    } in projectile_events.read()
+    } in projectile_messages.read()
     {
         let (target_pos, projectile_pos) = (
             transforms.get(*projectile).unwrap(),
@@ -190,7 +192,7 @@ fn projectile_hits_trigger_attacks(
                 None => (target_pos.translation.xy() - location).normalize(),
             };
             if let (Some(attacker), Some(weapon)) = (attacker, weapon) {
-                attack_events.send(AttackEvent {
+                attack_messages.send(AttackMessage {
                     attacker,
                     weapon,
                     defender: *impacted,
@@ -205,11 +207,11 @@ fn projectile_hits_trigger_attacks(
 }
 
 fn kill_projectiles_post_impact(
-    mut events: EventReader<ProjectileImpactEvent>,
+    mut events: MessageReader<ProjectileImpactMessage>,
     mut commands: Commands,
     query: Query<&Projectile>,
 ) {
-    for ProjectileImpactEvent {
+    for ProjectileImpactMessage {
         projectile: projectile_id,
         impacted: _,
     } in events.read()

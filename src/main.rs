@@ -26,7 +26,6 @@ mod graphics;
 mod states;
 mod transform2d;
 mod twin_stick;
-mod ui;
 mod util;
 mod vision;
 
@@ -53,7 +52,6 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     app.add_plugins(TwinStickPlugin);
     app.add_plugins(ActionSystemPlugin);
 
-    // app.add_plugins((StatePlugin, UiPlugin));
     app.add_plugins(StatePlugin);
     app.add_plugins(GamePlugin);
     app.add_plugins(DebugPlugin);
