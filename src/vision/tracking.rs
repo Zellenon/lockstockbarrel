@@ -3,33 +3,32 @@ use bevy::{
     ecs::{
         component::Component,
         entity::Entity,
-        event::{Event, EventReader, EventWriter},
+        prelude::{Message, MessageReader, MessageWriter},
         query::With,
-        schedule::IntoSystemConfigs,
         system::Query,
     },
+    platform::collections::HashSet,
     reflect::Reflect,
-    utils::HashSet,
 };
 
 use super::{VisionObjects, VisionSystems};
 use crate::twin_stick::{
     actors::{Faction, PLAYER_FACTION},
-    events::AttackEvent,
+    events::AttackMessage,
     player::Player,
 };
 
 #[derive(Component, Default, Reflect, Clone, Debug)]
 pub struct Tracking(pub HashSet<Entity>);
 
-#[derive(Event, Clone, Copy, PartialEq, Reflect, Debug)]
-pub struct TrackEvent {
+#[derive(Message, Clone, Copy, PartialEq, Reflect, Debug)]
+pub struct TrackMessage {
     pub tracker: Entity,
     pub target: Entity,
 }
 
-#[derive(Event, Clone, Copy, PartialEq, Reflect, Debug)]
-pub struct NewTrackEvent {
+#[derive(Message, Clone, Copy, PartialEq, Reflect, Debug)]
+pub struct NewTrackMessage {
     pub tracker: Entity,
     pub target: Entity,
 }
@@ -39,16 +38,16 @@ pub struct TrackAttack;
 
 pub fn track_plugin(app: &mut App) {
     app.register_type::<Tracking>()
-        .register_type::<TrackEvent>()
-        .register_type::<NewTrackEvent>()
-        .add_event::<TrackEvent>()
-        .add_event::<NewTrackEvent>();
+        .register_type::<TrackMessage>()
+        .register_type::<NewTrackMessage>()
+        .add_message::<TrackMessage>()
+        .add_message::<NewTrackMessage>();
 
     app.add_systems(
         FixedUpdate,
         (
             (always_track_allies, do_track_attacks),
-            process_track_events,
+            process_track_messages,
         )
             .chain()
             .in_set(VisionSystems::SpotTrack),
@@ -72,24 +71,24 @@ pub fn always_track_allies(
 }
 
 pub fn do_track_attacks(
-    mut attack_events: EventReader<AttackEvent>,
-    mut track_events: EventWriter<TrackEvent>,
+    mut attack_messages: MessageReader<AttackMessage>,
+    mut track_messages: MessageWriter<TrackMessage>,
     trackers: Query<Entity, With<Tracking>>,
     track_attacks: Query<Entity, With<TrackAttack>>,
     vision_objects: Query<Entity, VisionObjects>,
 ) {
-    for AttackEvent {
+    for AttackMessage {
         attacker,
         weapon,
         defender,
         location,
         direction,
-    } in attack_events.read()
+    } in attack_messages.read()
     {
         if let Ok(_) = track_attacks.get(*weapon) {
             if let Ok(_) = vision_objects.get(*defender) {
                 if let Ok(_) = trackers.get(*attacker) {
-                    track_events.send(TrackEvent {
+                    track_messages.send(TrackMessage {
                         tracker: *attacker,
                         target: *defender,
                     });
@@ -99,20 +98,20 @@ pub fn do_track_attacks(
     }
 }
 
-pub fn process_track_events(
-    mut track_events: EventReader<TrackEvent>,
-    mut new_events: EventWriter<NewTrackEvent>,
+pub fn process_track_messages(
+    mut track_messages: MessageReader<TrackMessage>,
+    mut new_messages: MessageWriter<NewTrackMessage>,
     mut trackers: Query<&mut Tracking>,
 ) {
-    for TrackEvent {
+    for TrackMessage {
         tracker: tracker_e,
         target,
-    } in track_events.read()
+    } in track_messages.read()
     {
         if let Ok(mut tracker) = trackers.get_mut(*tracker_e) {
             if !tracker.0.contains(target) {
                 tracker.0.insert(*target);
-                new_events.send(NewTrackEvent {
+                new_messages.send(NewTrackMessage {
                     tracker: *tracker_e,
                     target: *target,
                 });

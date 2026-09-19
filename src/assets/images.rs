@@ -1,6 +1,6 @@
 use bevy::{
     asset::Handle,
-    ecs::system::Resource,
+    prelude::Resource,
     prelude::{Image, Reflect},
 };
 use bevy_asset_loader::asset_collection::AssetCollection;

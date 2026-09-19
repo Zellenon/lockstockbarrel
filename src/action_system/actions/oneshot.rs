@@ -1,9 +1,9 @@
 use bevy::{
     app::App,
-    prelude::{Commands, Component, Trigger},
+    ecs::{event::Trigger, observer::On},
+    prelude::{Commands, Component},
     reflect::Reflect,
 };
-use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree};
 
 use crate::{action_system::actuator::Actuate, util::add_observer_to_component};
 
@@ -19,10 +19,6 @@ impl OneShotAction {
     }
 }
 
-pub fn oneshot() -> ComponentTree {
-    OneShotAction.store()
-}
-
-pub fn despawn_oneshot(trigger: Trigger<Actuate>, mut commands: Commands) {
+pub fn despawn_oneshot(trigger: On<Actuate>, mut commands: Commands) {
     commands.get_entity(trigger.entity()).unwrap().despawn();
 }

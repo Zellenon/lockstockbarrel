@@ -1,5 +1,4 @@
-use bevy::ecs::system::{Commands, Resource};
-use bevy_composable::app_impl::ComplexSpawnable;
+use bevy::ecs::{resource::Resource, system::Commands};
 
 use super::arena_objects::wall;
 
@@ -25,7 +24,7 @@ pub fn spawn_arena_from_map(commands: &mut Commands, level: &Arena) {
         let mut j = 0.;
         for block in row.iter() {
             if *block {
-                commands.compose(wall(
+                commands.spawn(wall(
                     j * level.resolution - (x_len * 0.5),
                     (y_len * 0.5) - i * level.resolution,
                     level.resolution,

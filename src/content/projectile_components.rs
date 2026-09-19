@@ -1,12 +1,12 @@
 use bevy::{
-    prelude::{Commands, Component, Entity, EventReader, EventWriter, Query, Res, With},
+    prelude::{Commands, Component, Entity, MessageReader, MessageWriter, Query, Res, With},
     time::Time,
 };
 use bevy_stats::{
-    statmod::{ResourceChangeEvent, StatModifier, StatValueChange},
+    statmod::{ResourceChangeMessage, StatModifier, StatValueChange},
     DeleteStatMod, Resource, Stat,
 };
-use bevy_twin_stick::projectile::ProjectileImpactEvent;
+use bevy_twin_stick::projectile::ProjectileImpactMessage;
 
 use super::stats::{Damage, Health, Speed};
 
@@ -19,11 +19,11 @@ pub struct SlowOnImpact {
 
 pub(crate) fn apply_slow_on_hit(
     mut commands: Commands,
-    mut impacts: EventReader<ProjectileImpactEvent>,
+    mut impacts: MessageReader<ProjectileImpactMessage>,
     mut targets: Query<&mut Stat<Speed>>,
     projectiles: Query<&SlowOnImpact>,
 ) {
-    for ProjectileImpactEvent {
+    for ProjectileImpactMessage {
         projectile,
         impacted,
     } in impacts.read()
@@ -49,7 +49,7 @@ pub(crate) fn apply_slow_on_hit(
 pub(crate) fn tick_fading_slow(
     mut query: Query<(&mut StatValueChange<Speed>, &SlowOnImpact, Entity), With<StatModifier>>,
     time: Res<Time>,
-    mut events: EventWriter<DeleteStatMod>,
+    mut events: MessageWriter<DeleteStatMod>,
 ) {
     for (mut change, slow, entity) in query.iter_mut() {
         if change.value.abs() < slow.threshhold.abs() {
@@ -63,10 +63,10 @@ pub(crate) fn tick_fading_slow(
 pub(crate) fn damaging_projectile(
     mut targets: Query<(Entity, &mut Resource<Health>)>,
     attacks: Query<&Stat<Damage>>,
-    mut events: EventReader<ProjectileImpactEvent>,
-    mut damages: EventWriter<ResourceChangeEvent<Health>>,
+    mut events: MessageReader<ProjectileImpactMessage>,
+    mut damages: MessageWriter<ResourceChangeMessage<Health>>,
 ) {
-    for ProjectileImpactEvent {
+    for ProjectileImpactMessage {
         projectile,
         impacted,
     } in events.read()
@@ -77,7 +77,7 @@ pub(crate) fn damaging_projectile(
         {
             if let Ok((_entity, _)) = targets.get_mut(*impacted) {
                 println!("Damage");
-                damages.send(ResourceChangeEvent {
+                damages.send(ResourceChangeMessage {
                     change: StatValueChange::offset(-1. * current),
                     target: *impacted,
                 });

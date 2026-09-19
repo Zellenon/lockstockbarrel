@@ -2,12 +2,12 @@ use bevy::{
     app::{App, Update},
     ecs::{
         component::Component,
+        hierarchy::ChildOf,
         query::Changed,
         system::{Commands, Query},
     },
-    hierarchy::Children,
+    platform::collections::HashMap,
     reflect::Reflect,
-    utils::HashMap,
 };
 use leafwing_input_manager::prelude::ActionState;
 use strum::IntoEnumIterator;
@@ -35,7 +35,7 @@ impl PlayerActionTrigger {
 }
 
 pub fn sync_playeraction_triggers(
-    parents: Query<(&ActionState<PlayerAction>, &Children), Changed<ActionState<PlayerAction>>>,
+    parents: Query<(&ActionState<PlayerAction>, &ChildOf), Changed<ActionState<PlayerAction>>>,
     triggers: Query<(&PlayerActionTrigger, Option<&ActuatorCondition>)>,
     mut commands: Commands,
 ) {

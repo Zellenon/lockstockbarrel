@@ -1,16 +1,15 @@
 use bevy::{
     app::{App, FixedUpdate, Plugin},
+    camera::visibility::Visibility,
     ecs::{
         component::Component,
         entity::Entity,
         query::{Or, With},
-        schedule::{IntoSystemConfigs, SystemSet},
+        schedule::SystemSet,
         system::{Commands, Query},
     },
-    prelude::IntoSystemSetConfigs,
+    platform::collections::HashSet,
     reflect::Reflect,
-    render::view::Visibility,
-    utils::HashSet,
 };
 use display::display_plugin;
 use eyes::eye_plugin;

@@ -72,6 +72,6 @@ pub(crate) fn pause_on_esc(
     }
 }
 
-fn exit(mut app_exit_events: EventWriter<AppExit>) {
-    app_exit_events.send(AppExit::Success);
+fn exit(mut app_exit_messages: MessageWriter<AppExit>) {
+    app_exit_messages.send(AppExit::Success);
 }

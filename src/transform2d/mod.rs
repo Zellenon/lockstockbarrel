@@ -2,7 +2,6 @@ use bevy::{
     math::{ops::atan2, Affine2},
     prelude::*,
 };
-use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree};
 use std::fmt::Debug;
 
 pub trait Transform2d: Component + Debug + PartialEq + Clone + Copy + Reflect {
@@ -12,15 +11,12 @@ pub trait Transform2d: Component + Debug + PartialEq + Clone + Copy + Reflect {
 
     fn with_translation2d(self, translation: Vec2) -> Self;
 
-    #[must_use]
     fn with_rotation2d(self, rotation: f32) -> Self;
 
     /// Returns this [`Transform2d`] with a new scale.
-    #[must_use]
     fn with_scale2d(self, scale: Vec2) -> Self;
 
     /// Returns this [`Transform2d`] with a new Z translation.
-    #[must_use]
     fn with_layer(self, z_translation: f32) -> Self;
 
     fn pointed_to(self, direction: Vec2, target_direction: Vec2) -> Self;
@@ -82,14 +78,12 @@ impl Transform2d for Transform {
         }
     }
 
-    #[must_use]
     #[inline]
     fn with_translation2d(mut self, translation: Vec2) -> Self {
         self.translation = translation.extend(self.translation.z);
         self
     }
 
-    #[must_use]
     #[inline]
     fn with_rotation2d(mut self, rotation: f32) -> Self {
         self.rotation = Quat::from_2d(rotation);
@@ -97,7 +91,6 @@ impl Transform2d for Transform {
     }
 
     /// Returns this [`Transform2d`] with a new scale.
-    #[must_use]
     #[inline]
     fn with_scale2d(mut self, scale: Vec2) -> Self {
         self.scale = scale.extend(1.);
@@ -105,7 +98,6 @@ impl Transform2d for Transform {
     }
 
     /// Returns this [`Transform2d`] with a new Z translation.
-    #[must_use]
     #[inline]
     fn with_layer(mut self, z_translation: f32) -> Self {
         self.translation.z = z_translation;

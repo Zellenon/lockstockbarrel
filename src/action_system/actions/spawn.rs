@@ -1,45 +1,38 @@
 use bevy::{
     app::App,
     ecs::{
+        bundle::Bundle,
         entity::Entity,
+        hierarchy::ChildOf,
+        observer::On,
         query::{Or, With},
     },
-    hierarchy::{HierarchyQueryExt, Parent},
-    prelude::{Commands, Component, Query, Transform, Trigger},
+    prelude::{Commands, Component, Query, Transform},
+    scene::SceneComponent,
     transform::components::GlobalTransform,
-};
-use bevy_composable::{
-    app_impl::{ComplexSpawnable, ComponentTreeable},
-    tree::ComponentTree,
 };
 
 use crate::{
     action_system::actuator::Actuate,
     twin_stick::{actors::Actor, weapons::Weapon},
-    util::add_observer_to_component,
+    util::{
+        add_observer_to_component,
+        spawning::{store, StoredCommand},
+    },
 };
 
 #[derive(Component, Clone)]
-pub struct SpawnAction {
-    pub payload: Vec<ComponentTree>,
-}
+pub struct SpawnAction(pub Vec<StoredCommand>);
+
+#[derive(Component, Clone, Debug)]
+#[relationship_target(relationship = SpawnedBy)]
+pub struct Spawned(Vec<Entity>);
 
 #[derive(Component, Clone, PartialEq, Hash, Debug)]
+#[relationship(relationship_target = Spawned)]
 pub struct SpawnedBy(pub Entity);
 
 impl SpawnAction {
-    pub fn spawn(tree: ComponentTree) -> Self {
-        Self {
-            payload: vec![tree],
-        }
-    }
-
-    pub fn spawns<T: Iterator<Item = ComponentTree>>(trees: T) -> Self {
-        Self {
-            payload: trees.collect(),
-        }
-    }
-
     pub fn setup(app: &mut App) {
         // app.register_type::<SpawnAction>();
         app.add_observer(add_observer_to_component::<SpawnAction, _, _, _, _>(
@@ -48,40 +41,38 @@ impl SpawnAction {
     }
 }
 
-pub fn spawn(tree: ComponentTree) -> ComponentTree {
-    SpawnAction::spawn(tree).store()
+pub fn spawn(bundle: impl Bundle) -> SpawnAction {
+    SpawnAction(vec![store(bundle)])
 }
 
-pub fn spawns<T: Iterator<Item = ComponentTree>>(trees: T) -> ComponentTree {
-    SpawnAction::spawns(trees).store()
+pub fn spawns<T: Iterator<Item = StoredCommand>>(bundles: T) -> SpawnAction {
+    SpawnAction(bundles.map(|w| || w))
 }
 
 pub fn do_spawn_action(
-    trigger: Trigger<Actuate>,
+    trigger: On<Actuate>,
     spawners: Query<(Entity, &SpawnAction, &GlobalTransform)>,
     attackers: Query<Entity, Or<(With<Actor>, With<Weapon>)>>,
-    parents: Query<&Parent>,
+    parents: Query<&ChildOf>,
     mut commands: Commands,
 ) {
     if let Ok((e, spawn_action, transform)) = spawners.get(trigger.entity()) {
-        for payload in spawn_action.payload.iter() {
-            let (scale, rotation, translation) = transform.to_scale_rotation_translation();
-            let spawned_transform = Transform {
-                translation,
-                rotation,
-                scale,
-            };
-
+        let (scale, rotation, translation) = transform.to_scale_rotation_translation();
+        let spawned_transform = Transform {
+            translation,
+            rotation,
+            scale,
+        };
+        for payload in spawn_action.0.iter() {
             if let Some(attacker) = std::iter::once(e)
                 .chain(parents.iter_ancestors(e))
                 .filter(|w| attackers.get(*w).is_ok())
                 .next()
             // If there's a first ancestor with Weapon/Actor
             {
-                commands
-                    .compose(payload.clone() + (spawned_transform, SpawnedBy(attacker)).store());
+                commands.spawn((payload(), spawned_transform, SpawnedBy(attacker)));
             } else {
-                commands.compose(payload.clone() + spawned_transform.store());
+                commands.spawn((payload(), spawned_transform, SpawnedBy(e)));
             }
         }
     }

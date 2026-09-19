@@ -1,6 +1,4 @@
-use bevy::prelude::{
-    Entity, IntoSystemConfigs, Plugin, Query, Reflect, Res, Transform, Update, With,
-};
+use bevy::prelude::{Entity, Plugin, Query, Reflect, Res, Transform, Update, With};
 
 use super::player::{player_exists, CursorTracker, MainCamera, Player};
 

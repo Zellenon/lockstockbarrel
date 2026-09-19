@@ -4,7 +4,7 @@ use bevy::{
 };
 use leafwing_input_manager::{
     prelude::{ActionState, InputMap, VirtualDPad},
-    Actionlike, InputControlKind, InputManagerBundle,
+    Actionlike, InputControlKind,
 };
 use strum_macros::EnumIter;
 
@@ -32,7 +32,7 @@ impl Actionlike for PlayerAction {
     }
 }
 
-pub(crate) fn create_player_action_input_manager_bundle() -> InputManagerBundle<PlayerAction> {
+pub(crate) fn create_player_action_input_manager_bundle() -> InputMap<PlayerAction> {
     InputManagerBundle::with_map(
         InputMap::new([
             (PlayerAction::Shoot3, KeyCode::Space),

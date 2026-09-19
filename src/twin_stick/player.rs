@@ -1,16 +1,15 @@
 use bevy::{
     prelude::{
-        in_state, App, Camera2dBundle, Commands, Component, Entity, IntoSystemConfigs, Name, Query,
-        Reflect, Res, Resource, Startup, Transform, Update, With,
+        in_state, App, Commands, Component, Entity, Name, Query, Reflect, Res, Resource, Startup,
+        Transform, Update, Visibility, With,
     },
-    render::view::Visibility,
     window::Window,
 };
 
 use super::utils::screen_to_world;
 use crate::{states::TimerState, transform2d::Transform2d};
 
-#[derive(Component, Resource, Clone, Copy, PartialEq, Eq, Reflect, Debug)]
+#[derive(Resource, Clone, Copy, PartialEq, Eq, Reflect, Debug)]
 pub struct MainCamera(pub Entity);
 
 #[derive(Component, Clone, Copy, PartialEq, Eq, Reflect, Debug)]
@@ -19,7 +18,7 @@ pub struct TwinStickCamera;
 #[derive(Component, Clone, Copy, PartialEq, Eq, Reflect, Debug)]
 pub struct CursorTracker;
 
-#[derive(Component, Resource, Clone, Copy, PartialEq, Eq, Reflect, Debug)]
+#[derive(Resource, Clone, Copy, PartialEq, Eq, Reflect, Debug)]
 pub struct Cursor(pub Entity);
 
 #[derive(Component, Clone, Copy, PartialEq, Eq, Reflect, Debug)]

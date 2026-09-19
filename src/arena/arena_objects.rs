@@ -1,10 +1,9 @@
 use avian2d::prelude::{Collider, CollisionLayers, RigidBody};
-use bevy::{color::Color, core::Name};
-use bevy_composable::{app_impl::ComponentTreeable, tree::ComponentTree};
+use bevy::{color::Color, ecs::bundle::Bundle, prelude::Name};
 
 use crate::{graphics::rect, twin_stick::physics::GamePhysicsLayer as GPL};
 
-pub fn wall(x: f32, y: f32, width: f32, height: f32) -> ComponentTree {
+pub fn wall(x: f32, y: f32, width: f32, height: f32) -> impl Bundle {
     rect(x, y, width, height, Color::srgb(0.25, 0.25, 0.75))
         + (
             RigidBody::Static,
@@ -21,5 +20,4 @@ pub fn wall(x: f32, y: f32, width: f32, height: f32) -> ComponentTree {
                 ],
             ),
         )
-            .store()
 }
