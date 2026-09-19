@@ -5,22 +5,21 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-bevy = {version = "0.15" }
-bevy_turborand = "0.10"
-bevy_egui = { version = "0.33", features = ["immutable_ctx"]}
-#bevy_editor_pls = "0.10"
-avian2d = "0.2"
+bevy = {version = "0.19" }
+bevy_rand = "0.15"
+bevy_egui = { version = "0.42", features = ["immutable_ctx"]}
+avian2d = "0.7"
 # avian2d = {git = "https://github.com/Jondolf/avian"}
 serde = "1.0"
 strum = "0.27"
 strum_macros = "0.27"
-bevy_asset_loader = "0.22"
+bevy_asset_loader = "0.27"
 leafwing-input-manager = { version = "0.16", features = ["egui"] }
 itertools = "0.14"
 
 bevy_composable = {git = "https://github.com/Zellenon/bevy_composable.git"}
 bevy_stats = {git = "https://github.com/Zellenon/bevy_stats.git"}
-bevy_editor_pls = {git = "https://github.com/ltsoveranakin/bevy_editor_pls"}
+#bevy_editor_pls = {git = "https://github.com/ltsoveranakin/bevy_editor_pls"}
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]
