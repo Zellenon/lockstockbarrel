@@ -23,7 +23,7 @@ pub fn add_observer_to_component<T, S, E, B, M>(
 where
     T: Component,
     B: Bundle,
-    E: Message + 'static,
+    E: Event + 'static,
     S: IntoObserverSystem<E, B, M> + Send + Sync + Clone,
 {
     move |trigger: Trigger<Add, T>, mut commands: Commands| {
