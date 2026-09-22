@@ -32,10 +32,10 @@
               pre-commit
               udev
               vulkan-loader
-              libX11
+              #libX11
               #x11basic
-              libXi
               systemd
+              wayland
             ];
 
             shellHook = ''
@@ -47,6 +47,7 @@
                   alsa-lib
                   vulkan-loader
                   libxkbcommon
+                  wayland
                 ]
               }"'';
             RUST_SRC_PATH = rustPlatform.rustLibSrc;

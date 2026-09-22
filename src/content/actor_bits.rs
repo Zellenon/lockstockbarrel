@@ -40,7 +40,7 @@ pub fn basic_walker(
         basic_actor(),
         children![
             (basic_legs(), image(leg_tex)),
-            (basic_head() + image(head_tex))
+            (basic_head(), image(head_tex))
         ],
     )
 }

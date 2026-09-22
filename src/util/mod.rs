@@ -1,7 +1,7 @@
 use bevy::{
     app::Plugin,
     ecs::{event::Trigger, lifecycle::Add, observer::On, system::IntoObserverSystem},
-    prelude::{Bundle, Commands, Component, Message},
+    prelude::{Bundle, Commands, Component, EntityEvent, Message},
 };
 use gimmie::give_images;
 
@@ -23,12 +23,12 @@ pub fn add_observer_to_component<T, S, E, B, M>(
 where
     T: Component,
     B: Bundle,
-    E: Event + 'static,
+    E: EntityEvent + 'static,
     S: IntoObserverSystem<E, B, M> + Send + Sync + Clone,
 {
-    move |trigger: Trigger<Add, T>, mut commands: Commands| {
+    move |trigger: On<Add, T>, mut commands: Commands| {
         commands
-            .entity(trigger.entity())
+            .entity(trigger.event().entity)
             .observe(observer_function.clone());
     }
 }

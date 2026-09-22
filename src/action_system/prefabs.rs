@@ -7,12 +7,19 @@ use super::{
 };
 
 pub fn spawn_delay(delay: f32, bundle: impl Bundle) -> impl Bundle {
-    actuator(ActuatorFireStyle::RisingEdge, 0.5) + timer(delay) + spawn(bundle) + OneShotAction
+    (
+        actuator(ActuatorFireStyle::RisingEdge, 0.5),
+        timer(delay),
+        spawn(bundle),
+        OneShotAction,
+    )
 }
 
 pub fn spawn_prox(factions: u16, radius: f32, bundle: impl Bundle) -> impl Bundle {
-    actuator(ActuatorFireStyle::RisingEdge, 0.5)
-        + proximity(factions, radius)
-        + spawn(bundle)
-        + OneShotAction
+    (
+        actuator(ActuatorFireStyle::RisingEdge, 0.5),
+        proximity(factions, radius),
+        spawn(bundle),
+        OneShotAction,
+    )
 }

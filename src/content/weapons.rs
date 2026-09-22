@@ -48,7 +48,7 @@ pub fn peashooter(cursor: &Res<Cursor>) -> impl Bundle {
             ChildOfTrigger,
             Weapon::default(),
             vel_spawn(
-                basic_bullet() + standard_player_bullet_collision(),
+                (basic_bullet(), standard_player_bullet_collision()),
                 0.,
                 true,
             )
@@ -61,7 +61,7 @@ pub fn sonar_launcher(cursor: &Res<Cursor>) -> impl Bundle {
         PlayerActionTrigger::new([PlayerAction::Shoot3]),
         Tracking(Some(cursor.0)),
         Transform::default(),
-        Name::name("Sonar"),
+        Name::new("Sonar"),
         children![(
             Name::new("Barrel"),
             Actuator::new(ActuatorFireStyle::SemiAuto(false), 1.3),

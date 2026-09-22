@@ -45,8 +45,8 @@ pub fn spawn(bundle: impl Bundle) -> SpawnAction {
     SpawnAction(vec![store(bundle)])
 }
 
-pub fn spawns<T: Iterator<Item = StoredCommand>>(bundles: T) -> SpawnAction {
-    SpawnAction(bundles.map(|w| || w))
+pub fn spawns<T: Iterator<Item = impl Bundle>>(bundles: T) -> SpawnAction {
+    SpawnAction(bundles.map(|w| store(w)).collect())
 }
 
 pub fn do_spawn_action(
@@ -56,7 +56,7 @@ pub fn do_spawn_action(
     parents: Query<&ChildOf>,
     mut commands: Commands,
 ) {
-    if let Ok((e, spawn_action, transform)) = spawners.get(trigger.entity()) {
+    if let Ok((e, spawn_action, transform)) = spawners.get(trigger.event().0) {
         let (scale, rotation, translation) = transform.to_scale_rotation_translation();
         let spawned_transform = Transform {
             translation,
@@ -70,9 +70,9 @@ pub fn do_spawn_action(
                 .next()
             // If there's a first ancestor with Weapon/Actor
             {
-                commands.spawn((payload(), spawned_transform, SpawnedBy(attacker)));
+                payload(&mut commands.spawn((spawned_transform, SpawnedBy(attacker))));
             } else {
-                commands.spawn((payload(), spawned_transform, SpawnedBy(e)));
+                payload(&mut commands.spawn((spawned_transform, SpawnedBy(e))));
             }
         }
     }

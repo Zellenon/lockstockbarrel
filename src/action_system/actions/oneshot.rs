@@ -20,5 +20,5 @@ impl OneShotAction {
 }
 
 pub fn despawn_oneshot(trigger: On<Actuate>, mut commands: Commands) {
-    commands.get_entity(trigger.entity()).unwrap().despawn();
+    commands.get_entity(trigger.event().0).unwrap().despawn();
 }

@@ -2,7 +2,7 @@ use bevy::{
     app::{App, Update},
     ecs::{
         bundle::Bundle,
-        event::{Event, Trigger},
+        event::{EntityEvent, Event},
         observer::On,
     },
     prelude::{Added, Changed, Commands, Component, Entity, Message, Query, Res},
@@ -14,8 +14,8 @@ use std::time::Duration;
 use super::ActuatorLogicPhases;
 use crate::util::add_observer_to_component;
 
-#[derive(Event, Message, Reflect, Debug)]
-pub struct Actuate;
+#[derive(EntityEvent, Message, Reflect, Debug)]
+pub struct Actuate(pub Entity);
 #[derive(Event, Message, Reflect, Debug)]
 pub struct ActuatorCooldownFinished;
 
@@ -95,8 +95,8 @@ pub fn fire_actuator_on_condition_change(
     for (e, mut act) in actuators.iter_mut() {
         match act.fire_style {
             ActuatorFireStyle::Constantly => {
-                if act.cooldown.finished() {
-                    commands.trigger_targets(Actuate, e);
+                if act.cooldown.is_finished() {
+                    commands.trigger_with(Actuate, e);
                 }
             }
             ActuatorFireStyle::RisingEdge => {
