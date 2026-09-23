@@ -1,6 +1,6 @@
 use bevy::{
     math::Vec3Swizzles,
-    prelude::{Component, Query, Reflect, Transform, With},
+    prelude::{Component, Query, Reflect, Single, Transform, With},
 };
 
 use crate::twin_stick::{actors::Actor, player::Player};
@@ -11,10 +11,10 @@ pub struct TrackerAI {
 }
 
 pub(crate) fn do_tracker_ai(
-    player: Query<&Transform, With<Player>>,
+    player: Single<&Transform, With<Player>>,
     mut ais: Query<(&mut Actor, &Transform, &TrackerAI)>,
 ) {
-    let player_pos = player.single().translation;
+    let player_pos = player.translation;
     for (mut enemy, transform, tracker) in ais.iter_mut() {
         enemy.desired_direction += tracker.precision
             * (player_pos - transform.translation)
