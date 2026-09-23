@@ -1,6 +1,6 @@
 use bevy::{
     app::{App, Plugin, Startup},
-    ecs::system::Commands,
+    ecs::{schedule::IntoScheduleConfigs, system::Commands},
     prelude::{not, Update},
 };
 use bevy_stats::Stat;
@@ -51,7 +51,7 @@ fn test_load_level(mut commands: Commands) {
         spawn_prox(
             1 << PLAYER_FACTION,
             200.,
-            spawn_delay(1.0, stumbler()) + TelegraphedAction,
+            (spawn_delay(1.0, stumbler()), TelegraphedAction),
         ),
         TelegraphedAction,
     ));
@@ -61,8 +61,11 @@ fn test_load_level(mut commands: Commands) {
         spawn_prox(
             1 << PLAYER_FACTION,
             200.,
-            spawn_delay(1.0, stumbler() + Stat::<MoveSpeed>::new(0.1).store()) + telegraphed(),
+            (
+                spawn_delay(1.0, (stumbler(), Stat::<MoveSpeed>::new(0.1))),
+                TelegraphedAction,
+            ),
         ),
-        telegraphed(),
+        TelegraphedAction,
     ));
 }
