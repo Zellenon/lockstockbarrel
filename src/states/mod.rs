@@ -25,7 +25,7 @@ fn unload_world(
 ) {
     for actor in gameworld_entities.into_iter() {
         let mut entity = commands.entity(actor);
-        entity.despawn_descendants();
+        entity.despawn_related::<Children>();
         entity.despawn();
     }
 }
@@ -73,5 +73,5 @@ pub(crate) fn pause_on_esc(
 }
 
 fn exit(mut app_exit_messages: MessageWriter<AppExit>) {
-    app_exit_messages.send(AppExit::Success);
+    app_exit_messages.write(AppExit::Success);
 }
