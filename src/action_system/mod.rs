@@ -3,6 +3,7 @@ use actuator::Actuator;
 use bevy::{
     app::{Plugin, Update},
     ecs::schedule::SystemSet,
+    prelude::IntoScheduleConfigs,
     reflect::Reflect,
 };
 use triggers::{

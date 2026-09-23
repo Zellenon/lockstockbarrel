@@ -1,5 +1,7 @@
-use bevy::prelude::Reflect;
-use bevy::prelude::{App, Plugin, Query, Update};
+use bevy::{
+    bevy_ecs::schedule::IntoScheduleConfigs,
+    prelude::{App, Plugin, Query, Reflect, Update},
+};
 use keyboard::PlayerAction;
 use leafwing_input_manager::plugin::InputManagerPlugin;
 
