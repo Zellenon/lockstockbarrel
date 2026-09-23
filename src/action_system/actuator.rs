@@ -4,6 +4,7 @@ use bevy::{
         bundle::Bundle,
         event::{EntityEvent, Event},
         observer::On,
+        schedule::IntoScheduleConfigs,
     },
     prelude::{Added, Changed, Commands, Component, Entity, Message, Query, Res},
     reflect::Reflect,
@@ -16,8 +17,8 @@ use crate::util::add_observer_to_component;
 
 #[derive(EntityEvent, Message, Reflect, Debug)]
 pub struct Actuate(pub Entity);
-#[derive(Event, Message, Reflect, Debug)]
-pub struct ActuatorCooldownFinished;
+#[derive(EntityEvent, Message, Reflect, Debug)]
+pub struct ActuatorCooldownFinished(pub Entity);
 
 #[derive(Reflect, Clone, Debug, PartialEq, PartialOrd, Ord, Eq)]
 pub enum ActuatorFireStyle {
@@ -82,7 +83,7 @@ pub struct ActuatorCondition;
 pub fn tick_actuator_cooldown(mut actuators: Query<&mut Actuator>, time: Res<Time>) {
     let delta = time.delta();
     for mut act in actuators.iter_mut() {
-        if !act.cooldown.finished() {
+        if !act.cooldown.is_finished() {
             act.cooldown.tick(delta);
         }
     }
@@ -96,32 +97,32 @@ pub fn fire_actuator_on_condition_change(
         match act.fire_style {
             ActuatorFireStyle::Constantly => {
                 if act.cooldown.is_finished() {
-                    commands.trigger_with(Actuate, e);
+                    commands.trigger(Actuate(e));
                 }
             }
             ActuatorFireStyle::RisingEdge => {
-                if act.cooldown.finished() {
-                    commands.trigger_targets(Actuate, e);
+                if act.cooldown.is_finished() {
+                    commands.trigger(Actuate(e));
                 }
             }
             ActuatorFireStyle::StoreConstantly(_) => {
-                if act.cooldown.finished() {
-                    commands.trigger_targets(Actuate, e);
+                if act.cooldown.is_finished() {
+                    commands.trigger(Actuate(e));
                 } else {
                     act.fire_style = ActuatorFireStyle::StoreConstantly(true);
                 }
             }
             ActuatorFireStyle::StoreRisingEdge(_) => {
-                if act.cooldown.finished() {
-                    commands.trigger_targets(Actuate, e);
+                if act.cooldown.is_finished() {
+                    commands.trigger(Actuate(e));
                     act.fire_style = ActuatorFireStyle::StoreRisingEdge(false);
                 } else {
                     act.fire_style = ActuatorFireStyle::StoreRisingEdge(true);
                 }
             }
             ActuatorFireStyle::SemiAuto(_) => {
-                if act.cooldown.finished() {
-                    commands.trigger_targets(Actuate, e);
+                if act.cooldown.is_finished() {
+                    commands.trigger(Actuate(e));
                     act.fire_style = ActuatorFireStyle::SemiAuto(false);
                 } else {
                     act.fire_style = ActuatorFireStyle::SemiAuto(true);
@@ -139,17 +140,17 @@ pub fn fire_actuator_on_cooldown_over(
         .iter_mut()
         .filter(|(_, act, _)| act.cooldown.just_finished())
     {
-        commands.trigger_targets(ActuatorCooldownFinished, e);
+        commands.trigger(ActuatorCooldownFinished(e));
         match act.fire_style {
             ActuatorFireStyle::Constantly => {
                 if condition.is_some() {
-                    commands.trigger_targets(Actuate, e);
+                    commands.trigger(Actuate(e));
                 }
             }
             ActuatorFireStyle::RisingEdge => (),
             ActuatorFireStyle::StoreConstantly(cond) => {
                 if cond {
-                    commands.trigger_targets(Actuate, e);
+                    commands.trigger(Actuate(e));
                     if condition.is_none() {
                         act.fire_style = ActuatorFireStyle::StoreConstantly(false);
                     }
@@ -157,14 +158,14 @@ pub fn fire_actuator_on_cooldown_over(
             }
             ActuatorFireStyle::StoreRisingEdge(cond) => {
                 if cond {
-                    commands.trigger_targets(Actuate, e);
+                    commands.trigger(Actuate(e));
                     act.fire_style = ActuatorFireStyle::StoreRisingEdge(false);
                 }
             }
             ActuatorFireStyle::SemiAuto(cond) => {
                 if cond {
                     if condition.is_none() {
-                        commands.trigger_targets(Actuate, e);
+                        commands.trigger(Actuate(e));
                         act.fire_style = ActuatorFireStyle::SemiAuto(false);
                     }
                 } else {
@@ -177,7 +178,7 @@ pub fn fire_actuator_on_cooldown_over(
 
 pub fn actuator_cooldown_on_actuate(trigger: On<Actuate>, mut actuators: Query<&mut Actuator>) {
     actuators
-        .get_mut(trigger.entity())
+        .get_mut(trigger.event().0)
         .unwrap()
         .cooldown
         .reset();
