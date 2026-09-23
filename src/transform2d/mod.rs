@@ -118,7 +118,7 @@ impl Transform2d for Transform {
 
     #[inline]
     fn point_to(&mut self, direction: Vec2, target_direction: Vec2) {
-        self.rotation = Quat::from_2d(Vec2::angle_between(direction, target_direction));
+        self.rotation = Quat::from_2d(Vec2::angle_to(direction, target_direction));
     }
 
     #[inline]
