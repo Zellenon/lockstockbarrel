@@ -1,7 +1,8 @@
 use bevy::{
+    ecs::schedule::IntoScheduleConfigs,
     prelude::{
-        in_state, App, Commands, Component, Entity, Name, Query, Reflect, Res, Resource, Startup,
-        Transform, Update, Visibility, With,
+        in_state, App, Camera2d, Commands, Component, Entity, Name, Query, Reflect, Res, Resource,
+        Startup, Transform, Update, Visibility, With,
     },
     window::Window,
 };
@@ -38,7 +39,7 @@ pub(super) fn player_plugin(app: &mut App) {
 
 pub fn player_setup(mut commands: Commands) {
     let camera_entity = commands
-        .spawn(Camera2dBundle::default())
+        .spawn(Camera2d::default())
         .insert(Name::new("Twin-Stick Player Camera"))
         .insert(Transform::default().with_layer(100.))
         .insert(TwinStickCamera)
