@@ -1,12 +1,16 @@
 use avian2d::prelude::{
     Collider, CollisionLayers, Forces, LinearDamping, LinearVelocity, LockedAxes, Mass, RigidBody,
+    WriteRigidBodyForces,
 };
 use bevy::{
-    ecs::{bundle::Bundle, hierarchy::ChildOf, name::Name},
+    ecs::{
+        bundle::Bundle, hierarchy::ChildOf, name::Name, relationship::Relationship,
+        schedule::IntoScheduleConfigs,
+    },
     math::{Quat, Vec3, Vec3Swizzles},
     prelude::{
-        in_state, App, Changed, Commands, Component, Entity, GlobalTransform, InheritedVisibility,
-        Query, Transform, Update, Vec2, Visibility, With, Without,
+        in_state, App, Changed, Children, Commands, Component, Entity, GlobalTransform,
+        InheritedVisibility, Query, Transform, Update, Vec2, Visibility, With, Without,
     },
     reflect::Reflect,
 };
@@ -171,11 +175,11 @@ pub fn actor_movement(
     mut forces: Query<Forces>,
 ) {
     for (entity, actor, speed) in enemies.iter_mut() {
-        let force = forces.get_mut(entity).unwrap();
+        let mut force = forces.get_mut(entity).unwrap();
         force.apply_force({
             let vec =
                 Vec2::clamp_length_max(actor.desired_direction, 1.) * speed.current_value() * 600.;
-            (vec.x, vec.y)
+            Vec2::new(vec.x, vec.y)
         });
     }
 }
@@ -186,7 +190,7 @@ pub fn health_death(
 ) {
     for (entity, health) in health_query.iter() {
         if health.current_value() <= 0. {
-            commands.entity(entity).despawn_recursive();
+            commands.entity(entity).despawn_related::<Children>();
         }
     }
 }
