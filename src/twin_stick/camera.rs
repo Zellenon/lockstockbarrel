@@ -1,4 +1,7 @@
-use bevy::prelude::{Entity, Plugin, Query, Reflect, Res, Transform, Update, With};
+use bevy::{
+    ecs::schedule::IntoScheduleConfigs,
+    prelude::{Entity, Plugin, Query, Reflect, Res, Single, Transform, Update, With},
+};
 
 use super::player::{player_exists, CursorTracker, MainCamera, Player};
 
@@ -12,15 +15,15 @@ impl Plugin for CameraPlugin {
 }
 
 pub fn camera_movement(
-    cursor: Query<Entity, With<CursorTracker>>,
-    player: Query<Entity, With<Player>>,
+    cursor: Single<Entity, With<CursorTracker>>,
+    player: Single<Entity, With<Player>>,
     camera: Res<MainCamera>,
     mut transforms: Query<&mut Transform>,
 ) {
     let player_weight = 0.7;
     let delay = 0.15;
-    let cursor_loc = transforms.get(cursor.single()).unwrap().translation;
-    let player_loc = transforms.get(player.single()).unwrap().translation;
+    let cursor_loc = transforms.get(*cursor).unwrap().translation;
+    let player_loc = transforms.get(*player).unwrap().translation;
     let mut camera_loc = transforms.get_mut(camera.0).unwrap().translation;
     camera_loc = (cursor_loc * (1. - player_weight) + player_loc * player_weight) * delay
         + camera_loc * (1. - delay);
