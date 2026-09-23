@@ -7,6 +7,7 @@ use bevy::{
         system::{Commands, Query},
     },
     platform::collections::HashMap,
+    prelude::Children,
     reflect::Reflect,
 };
 use leafwing_input_manager::prelude::ActionState;
@@ -35,7 +36,7 @@ impl PlayerActionTrigger {
 }
 
 pub fn sync_playeraction_triggers(
-    parents: Query<(&ActionState<PlayerAction>, &ChildOf), Changed<ActionState<PlayerAction>>>,
+    parents: Query<(&ActionState<PlayerAction>, &Children), Changed<ActionState<PlayerAction>>>,
     triggers: Query<(&PlayerActionTrigger, Option<&ActuatorCondition>)>,
     mut commands: Commands,
 ) {
