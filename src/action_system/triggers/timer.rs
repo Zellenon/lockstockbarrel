@@ -65,7 +65,7 @@ pub fn timer(duration: f32) -> impl Bundle {
 pub fn tick_timer_triggers(mut query: Query<&mut TimerTrigger>, time: Res<Time>) {
     let delta = time.delta();
     for mut timer in query.iter_mut() {
-        if !timer.timer.finished() {
+        if !timer.timer.is_finished() {
             timer.timer.tick(delta);
         }
     }
@@ -104,7 +104,7 @@ pub fn reset_actuator_timers(
     trigger: On<ActuatorCooldownFinished>,
     mut timers: Query<&mut TimerTrigger>,
 ) {
-    timers.get_mut(trigger.entity()).unwrap().timer.reset()
+    timers.get_mut(trigger.event().0).unwrap().timer.reset()
 }
 
 pub fn deactivate_timer_triggers(
@@ -120,7 +120,7 @@ pub fn deactivate_timer_triggers(
 ) {
     for (entity, _) in timers
         .iter()
-        .filter(|(_, trigger)| !trigger.timer.finished())
+        .filter(|(_, trigger)| !trigger.timer.is_finished())
     {
         commands.entity(entity).remove::<ActuatorCondition>();
     }
