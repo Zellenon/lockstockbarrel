@@ -58,7 +58,7 @@ impl Default for PerlinWanderAI {
 
 pub(crate) fn ai_wander(mut actors: Query<(&mut Actor, &mut PerlinWanderAI)>, time: Res<Time>) {
     let temp = rand::rng()
-        .sample::<f32>(rand::distr::StandardUniform)
+        .sample_iter::<f32, _>(rand::distr::StandardUniform)
         .map(|w| w * 2. - 1.)
         .take(actors.iter().count() * 2)
         .collect::<Vec<f32>>();
