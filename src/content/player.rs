@@ -26,13 +26,11 @@ use crate::{
 };
 
 pub fn spawn_player(mut commands: Commands, cursor: Res<Cursor>) {
-    let player_id = commands.spawn((
-        player_tree(&cursor),
-        children![peashooter(&cursor), sonar_launcher(&cursor)],
-    ));
     commands
-        .get_entity(player_id)
-        .unwrap()
+        .spawn((
+            player_tree(&cursor),
+            children![peashooter(&cursor), sonar_launcher(&cursor)],
+        ))
         .insert(create_player_action_input_manager_bundle());
 }
 
