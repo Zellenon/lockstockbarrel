@@ -5,7 +5,8 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-bevy = {version = "0.19" }
+bevy = {version = "0.19" , features = ["dynamic_linking"]}
+bevy_dylib = "0.19"
 bevy_rand = "0.15"
 bevy_prng = "0.15"
 avian2d = "0.7"
