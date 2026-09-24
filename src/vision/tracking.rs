@@ -5,9 +5,11 @@ use bevy::{
         entity::Entity,
         prelude::{Message, MessageReader, MessageWriter},
         query::With,
+        schedule::IntoScheduleConfigs,
         system::Query,
     },
     platform::collections::HashSet,
+    prelude::Single,
     reflect::Reflect,
 };
 
@@ -55,17 +57,15 @@ pub fn track_plugin(app: &mut App) {
 }
 
 pub fn always_track_allies(
-    mut player: Query<&mut Tracking, With<Player>>,
+    mut tracking: Single<&mut Tracking, With<Player>>,
     allies: Query<(Entity, &Faction)>,
 ) {
-    if let Ok(mut tracking) = player.get_single_mut() {
-        for (entity, _) in allies
-            .iter()
-            .filter(|(e, faction)| faction.0 == PLAYER_FACTION)
-        {
-            if !tracking.0.contains(&entity) {
-                tracking.0.insert(entity);
-            }
+    for (entity, _) in allies
+        .iter()
+        .filter(|(e, faction)| faction.0 == PLAYER_FACTION)
+    {
+        if !tracking.0.contains(&entity) {
+            tracking.0.insert(entity);
         }
     }
 }
@@ -81,14 +81,14 @@ pub fn do_track_attacks(
         attacker,
         weapon,
         defender,
-        location,
-        direction,
+        location: _,
+        direction: _,
     } in attack_messages.read()
     {
         if let Ok(_) = track_attacks.get(*weapon) {
             if let Ok(_) = vision_objects.get(*defender) {
                 if let Ok(_) = trackers.get(*attacker) {
-                    track_messages.send(TrackMessage {
+                    track_messages.write(TrackMessage {
                         tracker: *attacker,
                         target: *defender,
                     });
@@ -111,7 +111,7 @@ pub fn process_track_messages(
         if let Ok(mut tracker) = trackers.get_mut(*tracker_e) {
             if !tracker.0.contains(target) {
                 tracker.0.insert(*target);
-                new_messages.send(NewTrackMessage {
+                new_messages.write(NewTrackMessage {
                     tracker: *tracker_e,
                     target: *target,
                 });

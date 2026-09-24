@@ -1,6 +1,7 @@
-use avian2d::prelude::Forces;
+use avian2d::prelude::{Forces, WriteRigidBodyForces};
 use bevy::{
     app::{App, Update},
+    ecs::schedule::IntoScheduleConfigs,
     ecs::{
         component::Component,
         query::{Or, With},
@@ -70,7 +71,7 @@ pub(crate) fn knockback_from_attacks(
     } in projectile_messages.read()
     {
         if let Ok(knockback) = weapons.get(*weapon) {
-            knockback_messages.send(KnockbackMessage {
+            knockback_messages.write(KnockbackMessage {
                 entity: *defender,
                 direction: *direction,
                 force: knockback.current_value(),
@@ -93,7 +94,7 @@ pub(crate) fn damage_from_attacks(
     } in projectile_messages.read()
     {
         if let Ok(damage) = damagers.get(*weapon) {
-            damage_messages.send(DamageMessage {
+            damage_messages.write(DamageMessage {
                 target: *defender,
                 source: *attacker,
                 amount: damage.current_value(),
@@ -129,7 +130,7 @@ fn impart_damage(
         amount,
     } in damage_messages.read()
     {
-        resource_changes.send(ResourceChangeMessage {
+        resource_changes.write(ResourceChangeMessage {
             change: StatValueChange::new(amount * -1., ModType::Offset),
             target: *target,
         });

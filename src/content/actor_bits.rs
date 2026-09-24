@@ -1,7 +1,10 @@
 use crate::{
     assets::images::ImageResources,
     twin_stick::actors::{basic_actor, Legs, Tracking},
-    util::gimmie::{image, GimmieFn},
+    util::{
+        gimmie::{image, GimmieFn},
+        spawning::Spawnable,
+    },
 };
 use bevy::{
     ecs::children,
@@ -10,7 +13,7 @@ use bevy::{
     sprite::Sprite,
 };
 
-pub fn basic_head() -> impl Bundle {
+pub fn basic_head() -> impl Spawnable {
     (
         Sprite {
             custom_size: Vec2::new(40., 40.).into(),
@@ -20,7 +23,7 @@ pub fn basic_head() -> impl Bundle {
     )
 }
 
-pub fn basic_legs() -> impl Bundle {
+pub fn basic_legs() -> impl Spawnable {
     (
         Sprite {
             custom_size: Vec2::new(30., 35.).into(),
@@ -35,7 +38,7 @@ pub fn basic_legs() -> impl Bundle {
 pub fn basic_walker(
     head_tex: impl GimmieFn<Image, ImageResources>,
     leg_tex: impl GimmieFn<Image, ImageResources>,
-) -> impl Bundle {
+) -> impl Spawnable {
     (
         basic_actor(),
         children![

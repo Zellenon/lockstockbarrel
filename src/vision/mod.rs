@@ -5,17 +5,18 @@ use bevy::{
         component::Component,
         entity::Entity,
         query::{Or, With},
-        schedule::SystemSet,
+        schedule::{IntoScheduleConfigs, SystemSet},
         system::{Commands, Query},
     },
     platform::collections::HashSet,
+    prelude::Single,
     reflect::Reflect,
 };
 use display::display_plugin;
 use eyes::eye_plugin;
 use identify::{always_identify_tracked, identify_los, identify_plugin};
 use los::update_los;
-use spotting::{do_los_spotting, remove_expired_spots, spotting_plugin, tick_spotting};
+use spotting::spotting_plugin;
 use tracking::track_plugin;
 
 pub use identify::Identifying;
@@ -99,25 +100,23 @@ pub fn sync_revealed_objects_visible(
 
 pub fn reveal_player_awareness(
     mut commands: Commands,
-    player: Query<(&Tracking, &Spotting, &Identifying), With<Player>>,
+    player: Single<(&Tracking, &Spotting, &Identifying), With<Player>>,
     objects: Query<(Entity, Option<&Revealed>), VisionObjects>,
 ) {
-    if let Ok((tracking, spotting, identify)) = player.get_single() {
-        let should_be_revealed = |e: &Entity| {
-            (tracking.0.contains(e) || spotting.0.contains_key(e))
-                && *identify.0.get(e).unwrap_or(&0.) >= 100.
-        };
-        let (revealed, unrevealed): (Vec<_>, Vec<_>) =
-            objects.iter().partition(|(_, w)| w.is_some());
-        for (e, _) in revealed {
-            if !should_be_revealed(&e) {
-                commands.get_entity(e).unwrap().remove::<Revealed>();
-            }
+    let (tracking, spotting, identify) = *player;
+    let should_be_revealed = |e: &Entity| {
+        (tracking.0.contains(e) || spotting.0.contains_key(e))
+            && *identify.0.get(e).unwrap_or(&0.) >= 100.
+    };
+    let (revealed, unrevealed): (Vec<_>, Vec<_>) = objects.iter().partition(|(_, w)| w.is_some());
+    for (e, _) in revealed {
+        if !should_be_revealed(&e) {
+            commands.get_entity(e).unwrap().remove::<Revealed>();
         }
-        for (e, _) in unrevealed {
-            if should_be_revealed(&e) {
-                commands.get_entity(e).unwrap().insert(Revealed);
-            }
+    }
+    for (e, _) in unrevealed {
+        if should_be_revealed(&e) {
+            commands.get_entity(e).unwrap().insert(Revealed);
         }
     }
 }

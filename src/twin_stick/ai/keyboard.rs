@@ -33,18 +33,16 @@ impl Actionlike for PlayerAction {
 }
 
 pub(crate) fn create_player_action_input_manager_bundle() -> InputMap<PlayerAction> {
-    InputManagerBundle::with_map(
-        InputMap::new([
-            (PlayerAction::Shoot3, KeyCode::Space),
-            (PlayerAction::Shoot4, KeyCode::ShiftLeft),
-        ])
-        .with(PlayerAction::Shoot1, MouseButton::Left)
-        .with(PlayerAction::Shoot2, MouseButton::Right)
-        .with_dual_axis(
-            PlayerAction::Walk,
-            VirtualDPad::new(KeyCode::KeyW, KeyCode::KeyS, KeyCode::KeyA, KeyCode::KeyD),
-        ),
-    )
+    let mut map = InputMap::default();
+    map.insert(PlayerAction::Shoot3, KeyCode::Space);
+    map.insert(PlayerAction::Shoot4, KeyCode::ShiftLeft);
+    map.insert(PlayerAction::Shoot1, MouseButton::Left);
+    map.insert(PlayerAction::Shoot2, MouseButton::Right);
+    map.insert_dual_axis(
+        PlayerAction::Walk,
+        VirtualDPad::new(KeyCode::KeyW, KeyCode::KeyS, KeyCode::KeyA, KeyCode::KeyD),
+    );
+    map
 }
 
 pub(crate) fn keyboard_input_handler(

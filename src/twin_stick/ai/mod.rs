@@ -1,5 +1,5 @@
 use bevy::{
-    bevy_ecs::schedule::IntoScheduleConfigs,
+    ecs::schedule::IntoScheduleConfigs,
     prelude::{App, Plugin, Query, Reflect, Update},
 };
 use keyboard::PlayerAction;

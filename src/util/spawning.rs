@@ -2,11 +2,14 @@ use std::sync::Arc;
 
 use bevy::ecs::{bundle::Bundle, system::EntityCommands};
 
-pub type StoredCommand = Arc<dyn (Fn(&mut EntityCommands)) + Send + Sync>;
+pub trait Spawnable = Bundle + Clone;
+pub type StoredCommand = Arc<dyn Fn(&mut EntityCommands) + Send + Sync>;
 
 pub fn store<T>(bundle: T) -> StoredCommand
 where
-    T: Bundle,
+    T: Bundle + Clone,
 {
-    Arc::new(move |commands: &mut EntityCommands| commands.spawn(bundle))
+    Arc::new(move |commands: &mut EntityCommands| {
+        commands.insert(bundle.clone());
+    })
 }

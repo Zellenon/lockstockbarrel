@@ -1,11 +1,11 @@
 #![feature(trivial_bounds)]
+#![feature(trait_alias)]
 
 use action_system::ActionSystemPlugin;
 use assets::AssetPlugin;
 use bevy::{
     app::App,
     prelude::{default, ClearColor, Color, PluginGroup},
-    time::{Fixed, Time},
     window::{Window, WindowPlugin},
     DefaultPlugins,
 };

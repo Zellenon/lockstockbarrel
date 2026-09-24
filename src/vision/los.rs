@@ -1,9 +1,6 @@
-use bevy::{
-    ecs::{entity::Entity, query::Changed, system::Query},
-    transform::components::Transform,
-};
+use bevy::ecs::{query::Changed, system::Query};
 
-use super::{eyes::Eye, VisionObjects, LOS};
+use super::{eyes::Eye, LOS};
 
 pub fn update_los(mut seers: Query<(&mut LOS, &Eye), Changed<Eye>>) {
     for (mut seer, eye) in seers.iter_mut() {
