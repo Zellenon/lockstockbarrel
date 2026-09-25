@@ -1,4 +1,7 @@
 #![feature(trivial_bounds)]
+#![feature(trait_alias)]
+#![feature(type_alias_impl_trait)]
+#![feature(impl_trait_in_fn_trait_return)]
 
 use action_system::ActionSystemPlugin;
 use assets::AssetPlugin;
