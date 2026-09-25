@@ -1,5 +1,6 @@
 use bevy::{
     app::{App, FixedUpdate},
+    ecs::schedule::IntoScheduleConfigs,
     ecs::{
         component::Component,
         entity::Entity,
@@ -55,7 +56,7 @@ pub fn always_identify_tracked(
 ) {
     for (identifier, tracking) in trackers.iter() {
         for target in tracking.0.iter() {
-            events.send(IdentifyMessage {
+            events.write(IdentifyMessage {
                 identifier,
                 target: *target,
                 power: 100.,
@@ -73,7 +74,7 @@ pub fn identify_los(
     for (e, los, identifying, stat) in seers.iter() {
         for target in los.0.iter() {
             if identifying.0.get(target).unwrap_or(&0.) < &100. {
-                events.send(IdentifyMessage {
+                events.write(IdentifyMessage {
                     identifier: e,
                     target: *target,
                     power: delta * stat.current_value(),
@@ -127,7 +128,7 @@ pub fn do_identify_attacks(
         if let Ok((attack, attack_stat)) = identify_attacks.get(*weapon) {
             if let Ok(_) = vision_objects.get(*defender) {
                 if let Ok(_) = identifiers.get(*attacker) {
-                    spot_messages.send(IdentifyMessage {
+                    spot_messages.write(IdentifyMessage {
                         identifier: *attacker,
                         target: *defender,
                         power: attack_stat.current_value(),

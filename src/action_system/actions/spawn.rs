@@ -41,11 +41,11 @@ impl SpawnAction {
     }
 }
 
-pub fn spawn(bundle: impl Bundle) -> SpawnAction {
+pub fn spawn(bundle: impl Bundle + Clone) -> SpawnAction {
     SpawnAction(vec![store(bundle)])
 }
 
-pub fn spawns<T: Iterator<Item = impl Bundle>>(bundles: T) -> SpawnAction {
+pub fn spawns<T: Iterator<Item = impl Bundle + Clone>>(bundles: T) -> SpawnAction {
     SpawnAction(bundles.map(|w| store(w)).collect())
 }
 

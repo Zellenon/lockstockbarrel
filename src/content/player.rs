@@ -21,7 +21,7 @@ use crate::{
         physics::GamePhysicsLayer as GPL,
         player::{Cursor, Player},
     },
-    util::gimmie::image,
+    util::{gimmie::image, spawning::Spawnable},
     vision::eyes::{Eye, EyeDistance, EyeFOV},
 };
 
@@ -34,8 +34,9 @@ pub fn spawn_player(mut commands: Commands, cursor: Res<Cursor>) {
         .insert(create_player_action_input_manager_bundle());
 }
 
-fn player_tree_base(cursor: &Res<Cursor>) -> impl Bundle {
+fn player_tree_base(cursor: &Res<Cursor>) -> impl Spawnable {
     (
+        basic_actor(),
         Player,
         KeyboardAI,
         Stat::<MoveSpeed>::new(80.),
@@ -53,11 +54,10 @@ fn player_tree_base(cursor: &Res<Cursor>) -> impl Bundle {
             ],
         ),
         Name::new("Player"),
-        basic_actor(),
     )
 }
 
-pub fn player_tree(cursor: &Res<Cursor>) -> impl Bundle {
+pub fn player_tree(cursor: &Res<Cursor>) -> impl Spawnable {
     (
         player_tree_base(cursor),
         basic_head(),

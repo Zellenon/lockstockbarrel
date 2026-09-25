@@ -41,7 +41,7 @@ pub fn give_images(
     requests: Query<&GiveMeImage>,
     mut commands: Commands,
 ) {
-    let entity = trigger.entity();
+    let entity = trigger.event().entity;
     commands
         .get_entity(entity)
         .unwrap()

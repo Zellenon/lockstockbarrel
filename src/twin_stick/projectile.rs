@@ -3,11 +3,16 @@ use avian2d::prelude::{
 };
 use bevy::{
     color::{palettes::css::RED, Color},
-    ecs::{bundle::Bundle, hierarchy::ChildOf, name::Name, schedule::SystemSet, system::ResMut},
+    ecs::{
+        bundle::Bundle,
+        hierarchy::ChildOf,
+        name::Name,
+        schedule::{IntoScheduleConfigs, SystemSet},
+    },
     math::{Vec2Swizzles, Vec3Swizzles},
     prelude::{
-        in_state, App, Commands, Component, Entity, Message, MessageReader, MessageWriter, Query,
-        Reflect, Res, Transform, Update, Vec2, Visibility,
+        in_state, App, Children, Commands, Component, Entity, Message, MessageReader,
+        MessageWriter, Query, Reflect, Res, Transform, Update, Vec2, Visibility,
     },
     sprite::Sprite,
     time::{Time, Timer, TimerMode},
@@ -118,8 +123,8 @@ fn tick_lifetimes(
     for (mut lifespan, entity) in lifespans.iter_mut() {
         lifespan.0.tick(time.delta());
 
-        if lifespan.0.finished() {
-            commands.entity(entity).despawn_recursive();
+        if lifespan.0.is_finished() {
+            commands.entity(entity).despawn_related::<Children>();
         }
     }
 }
@@ -139,16 +144,16 @@ pub fn projectile_collision_message_dispatcher(
         } = collision_message;
         match (projectile_query.get(*e1), projectile_query.get(*e2)) {
             (Ok(_), Ok(_)) => {
-                clash_messages.send(ProjectileClashMessage(*e1, *e2));
+                clash_messages.write(ProjectileClashMessage(*e1, *e2));
             }
             (Ok(_), _) => {
-                projectile_messages.send(ProjectileImpactMessage {
+                projectile_messages.write(ProjectileImpactMessage {
                     projectile: *e1,
                     impacted: *e2,
                 });
             }
             (Err(_), Ok(_)) => {
-                projectile_messages.send(ProjectileImpactMessage {
+                projectile_messages.write(ProjectileImpactMessage {
                     impacted: *e1,
                     projectile: *e2,
                 });
@@ -192,7 +197,7 @@ fn projectile_hits_trigger_attacks(
                 None => (target_pos.translation.xy() - location).normalize(),
             };
             if let (Some(attacker), Some(weapon)) = (attacker, weapon) {
-                attack_messages.send(AttackMessage {
+                attack_messages.write(AttackMessage {
                     attacker,
                     weapon,
                     defender: *impacted,
@@ -220,7 +225,9 @@ fn kill_projectiles_post_impact(
         match proj {
             Ok(projectile) => {
                 if projectile.on_actor == ProjectileImpactBehavior::Die {
-                    commands.entity(*projectile_id).despawn_recursive();
+                    commands
+                        .entity(*projectile_id)
+                        .despawn_related::<Children>();
                 }
             }
             Err(_) => (),

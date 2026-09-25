@@ -5,6 +5,7 @@ use bevy::{
         entity::Entity,
         prelude::{Message, MessageReader, MessageWriter},
         query::{Changed, With},
+        schedule::IntoScheduleConfigs,
         system::{Query, Res},
     },
     platform::collections::{hash_map::Entry, HashMap},
@@ -54,7 +55,7 @@ pub fn do_los_spotting(
 ) {
     for (e, stat, LOS(los)) in spotters.iter() {
         for seen_obj in los.iter() {
-            events.send(StartSpottingMessage {
+            events.write(StartSpottingMessage {
                 spotter: e,
                 target: *seen_obj,
                 spot_time: stat.current_value(),
@@ -68,7 +69,7 @@ pub fn remove_expired_spots(mut query: Query<&mut Spotting>) {
         spots.0 = spots
             .0
             .iter()
-            .filter(|(_e, timer)| !timer.finished())
+            .filter(|(_e, timer)| !timer.is_finished())
             .map(|(e, timer)| (*e, timer.clone()))
             .collect()
     }
@@ -121,7 +122,7 @@ pub fn do_spot_attacks(
         if let Ok((attack, attack_stat)) = spot_attacks.get(*weapon) {
             if let Ok(_) = vision_objects.get(*defender) {
                 if let Ok(_) = spotters.get(*attacker) {
-                    spot_messages.send(StartSpottingMessage {
+                    spot_messages.write(StartSpottingMessage {
                         spotter: *attacker,
                         target: *defender,
                         spot_time: attack_stat.current_value(),

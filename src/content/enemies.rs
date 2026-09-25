@@ -6,6 +6,7 @@ use crate::{
         ai::{tracking::TrackerAI, wander::PerlinWanderAI},
         physics::GamePhysicsLayer as GPL,
     },
+    util::spawning::Spawnable,
 };
 use avian2d::prelude::CollisionLayers;
 use bevy::ecs::{bundle::Bundle, name::Name};
@@ -13,7 +14,7 @@ use bevy_stats::{Resource, Stat};
 
 use super::actor_bits::basic_walker;
 
-pub fn stumbler() -> impl Bundle {
+pub fn stumbler() -> impl Spawnable {
     (
         basic_walker(
             ImageResources::placeholder_head,

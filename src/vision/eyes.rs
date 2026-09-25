@@ -1,4 +1,4 @@
-use avian2d::prelude::{FixedJoint, RayCaster, RayHits, RigidBody, SpatialQueryFilter};
+use avian2d::prelude::{RayCaster, RayHits, SpatialQueryFilter};
 use bevy::{
     app::{App, FixedUpdate, Update},
     ecs::{
@@ -6,6 +6,7 @@ use bevy::{
         entity::Entity,
         hierarchy::Children,
         query::{Changed, Or, With},
+        schedule::IntoScheduleConfigs,
         system::{Commands, Query},
     },
     math::{Dir2, Vec2},

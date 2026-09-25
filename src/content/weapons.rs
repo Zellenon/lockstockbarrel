@@ -26,12 +26,13 @@ use crate::{
         projectile::{projectile, Projectile},
         weapons::{SpreadType, Weapon},
     },
+    util::spawning::Spawnable,
     vision::tracking::TrackAttack,
 };
 
 use super::projectile::{self, basic_bullet, standard_player_bullet_collision};
 
-pub fn peashooter(cursor: &Res<Cursor>) -> impl Bundle {
+pub fn peashooter(cursor: &Res<Cursor>) -> impl Spawnable {
     (
         PlayerActionTrigger::new([PlayerAction::Shoot1]),
         Tracking(Some(cursor.0)),
@@ -56,7 +57,7 @@ pub fn peashooter(cursor: &Res<Cursor>) -> impl Bundle {
     )
 }
 
-pub fn sonar_launcher(cursor: &Res<Cursor>) -> impl Bundle {
+pub fn sonar_launcher(cursor: &Res<Cursor>) -> impl Spawnable {
     (
         PlayerActionTrigger::new([PlayerAction::Shoot3]),
         Tracking(Some(cursor.0)),

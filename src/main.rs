@@ -8,7 +8,6 @@ use assets::AssetPlugin;
 use bevy::{
     app::App,
     prelude::{default, ClearColor, Color, PluginGroup},
-    time::{Fixed, Time},
     window::{Window, WindowPlugin},
     DefaultPlugins,
 };

@@ -2,7 +2,6 @@ use avian2d::prelude::LinearVelocity;
 use bevy::{
     app::App,
     ecs::{
-        bundle::Bundle,
         entity::Entity,
         hierarchy::ChildOf,
         observer::On,
@@ -28,7 +27,7 @@ use crate::{
     },
     util::{
         add_observer_to_component,
-        spawning::{store, StoredCommand},
+        spawning::{store, Spawnable, StoredCommand},
     },
 };
 
@@ -49,13 +48,13 @@ pub struct VelSpawnAction {
 }
 
 impl VelSpawnAction {
-    pub fn new<T: Into<AngleOffset>>(bundle: impl Bundle, angle: T, uses_count: bool) -> Self {
+    pub fn new<T: Into<AngleOffset>>(bundle: impl Spawnable, angle: T, uses_count: bool) -> Self {
         Self {
             payload: vec![(store(bundle), angle.into(), uses_count)],
         }
     }
 
-    pub fn spawns<A: Into<AngleOffset>, T: Iterator<Item = (impl Bundle, A, bool)>>(
+    pub fn spawns<A: Into<AngleOffset>, T: Iterator<Item = (impl Spawnable, A, bool)>>(
         trees: T,
     ) -> Self {
         Self {
@@ -72,18 +71,18 @@ impl VelSpawnAction {
 }
 
 pub fn vel_spawn<T: Into<AngleOffset>>(
-    bundle: impl Bundle,
+    bundle: impl Spawnable,
     angle: T,
     uses_count: bool,
-) -> impl Bundle {
+) -> impl Spawnable {
     VelSpawnAction {
         payload: vec![(store(bundle), angle.into(), uses_count)],
     }
 }
 
-pub fn vel_spawns<A: Into<AngleOffset>, T: Iterator<Item = (impl Bundle, A, bool)>>(
+pub fn vel_spawns<A: Into<AngleOffset>, T: Iterator<Item = (impl Spawnable, A, bool)>>(
     bundles: T,
-) -> impl Bundle {
+) -> impl Spawnable {
     VelSpawnAction::spawns(bundles)
 }
 

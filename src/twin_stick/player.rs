@@ -62,7 +62,7 @@ pub fn update_cursor_tracker(
 ) {
     let camera_transform = transforms.get(cam.0).unwrap().clone();
     let mut cursor_transform = transforms.get_mut(cursor.0).unwrap();
-    let window = windows.single();
+    let window = windows.single().unwrap();
 
     if let Some(_position) = window.cursor_position() {
         let new_cursor_pos = screen_to_world(_position, &camera_transform, window);
