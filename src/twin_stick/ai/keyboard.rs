@@ -32,7 +32,7 @@ impl Actionlike for PlayerAction {
     }
 }
 
-pub(crate) fn create_player_action_input_manager_bundle() -> InputMap<PlayerAction> {
+pub(crate) fn player_input_bundle() -> InputMap<PlayerAction> {
     let mut map = InputMap::default();
     map.insert(PlayerAction::Shoot3, KeyCode::Space);
     map.insert(PlayerAction::Shoot4, KeyCode::ShiftLeft);

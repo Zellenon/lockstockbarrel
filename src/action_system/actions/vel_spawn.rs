@@ -2,6 +2,7 @@ use avian2d::prelude::LinearVelocity;
 use bevy::{
     app::App,
     ecs::{
+        bundle::Bundle,
         entity::Entity,
         hierarchy::ChildOf,
         observer::On,
@@ -27,7 +28,7 @@ use crate::{
     },
     util::{
         add_observer_to_component,
-        spawning::{store, Spawnable, StoredCommand},
+        spawning::{store, SpawnCommand, StoredCommand},
     },
 };
 
@@ -42,23 +43,23 @@ impl AngleOffset {
     }
 }
 
-#[derive(Component, Clone)]
+#[derive(Component)]
 pub struct VelSpawnAction {
-    pub payload: Vec<(StoredCommand, AngleOffset, bool)>,
+    pub payload: Vec<(SpawnCommand, AngleOffset, bool)>,
 }
 
 impl VelSpawnAction {
-    pub fn new<T: Into<AngleOffset>>(bundle: impl Spawnable, angle: T, uses_count: bool) -> Self {
+    pub fn new<T: Into<AngleOffset>>(bundle: SpawnCommand, angle: T, uses_count: bool) -> Self {
         Self {
-            payload: vec![(store(bundle), angle.into(), uses_count)],
+            payload: vec![(bundle, angle.into(), uses_count)],
         }
     }
 
-    pub fn spawns<A: Into<AngleOffset>, T: Iterator<Item = (impl Spawnable, A, bool)>>(
+    pub fn spawns<A: Into<AngleOffset>, T: Iterator<Item = (SpawnCommand, A, bool)>>(
         trees: T,
     ) -> Self {
         Self {
-            payload: trees.map(|w| (store(w.0), w.1.into(), w.2)).collect(),
+            payload: trees.map(|w| (w.0, w.1.into(), w.2)).collect(),
         }
     }
 
@@ -71,18 +72,18 @@ impl VelSpawnAction {
 }
 
 pub fn vel_spawn<T: Into<AngleOffset>>(
-    bundle: impl Spawnable,
+    bundle: SpawnCommand,
     angle: T,
     uses_count: bool,
-) -> impl Spawnable {
+) -> impl Bundle {
     VelSpawnAction {
-        payload: vec![(store(bundle), angle.into(), uses_count)],
+        payload: vec![(bundle, angle.into(), uses_count)],
     }
 }
 
-pub fn vel_spawns<A: Into<AngleOffset>, T: Iterator<Item = (impl Spawnable, A, bool)>>(
+pub fn vel_spawns<A: Into<AngleOffset>, T: Iterator<Item = (SpawnCommand, A, bool)>>(
     bundles: T,
-) -> impl Spawnable {
+) -> impl Bundle {
     VelSpawnAction::spawns(bundles)
 }
 
@@ -139,28 +140,27 @@ pub fn do_vel_spawn_action(
             };
             for i in 0..count {
                 // If there's a first ancestor with Weapon/Actor
-                payload({
-                    let new_entity = &mut commands.spawn((
-                        spawned_transform,
-                        LinearVelocity(
-                            Vec2::from_angle(
-                                rotation.to_2d()
-                                    + angle_offset.0.to_angle()
-                                    + f32::consts::FRAC_PI_2
-                                    + spawn_angles.get(i).unwrap(),
-                            ) * speed.map(|w| w.current_value()).unwrap_or(10.0),
-                        ),
-                    ));
-                    if let Some(attacker) = std::iter::once(e)
-                        .chain(parents.iter_ancestors(e))
-                        .filter(|w| attackers.get(*w).is_ok())
-                        .next()
-                    {
-                        new_entity.insert(SpawnedBy(attacker));
-                    } else {
-                    }
-                    new_entity
-                });
+
+                let new_entity = &mut commands.spawn((
+                    spawned_transform,
+                    LinearVelocity(
+                        Vec2::from_angle(
+                            rotation.to_2d()
+                                + angle_offset.0.to_angle()
+                                + f32::consts::FRAC_PI_2
+                                + spawn_angles.get(i).unwrap(),
+                        ) * speed.map(|w| w.current_value()).unwrap_or(10.0),
+                    ),
+                ));
+                if let Some(attacker) = std::iter::once(e)
+                    .chain(parents.iter_ancestors(e))
+                    .filter(|w| attackers.get(*w).is_ok())
+                    .next()
+                {
+                    new_entity.insert(SpawnedBy(attacker));
+                } else {
+                }
+                payload.run(new_entity);
             }
         }
     }

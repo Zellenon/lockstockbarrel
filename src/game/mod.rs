@@ -14,6 +14,7 @@ use crate::{
     arena::{spawn_arena_from_map, to_map, Arena},
     content::{enemies::stumbler, player::spawn_player},
     twin_stick::{actors::PLAYER_FACTION, player::player_exists, utils::pos},
+    util::spawning::store,
 };
 
 pub mod stats;
@@ -51,7 +52,7 @@ fn test_load_level(mut commands: Commands) {
         spawn_prox(
             1 << PLAYER_FACTION,
             200.,
-            (spawn_delay(1.0, stumbler()), TelegraphedAction),
+            store(|| (spawn_delay(1.0, store(stumbler).into()), TelegraphedAction)).into(),
         ),
         TelegraphedAction,
     ));
@@ -61,10 +62,16 @@ fn test_load_level(mut commands: Commands) {
         spawn_prox(
             1 << PLAYER_FACTION,
             200.,
-            (
-                spawn_delay(1.0, (stumbler(), Stat::<MoveSpeed>::new(0.1))),
-                TelegraphedAction,
-            ),
+            store(|| {
+                (
+                    spawn_delay(
+                        1.0,
+                        store(|| (stumbler(), Stat::<MoveSpeed>::new(0.1))).into(),
+                    ),
+                    TelegraphedAction,
+                )
+            })
+            .into(),
         ),
         TelegraphedAction,
     ));

@@ -25,6 +25,28 @@ use crate::{
 };
 
 #[derive(Clone, Copy, PartialEq, Reflect, Debug, Component)]
+#[require(
+    RigidBody::Dynamic,
+    CollisionLayers::new(GPL::Enemy, [
+        GPL::Player,
+        GPL::Enemy,
+        GPL::MapDynamic,
+        GPL::MapSolid,
+        GPL::Bullet,
+    ]),
+    Mass(10.),
+    LinearDamping(3.),
+    Collider::circle(15.),
+    LockedAxes::ROTATION_LOCKED,
+    Stat::<MoveSpeed>::new(15.),
+    Resource::<Health>::new(5.),
+    Name::new("Actor"),
+    Transform::default(),
+    Visibility::Hidden,
+    vision::Tracking::default(),
+    Spotting::default(),
+    Identifying::default(),
+    )]
 pub struct Actor {
     pub desired_direction: Vec2,
     pub desired_target: Option<Entity>,
@@ -38,6 +60,21 @@ pub const PLAYER_FACTION: usize = 1;
 pub const MISC_ENEMY_FACTION: usize = 2;
 // Should universal neutral just be no faction component?
 
+#[derive(Clone, Copy, PartialEq, Eq, Reflect, Debug, Component)]
+pub struct Tracking(pub Option<Entity>);
+
+#[derive(Clone, Copy, PartialEq, Eq, Reflect, Debug, Component)]
+#[require(Tracking(None), Transform::from_xyz(0., 0., 1.))]
+pub struct Head;
+
+#[derive(Clone, Copy, PartialEq, Reflect, Debug, Component)]
+#[require(Tracking(None), Transform::from_xyz(0., 0., -1.)) ]
+pub struct Legs {
+    pub animation_stage: f32,
+    pub stroke: isize,
+    pub max_scale: f32,
+}
+
 impl Default for Actor {
     fn default() -> Self {
         Self {
@@ -48,45 +85,7 @@ impl Default for Actor {
 }
 
 pub fn basic_actor() -> impl Bundle {
-    (
-        (
-            Visibility::Hidden,
-            InheritedVisibility::default(),
-            vision::Tracking::default(),
-            Spotting::default(),
-            Identifying::default(),
-            Transform::default(),
-        ),
-        (
-            Actor::default(),
-            RigidBody::Dynamic,
-            Mass(10.0),
-            LinearDamping(3.),
-            Collider::circle(15.),
-            LockedAxes::ROTATION_LOCKED,
-            Stat::<MoveSpeed>::new(50.),
-            Resource::<Health>::new(5.),
-            CollisionLayers::new(
-                GPL::Enemy,
-                [GPL::Enemy, GPL::Player, GPL::MapSolid, GPL::MapDynamic],
-            ),
-        ),
-        (LOS::default()),
-        Name::new("actor"),
-    )
-}
-
-#[derive(Clone, Copy, PartialEq, Eq, Reflect, Debug, Component)]
-pub struct Tracking(pub Option<Entity>);
-
-#[derive(Clone, Copy, PartialEq, Eq, Reflect, Debug, Component)]
-pub struct Head;
-
-#[derive(Clone, Copy, PartialEq, Reflect, Debug, Component)]
-pub struct Legs {
-    pub animation_stage: f32,
-    pub stroke: isize,
-    pub max_scale: f32,
+    ((Actor::default(),), (LOS::default()))
 }
 
 impl Default for Legs {

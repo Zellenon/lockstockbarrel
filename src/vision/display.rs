@@ -53,9 +53,10 @@ pub fn display_spotting(
     vis_obj: Query<&Transform, VisionObjects>,
 ) {
     let mut rng = rand::rng();
-    let pos_offset = Vec2::new(rng.f32_normalized(), rng.f32_normalized()) * 0.5;
-    let size_offset = rng.sample::<f32, _>(rand::distr::StandardUniform) * 0.5 - 0.25;
-    let alpha = rng.sample::<f32, _>(rand::distr::StandardUniform) * 0.7 + 0.3;
+    let mut f32_normalized = || rng.sample::<f32, _>(rand::distr::StandardUniform) * 0.5 - 0.25;
+    let pos_offset = Vec2::new(f32_normalized(), f32_normalized());
+    let size_offset = f32_normalized();
+    let alpha = f32_normalized() * 0.5 + 0.5;
     let (e, Spotting(spots), Identifying(identities)) = *player;
     for seen in spots
         .iter()

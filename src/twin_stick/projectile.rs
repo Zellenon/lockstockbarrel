@@ -30,6 +30,15 @@ pub struct ProjectileSystems;
 pub struct Lifespan(Timer);
 
 #[derive(Component, Clone, Copy, PartialEq, Eq, Reflect, Debug)]
+#[require(
+    Name::new("Projectile"),
+    Visibility::Visible,
+    Collider::circle(3.),
+    Sensor,
+    Mass(0.1),
+    SweptCcd::default(),
+    RigidBody::Dynamic
+)]
 pub struct Projectile {
     pub on_prop: ProjectileImpactBehavior,
     pub on_actor: ProjectileImpactBehavior,
@@ -78,19 +87,12 @@ pub fn projectile_plugin(app: &mut App) {
 pub fn projectile(lifespan: f32, projectile: Projectile) -> impl Bundle {
     (
         projectile,
-        Visibility::Visible,
-        RigidBody::Dynamic,
         Lifespan::new(lifespan),
-        Collider::circle(3.),
-        Sensor,
-        SweptCcd::default(),
-        Mass(0.1),
         Sprite {
             color: Color::Srgba(RED),
             custom_size: Some(Vec2::new(6., 6.)),
             ..default()
         },
-        Name::new("Projectile"),
     )
 }
 

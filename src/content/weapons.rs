@@ -26,59 +26,51 @@ use crate::{
         projectile::{projectile, Projectile},
         weapons::{SpreadType, Weapon},
     },
-    util::spawning::Spawnable,
-    vision::tracking::TrackAttack,
+    util::spawning::{store, SpawnCommand},
 };
 
 use super::projectile::{self, basic_bullet, standard_player_bullet_collision};
 
-pub fn peashooter(cursor: &Res<Cursor>) -> impl Spawnable {
+pub fn peashooter(cursor: &Res<Cursor>) -> impl Bundle {
     (
-        PlayerActionTrigger::new([PlayerAction::Shoot1]),
-        Tracking(Some(cursor.0)),
-        Transform::default(),
         Name::new("Peashooter"),
-        children![(
-            Name::new("Barrel"),
-            Actuator::new(ActuatorFireStyle::SemiAuto(false), 1.3),
-            Stat::<ProjectileSpeed>::new(200.),
-            Stat::<Damage>::new(2.),
-            Stat::<Knockback>::new(30.),
-            Stat::<ShotCount>::new(1.),
-            Transform::from_xyz(0., 20., 0.),
-            ChildOfTrigger,
-            Weapon::default(),
-            vel_spawn(
-                (basic_bullet(), standard_player_bullet_collision()),
-                0.,
-                true,
-            )
-        )],
+        Actuator::new(ActuatorFireStyle::SemiAuto(false), 1.3),
+        Stat::<ProjectileSpeed>::new(200.),
+        Stat::<Damage>::new(2.),
+        Stat::<Knockback>::new(30.),
+        Stat::<ShotCount>::new(1.),
+        Transform::from_xyz(0., 20., 0.),
+        ChildOfTrigger,
+        Weapon,
+        vel_spawn(
+            SpawnCommand(vec![
+                store(basic_bullet),
+                store(standard_player_bullet_collision),
+            ]),
+            0.,
+            true,
+        ),
     )
 }
 
-pub fn sonar_launcher(cursor: &Res<Cursor>) -> impl Spawnable {
+pub fn sonar_launcher(cursor: &Res<Cursor>) -> impl Bundle {
     (
-        PlayerActionTrigger::new([PlayerAction::Shoot3]),
-        Tracking(Some(cursor.0)),
+        Name::new("Barrel"),
+        Actuator::new(ActuatorFireStyle::SemiAuto(false), 1.3),
+        Stat::<ProjectileSpeed>::new(20.),
+        Stat::<IdentifyPower>::new(27.0),
+        Stat::<SpotTime>::new(5.0),
+        Stat::<ShotCount>::new(5.),
+        Stat::<Accuracy>::new(50.),
+        SpreadType::Spaced,
         Transform::default(),
-        Name::new("Sonar"),
-        children![(
-            Name::new("Barrel"),
-            Actuator::new(ActuatorFireStyle::SemiAuto(false), 1.3),
-            Stat::<ProjectileSpeed>::new(20.),
-            Stat::<IdentifyPower>::new(27.0),
-            Stat::<SpotTime>::new(5.0),
-            Stat::<ShotCount>::new(5.),
-            Stat::<Accuracy>::new(50.),
-            SpreadType::Spaced,
-            Transform::default(),
-            ChildOfTrigger,
-            Weapon::default(),
-            vel_spawn(
-                (
-                    projectile(5., Projectile::default()),
-                    standard_player_bullet_collision(),
+        ChildOfTrigger,
+        Weapon::default(),
+        vel_spawn(
+            SpawnCommand(vec![
+                store(|| projectile(5., Projectile::default())),
+                store(standard_player_bullet_collision),
+                store(|| {
                     (
                         Collider::circle(20.),
                         Sprite {
@@ -87,10 +79,10 @@ pub fn sonar_launcher(cursor: &Res<Cursor>) -> impl Spawnable {
                             ..default()
                         },
                     )
-                ),
-                0.,
-                true
-            )
-        )],
+                }),
+            ]),
+            0.,
+            true,
+        ),
     )
 }

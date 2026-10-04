@@ -39,7 +39,7 @@ pub fn eye_plugin(app: &mut App) {
     app.register_type::<Eye>()
         .register_type::<EyeRay>()
         .register_type::<RayHits>();
-    app.add_systems(FixedUpdate, (update_eye_targets).in_set(VisionSystems::LoS));
+    app.add_systems(Update, (update_eye_targets).in_set(VisionSystems::LoS));
     app.add_systems(Update, (update_eye_children).in_set(VisionSystems::LoS));
 }
 

@@ -17,12 +17,12 @@ use crate::{
     twin_stick::{actors::Actor, weapons::Weapon},
     util::{
         add_observer_to_component,
-        spawning::{store, StoredCommand},
+        spawning::{store, SpawnCommand, StoredCommand},
     },
 };
 
-#[derive(Component, Clone)]
-pub struct SpawnAction(pub Vec<StoredCommand>);
+#[derive(Component)]
+pub struct SpawnAction(pub Vec<SpawnCommand>);
 
 #[derive(Component, Clone, Debug)]
 #[relationship_target(relationship = SpawnedBy)]
@@ -41,12 +41,12 @@ impl SpawnAction {
     }
 }
 
-pub fn spawn(bundle: impl Bundle + Clone) -> SpawnAction {
-    SpawnAction(vec![store(bundle)])
+pub fn spawn(bundle: SpawnCommand) -> SpawnAction {
+    SpawnAction(vec![bundle])
 }
 
-pub fn spawns<T: Iterator<Item = impl Bundle + Clone>>(bundles: T) -> SpawnAction {
-    SpawnAction(bundles.map(|w| store(w)).collect())
+pub fn spawns<T: Iterator<Item = SpawnCommand>>(bundles: T) -> SpawnAction {
+    SpawnAction(bundles.collect())
 }
 
 pub fn do_spawn_action(
@@ -70,9 +70,9 @@ pub fn do_spawn_action(
                 .next()
             // If there's a first ancestor with Weapon/Actor
             {
-                payload(&mut commands.spawn((spawned_transform, SpawnedBy(attacker))));
+                payload.run(&mut commands.spawn((spawned_transform, SpawnedBy(attacker))));
             } else {
-                payload(&mut commands.spawn((spawned_transform, SpawnedBy(e))));
+                payload.run(&mut commands.spawn((spawned_transform, SpawnedBy(e))));
             }
         }
     }

@@ -6,7 +6,6 @@ use crate::{
         ai::{tracking::TrackerAI, wander::PerlinWanderAI},
         physics::GamePhysicsLayer as GPL,
     },
-    util::spawning::Spawnable,
 };
 use avian2d::prelude::CollisionLayers;
 use bevy::ecs::{bundle::Bundle, name::Name};
@@ -14,7 +13,7 @@ use bevy_stats::{Resource, Stat};
 
 use super::actor_bits::basic_walker;
 
-pub fn stumbler() -> impl Spawnable {
+pub fn stumbler() -> impl Bundle {
     (
         basic_walker(
             ImageResources::placeholder_head,
@@ -22,16 +21,6 @@ pub fn stumbler() -> impl Spawnable {
         ),
         (
             Faction(MISC_ENEMY_FACTION),
-            CollisionLayers::new(
-                GPL::Enemy,
-                [
-                    GPL::Player,
-                    GPL::Enemy,
-                    GPL::MapDynamic,
-                    GPL::MapSolid,
-                    GPL::Bullet,
-                ],
-            ),
             Resource::<Health>::new(3.),
             Stat::<Damage>::new(2.),
             TrackerAI { precision: 0.8 },
