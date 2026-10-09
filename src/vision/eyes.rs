@@ -78,7 +78,7 @@ pub fn update_eye_children(
             for i in angles {
                 w.spawn((
                     EyeRay,
-                    RayCaster::new(Vec2::ZERO, Dir2::from_xy_unchecked(i.cos(), i.sin()))
+                    RayCaster::new(Vec2::Y, Dir2::from_xy(i.cos(), i.sin()).unwrap())
                         .with_max_distance(distance.current_value())
                         .with_query_filter(SpatialQueryFilter::from_mask([
                             GPL::Enemy,
