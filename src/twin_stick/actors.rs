@@ -137,7 +137,7 @@ pub fn facing_update_system(
             },
         }
         .xy()
-        .normalize();
+        .normalize_or(Vec2::Y);
         let transform = &mut transforms.get_mut(entity).unwrap().3;
         println!("{:?}", direction);
         transform.rotation = Quat::from_rotation_arc(Vec3::Y, direction.extend(0.));
