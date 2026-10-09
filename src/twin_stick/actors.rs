@@ -9,8 +9,8 @@ use bevy::{
     },
     math::{Quat, Vec3, Vec3Swizzles},
     prelude::{
-        in_state, App, Changed, Children, Commands, Component, Entity, GlobalTransform,
-        InheritedVisibility, Query, Transform, Update, Vec2, Visibility, With, Without,
+        in_state, App, Changed, Children, Commands, Component, Entity, GlobalTransform, Query,
+        Transform, Update, Vec2, Visibility, With, Without,
     },
     reflect::Reflect,
 };
@@ -64,11 +64,11 @@ pub const MISC_ENEMY_FACTION: usize = 2;
 pub struct Tracking(pub Option<Entity>);
 
 #[derive(Clone, Copy, PartialEq, Eq, Reflect, Debug, Component)]
-#[require(Tracking(None), Transform::from_xyz(0., 0., 1.))]
+#[require(Tracking(None), Transform::from_xyz(0., 0., 0.))]
 pub struct Head;
 
 #[derive(Clone, Copy, PartialEq, Reflect, Debug, Component)]
-#[require(Tracking(None), Transform::from_xyz(0., 0., -1.)) ]
+#[require(Tracking(None), Transform::from_xyz(0., 0., 1.))]
 pub struct Legs {
     pub animation_stage: f32,
     pub stroke: isize,
