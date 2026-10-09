@@ -43,7 +43,7 @@ pub fn eye_plugin(app: &mut App) {
     app.add_systems(Update, (update_eye_children).in_set(VisionSystems::LoS));
 }
 
-const MAX_SIGHT_GAP: f32 = 0.5;
+const MAX_SIGHT_GAP: f32 = 1.5;
 pub fn update_eye_children(
     eyes: Query<
         (Entity, Option<&Children>, &Stat<EyeFOV>, &Stat<EyeDistance>),
@@ -63,7 +63,6 @@ pub fn update_eye_children(
             }
         }
         let fov = fov.current_value();
-        // *5 = * 10. / 2.
         let cone_width = 2. * (fov / 20.).sin() * distance.current_value();
         let n_rays_needed = (cone_width / MAX_SIGHT_GAP) as usize;
 
@@ -72,7 +71,7 @@ pub fn update_eye_children(
             .map(|w| (w as f32 + 0.5) * increment - (fov / 2.) + f32::consts::FRAC_PI_2)
             .collect();
         println!(
-            "{:?}, {:?}, {:?}, {:?}, ",
+            "Eye fov {:?}, conewidth {:?}, {:?} rays needed, angles: {:?}, ",
             fov, cone_width, n_rays_needed, angles
         );
         commands.entity(e).with_children(|w| {
