@@ -126,20 +126,21 @@ pub fn facing_update_system(
         let entity = entity.clone();
         let target = transforms.get(entity).unwrap().1.unwrap().0;
         let direction: Vec2 = match target {
-            Some(target_entity) => (transforms.get(target_entity).unwrap().0.translation()
-                - transforms.get(entity).unwrap().0.translation())
-            .xy(),
+            Some(target_entity) => {
+                transforms.get(target_entity).unwrap().0.translation()
+                    - transforms.get(entity).unwrap().0.translation()
+            }
+
             None => match parents.get(transforms.get(entity).unwrap().4.unwrap().get()) {
-                Ok(parent_vel) => parent_vel.0,
-                Err(_) => Vec2::X,
+                Ok(parent_vel) => parent_vel.0.extend(0.),
+                Err(_) => Vec3::X,
             },
-        };
+        }
+        .xy()
+        .normalize();
         let transform = &mut transforms.get_mut(entity).unwrap().3;
-        transform.rotation = Quat::from_2d(
-            -2. * (direction.x
-                / (direction.y + (direction.y.powi(2) + direction.x.powi(2)).sqrt()))
-            .atan(),
-        );
+        println!("{:?}", direction);
+        transform.rotation = Quat::from_rotation_arc(Vec3::Y, direction.extend(0.));
     }
 }
 
