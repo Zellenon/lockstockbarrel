@@ -60,7 +60,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     app.add_plugins(UtilPlugin);
     app.add_plugins(VisionPlugin);
 
-    app.insert_resource(ClearColor(Color::srgb(0.0, 0.0, 0.0)));
+    app.insert_resource(ClearColor(Color::srgb(0.3, 0.3, 0.3)));
     app.run();
 
     Ok(())
